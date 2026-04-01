@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umletino" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPlantUML</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>1400</w>
+      <h>900</h>
+    </coordinates>
+    <panel_attributes>@startuml V2_SeqDetailCPU
+
+skinparam sequenceMessageAlign center
+skinparam sequence {
+  ArrowColor #2E75B6
+  LifeLineBorderColor #2E75B6
+  ParticipantBackgroundColor #EEF4FB
+  ParticipantBorderColor #2E75B6
+}
+
+participant &quot;Main&quot; as MAIN
+participant &quot;CPU&quot; as CPU
+participant &quot;Memory&quot; as MEM
+participant &quot;RegisterFile&quot; as REG
+participant &quot;ALU&quot; as ALU
+
+title Séquence détaillée — Cycle CPU (instruction ADD r2, r0, r1)
+
+MAIN -&gt; CPU : run()
+activate CPU
+
+== FETCH ==
+CPU -&gt; MEM : read(pc++)
+MEM --&gt; CPU : 4  [opcode ADD]
+
+== DECODE ==
+note over CPU : Opcode.fromCode(4) → Opcode.ADD
+
+== EXECUTE — lecture des paramètres ==
+CPU -&gt; MEM : read(pc++) → 2  [registre dest : r2]
+CPU -&gt; MEM : read(pc++) → 0  [registre src1 : r0]
+CPU -&gt; MEM : read(pc++) → 1  [registre src2 : r1]
+
+== EXECUTE — calcul ==
+CPU -&gt; REG : get(0)
+REG --&gt; CPU : val_r0 = 5
+
+CPU -&gt; REG : get(1)
+REG --&gt; CPU : val_r1 = 6
+
+CPU -&gt; ALU : add(5, 6)
+ALU --&gt; CPU : résultat = 11
+
+CPU -&gt; REG : set(2, 11)
+
+note over CPU : PC pointe maintenant sur\nl'instruction suivante → nouveau cycle
+
+CPU --&gt; MAIN : (continue ou s'arrête sur BREAK)
+deactivate CPU
+
+@enduml</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umletino" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPlantUML</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>1400</w>
+      <h>900</h>
+    </coordinates>
+    <panel_attributes>@startuml V2_CasUtilisation
+
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #EEF4FB
+  BorderColor #2E75B6
+  ArrowColor #2E75B6
+}
+skinparam package {
+  BorderColor #1F4E79
+  BackgroundColor #F7FBFF
+}
+
+left to right direction
+
+actor &quot;Utilisateur&quot; as U
+
+rectangle &quot;Simulateur CPU — Carré Petit Utile&quot; {
+
+  package &quot;Assemblage&quot; {
+    usecase &quot;Écrire un programme\nassembleur&quot; as UC1
+    usecase &quot;Assembler le programme\n(traduit en codes numériques)&quot; as UC2
+    usecase &quot;Charger le programme\nen mémoire&quot; as UC3
+  }
+
+  package &quot;Exécution CPU&quot; {
+    usecase &quot;Lancer l'exécution&quot; as UC4
+    usecase &quot;Exécuter LOAD / STORE&quot; as UC5
+    usecase &quot;Exécuter opérations ALU\n(ADD, SUB, MUL, DIV, OR, AND, XOR)&quot; as UC6
+    usecase &quot;Exécuter sauts\n(JUMP, BEQ, BNE)&quot; as UC7
+    usecase &quot;Arrêter le CPU (BREAK)&quot; as UC8
+  }
+
+  package &quot;Consultation&quot; {
+    usecase &quot;Consulter les registres&quot; as UC9
+    usecase &quot;Consulter la mémoire&quot; as UC10
+  }
+
+}
+
+U --&gt; UC1
+UC1 ..&gt; UC2 : &lt;&lt;include&gt;&gt;
+UC2 ..&gt; UC3 : &lt;&lt;include&gt;&gt;
+U --&gt; UC4
+UC4 ..&gt; UC5 : &lt;&lt;extend&gt;&gt;
+UC4 ..&gt; UC6 : &lt;&lt;extend&gt;&gt;
+UC4 ..&gt; UC7 : &lt;&lt;extend&gt;&gt;
+UC4 ..&gt; UC8 : &lt;&lt;include&gt;&gt;
+U --&gt; UC9
+U --&gt; UC10
+
+@enduml</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

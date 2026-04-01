@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umletino" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPlantUML</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>1400</w>
+      <h>900</h>
+    </coordinates>
+    <panel_attributes>@startuml V2_DiagrammeEtats
+
+skinparam state {
+  BackgroundColor #EEF4FB
+  BorderColor #2E75B6
+  ArrowColor #2E75B6
+  FontSize 12
+}
+
+[*] --&gt; Initialisé : new CPU(memory, registers, alu)\nPC = 0, running = false
+
+Initialisé --&gt; PrêtÀExécuter : assembler.assemble(programme)\nprogramme chargé en mémoire
+
+PrêtÀExécuter --&gt; EnExécution : cpu.run()
+
+state EnExécution {
+  [*] --&gt; Fetch
+  Fetch --&gt; Decode : opcode lu, PC++
+  Decode --&gt; Execute : Opcode reconnu
+  Execute --&gt; Fetch : instruction terminée\n(pas BREAK)
+  Decode --&gt; [*] : opcode inconnu\n→ InvalidOpcodeException
+  Execute --&gt; [*] : accès hors borne\n→ MemoryOutOfBoundsException
+}
+
+EnExécution --&gt; Terminé : instruction BREAK rencontrée
+EnExécution --&gt; ErreurRuntime : exception non gérée
+
+Terminé --&gt; PrêtÀExécuter : cpu.reset()\nPC = 0
+
+ErreurRuntime : Exception levée\nexécution interrompue
+
+Terminé --&gt; [*]
+
+@enduml</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

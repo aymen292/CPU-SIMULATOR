@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umletino" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPlantUML</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>1400</w>
+      <h>900</h>
+    </coordinates>
+    <panel_attributes>@startuml V2_SeqDetailAssembler
+
+skinparam sequenceMessageAlign center
+skinparam sequence {
+  ArrowColor #1F4E79
+  LifeLineBorderColor #1F4E79
+  ParticipantBackgroundColor #F7FBFF
+  ParticipantBorderColor #1F4E79
+}
+
+participant &quot;Main&quot; as MAIN
+participant &quot;Assembler&quot; as ASM
+participant &quot;Memory&quot; as MEM
+
+title Séquence détaillée — Assembleur (&quot;load r2, @100&quot; puis &quot;break&quot;)
+
+MAIN -&gt; ASM : assemble(&quot;load r2, @100\nbreak&quot;)
+activate ASM
+
+== Ligne 1 : &quot;load r2, @100&quot; ==
+ASM -&gt; ASM : parseLine() → mnémonique=&quot;load&quot;, args=[&quot;r2&quot;, &quot;@100&quot;]
+note right of ASM : &quot;@100&quot; commence par &quot;@&quot;\n→ mode mémoire → LOAD_MEM (opcode 2)
+ASM -&gt; ASM : parseRegister(&quot;r2&quot;) → 2
+ASM -&gt; ASM : parseValue(&quot;100&quot;) → 100 = 0x0064
+
+ASM -&gt; MEM : write(ptr=0, opcode=2)
+ASM -&gt; MEM : write(ptr=1, reg=2)
+ASM -&gt; MEM : write(ptr=2, addrHigh=0x00)
+ASM -&gt; MEM : write(ptr=3, addrLow=0x64)
+note right of ASM : writePointer = 4
+
+== Ligne 2 : &quot;break&quot; ==
+ASM -&gt; ASM : parseLine() → mnémonique=&quot;break&quot;
+ASM -&gt; MEM : write(ptr=4, opcode=0)
+note right of ASM : writePointer = 5
+
+ASM --&gt; MAIN : assemblage OK (5 octets écrits)
+deactivate ASM
+
+@enduml</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

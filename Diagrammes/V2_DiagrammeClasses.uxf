@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umletino" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPlantUML</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>1400</w>
+      <h>900</h>
+    </coordinates>
+    <panel_attributes>@startuml V2_DiagrammeClasses
+
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #EEF4FB
+  BorderColor #2E75B6
+  ArrowColor #2E75B6
+  FontSize 12
+}
+skinparam package {
+  BackgroundColor #F7FBFF
+  BorderColor #1F4E79
+  FontStyle bold
+}
+
+package &quot;instruction&quot; {
+  enum Opcode {
+    BREAK = 0
+    LOAD_CONST = 1
+    LOAD_MEM = 2
+    STORE = 3
+    ADD = 4
+    SUB = 5
+    MUL = 6
+    DIV = 7
+    OR = 8
+    AND = 9
+    XOR = 10
+    JUMP = 11
+    BEQ = 12
+    BNE = 13
+    LOAD_IDX = 14
+    STORE_IDX = 15
+    --
+    - code : int
+    --
+    + getCode() : int
+    + {static} fromCode(code : int) : Opcode
+  }
+}
+
+package &quot;exception&quot; {
+  class InvalidOpcodeException {
+    + InvalidOpcodeException(code : int)
+  }
+  class MemoryOutOfBoundsException {
+    + MemoryOutOfBoundsException(address : int)
+  }
+  class RegisterOutOfBoundsException {
+    + RegisterOutOfBoundsException(index : int)
+  }
+  InvalidOpcodeException --|&gt; RuntimeException
+  MemoryOutOfBoundsException --|&gt; RuntimeException
+  RegisterOutOfBoundsException --|&gt; RuntimeException
+}
+
+package &quot;core&quot; {
+  class Memory {
+    - {static} SIZE : int = 65536
+    - data : byte[]
+    --
+    + read(address : int) : byte
+    + write(address : int, value : byte) : void
+    + readWord(address : int) : int
+    + writeWord(address : int, value : int) : void
+  }
+
+  class RegisterFile {
+    - {static} COUNT : int = 16
+    - registers : byte[]
+    --
+    + get(index : int) : byte
+    + set(index : int, value : byte) : void
+    + reset() : void
+  }
+
+  class ALU {
+    + add(a : byte, b : byte) : byte
+    + sub(a : byte, b : byte) : byte
+    + mul(a : byte, b : byte) : int
+    + div(a : byte, b : byte) : int[]
+    + or(a : byte, b : byte) : byte
+    + and(a : byte, b : byte) : byte
+    + xor(a : byte, b : byte) : byte
+  }
+
+  class CPU {
+    - pc : int
+    - running : boolean
+    --
+    + CPU(memory : Memory, registers : RegisterFile, alu : ALU)
+    + run() : void
+    + reset() : void
+    + getPC() : int
+    - fetch() : int
+    - decode(code : int) : Opcode
+    - execute(opcode : Opcode) : void
+  }
+}
+
+package &quot;assembler&quot; {
+  class Assembler {
+    - writePointer : int
+    --
+    + Assembler(memory : Memory)
+    + assemble(program : String) : void
+    - assembleLine(line : String) : void
+    - parseRegister(token : String) : byte
+    - parseValue(token : String) : int
+    - emitByte(value : byte) : void
+    - emitWord(value : int) : void
+  }
+}
+
+package &quot;app&quot; {
+  class Main {
+    + {static} main(args : String[]) : void
+  }
+}
+
+CPU &quot;1&quot; o--&gt; &quot;1&quot; Memory
+CPU &quot;1&quot; o--&gt; &quot;1&quot; RegisterFile
+CPU &quot;1&quot; o--&gt; &quot;1&quot; ALU
+CPU ..&gt; Opcode : décode
+CPU ..&gt; InvalidOpcodeException : &lt;&lt;throws&gt;&gt;
+Memory ..&gt; MemoryOutOfBoundsException : &lt;&lt;throws&gt;&gt;
+RegisterFile ..&gt; RegisterOutOfBoundsException : &lt;&lt;throws&gt;&gt;
+Assembler &quot;1&quot; o--&gt; &quot;1&quot; Memory
+Assembler ..&gt; Opcode : traduit vers
+Main ..&gt; CPU : instancie
+Main ..&gt; Memory : instancie
+Main ..&gt; RegisterFile : instancie
+Main ..&gt; ALU : instancie
+Main ..&gt; Assembler : instancie
+
+@enduml</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

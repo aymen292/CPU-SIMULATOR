@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umletino" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPlantUML</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>1400</w>
+      <h>900</h>
+    </coordinates>
+    <panel_attributes>@startuml V2_SeqSysteme
+
+skinparam sequenceMessageAlign center
+skinparam sequence {
+  ArrowColor #2E75B6
+  LifeLineBorderColor #2E75B6
+  ParticipantBackgroundColor #EEF4FB
+  ParticipantBorderColor #2E75B6
+}
+
+actor &quot;Utilisateur&quot; as U
+boundary &quot;Système\n(CPU Simulateur)&quot; as S
+
+title Séquence système — Assemblage puis Exécution
+
+== Phase 1 : Assemblage ==
+U -&gt; S : fournir le programme assembleur (texte)
+activate S
+  alt syntaxe valide
+    S --&gt; U : programme chargé en mémoire
+  else erreur de syntaxe
+    S --&gt; U : AssemblerException (ligne N)
+  end
+deactivate S
+
+== Phase 2 : Exécution ==
+U -&gt; S : lancer l'exécution du CPU
+activate S
+  loop jusqu'à BREAK
+    S -&gt; S : Fetch → Decode → Execute
+  end
+  alt exécution normale
+    S --&gt; U : exécution terminée
+  else opcode invalide / accès mémoire hors borne
+    S --&gt; U : exception levée
+  end
+deactivate S
+
+== Phase 3 : Consultation ==
+U -&gt; S : consulter l'état des registres
+S --&gt; U : valeurs des 16 registres
+
+U -&gt; S : consulter une zone mémoire
+S --&gt; U : contenu de la zone demandée
+
+@enduml</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

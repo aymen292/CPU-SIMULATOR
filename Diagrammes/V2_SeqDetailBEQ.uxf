@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umletino" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPlantUML</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>1400</w>
+      <h>900</h>
+    </coordinates>
+    <panel_attributes>@startuml V2_SeqDetailBEQ
+
+skinparam sequenceMessageAlign center
+skinparam sequence {
+  ArrowColor #1F4E79
+  LifeLineBorderColor #1F4E79
+  ParticipantBackgroundColor #F7FBFF
+  ParticipantBorderColor #1F4E79
+}
+
+participant &quot;CPU&quot; as CPU
+participant &quot;Memory&quot; as MEM
+participant &quot;RegisterFile&quot; as REG
+
+title Séquence détaillée — Instruction BEQ r0, r1, @adresse
+
+== FETCH + DECODE ==
+CPU -&gt; MEM : read(pc++)
+MEM --&gt; CPU : 12  [opcode BEQ]
+note over CPU : Opcode.fromCode(12) → BEQ
+
+== EXECUTE — lecture des paramètres ==
+CPU -&gt; MEM : read(pc++) → idx1 = 0  [r0]
+CPU -&gt; MEM : read(pc++) → idx2 = 1  [r1]
+CPU -&gt; MEM : read(pc++) → addrHigh
+CPU -&gt; MEM : read(pc++) → addrLow
+note over CPU : targetAddr = (addrHigh &lt;&lt; 8) | addrLow
+
+== EXECUTE — comparaison ==
+CPU -&gt; REG : get(0)
+REG --&gt; CPU : val_r0
+
+CPU -&gt; REG : get(1)
+REG --&gt; CPU : val_r1
+
+alt val_r0 == val_r1
+  note over CPU : SAUT EFFECTUÉ\nPC ← targetAddr
+else val_r0 != val_r1
+  note over CPU : PAS DE SAUT\nPC reste sur l'instruction suivante
+end
+
+@enduml</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
