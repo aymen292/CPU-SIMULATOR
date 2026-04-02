@@ -1,65 +1,348 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umletino" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
-    <id>UMLPlantUML</id>
+    <id>UMLNote</id>
     <coordinates>
       <x>10</x>
-      <y>10</y>
-      <w>1400</w>
-      <h>900</h>
+      <y>5</y>
+      <w>1070</w>
+      <h>30</h>
     </coordinates>
-    <panel_attributes>@startuml V2_SeqDetailCPU
-
-skinparam sequenceMessageAlign center
-skinparam sequence {
-  ArrowColor #2E75B6
-  LifeLineBorderColor #2E75B6
-  ParticipantBackgroundColor #EEF4FB
-  ParticipantBorderColor #2E75B6
-}
-
-participant &quot;Main&quot; as MAIN
-participant &quot;CPU&quot; as CPU
-participant &quot;Memory&quot; as MEM
-participant &quot;RegisterFile&quot; as REG
-participant &quot;ALU&quot; as ALU
-
-title Séquence détaillée — Cycle CPU (instruction ADD r2, r0, r1)
-
-MAIN -&gt; CPU : run()
-activate CPU
-
-== FETCH ==
-CPU -&gt; MEM : read(pc++)
-MEM --&gt; CPU : 4  [opcode ADD]
-
-== DECODE ==
-note over CPU : Opcode.fromCode(4) → Opcode.ADD
-
-== EXECUTE — lecture des paramètres ==
-CPU -&gt; MEM : read(pc++) → 2  [registre dest : r2]
-CPU -&gt; MEM : read(pc++) → 0  [registre src1 : r0]
-CPU -&gt; MEM : read(pc++) → 1  [registre src2 : r1]
-
-== EXECUTE — calcul ==
-CPU -&gt; REG : get(0)
-REG --&gt; CPU : val_r0 = 5
-
-CPU -&gt; REG : get(1)
-REG --&gt; CPU : val_r1 = 6
-
-CPU -&gt; ALU : add(5, 6)
-ALU --&gt; CPU : résultat = 11
-
-CPU -&gt; REG : set(2, 11)
-
-note over CPU : PC pointe maintenant sur\nl'instruction suivante → nouveau cycle
-
-CPU --&gt; MAIN : (continue ou s'arrête sur BREAK)
-deactivate CPU
-
-@enduml</panel_attributes>
-    <additional_attributes/>
+    <panel_attributes>Sequence detaillee - Cycle CPU : instruction ADD r2, r0, r1</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>45</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Main</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>190</x>
+      <y>45</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>CPU</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>380</x>
+      <y>45</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Memory</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>580</x>
+      <y>45</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>RegisterFile</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>780</x>
+      <y>45</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>ALU</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>75</x>
+      <y>90</y>
+      <w>14</w>
+      <h>755</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;750</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>90</y>
+      <w>14</w>
+      <h>755</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;750</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>455</x>
+      <y>90</y>
+      <w>14</w>
+      <h>755</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;750</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>655</x>
+      <y>90</y>
+      <w>14</w>
+      <h>755</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;750</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>855</x>
+      <y>90</y>
+      <w>14</w>
+      <h>755</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;750</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>115</y>
+      <w>1070</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== FETCH ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>75</x>
+      <y>157</y>
+      <w>120</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+run()</panel_attributes>
+    <additional_attributes>5;5;115;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>189</y>
+      <w>120</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++)</panel_attributes>
+    <additional_attributes>5;5;115;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>345</x>
+      <y>217</y>
+      <w>120</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+4  [opcode ADD]</panel_attributes>
+    <additional_attributes>115;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>245</y>
+      <w>1070</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== DECODE ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>190</x>
+      <y>280</y>
+      <w>200</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>Opcode.fromCode(4) = ADD</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>318</y>
+      <w>1070</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== EXECUTE - lecture des parametres ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>360</y>
+      <w>120</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++) = 2  [dest : r2]</panel_attributes>
+    <additional_attributes>5;5;115;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>390</y>
+      <w>120</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++) = 0  [src1 : r0]</panel_attributes>
+    <additional_attributes>5;5;115;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>420</y>
+      <w>120</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++) = 1  [src2 : r1]</panel_attributes>
+    <additional_attributes>5;5;115;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>443</y>
+      <w>1070</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== EXECUTE - calcul ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>485</y>
+      <w>320</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+get(0)</panel_attributes>
+    <additional_attributes>5;5;315;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>345</x>
+      <y>513</y>
+      <w>320</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+val_r0 = 5</panel_attributes>
+    <additional_attributes>315;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>541</y>
+      <w>320</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+get(1)</panel_attributes>
+    <additional_attributes>5;5;315;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>345</x>
+      <y>569</y>
+      <w>320</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+val_r1 = 6</panel_attributes>
+    <additional_attributes>315;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>601</y>
+      <w>520</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+add(5, 6)</panel_attributes>
+    <additional_attributes>5;5;515;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>345</x>
+      <y>629</y>
+      <w>520</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+resultat = 11</panel_attributes>
+    <additional_attributes>515;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>265</x>
+      <y>661</y>
+      <w>320</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+set(2, 11)</panel_attributes>
+    <additional_attributes>5;5;315;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>155</x>
+      <y>699</y>
+      <w>120</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+termine ou BREAK</panel_attributes>
+    <additional_attributes>115;5;5;5</additional_attributes>
   </element>
 </diagram>

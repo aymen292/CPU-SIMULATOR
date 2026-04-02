@@ -1,150 +1,424 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umletino" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
-    <id>UMLPlantUML</id>
+    <id>UMLPackage</id>
     <coordinates>
       <x>10</x>
       <y>10</y>
-      <w>1400</w>
-      <h>900</h>
+      <w>400</w>
+      <h>450</h>
     </coordinates>
-    <panel_attributes>@startuml V2_DiagrammeClasses
-
-skinparam classAttributeIconSize 0
-skinparam class {
-  BackgroundColor #EEF4FB
-  BorderColor #2E75B6
-  ArrowColor #2E75B6
-  FontSize 12
-}
-skinparam package {
-  BackgroundColor #F7FBFF
-  BorderColor #1F4E79
-  FontStyle bold
-}
-
-package &quot;instruction&quot; {
-  enum Opcode {
-    BREAK = 0
-    LOAD_CONST = 1
-    LOAD_MEM = 2
-    STORE = 3
-    ADD = 4
-    SUB = 5
-    MUL = 6
-    DIV = 7
-    OR = 8
-    AND = 9
-    XOR = 10
-    JUMP = 11
-    BEQ = 12
-    BNE = 13
-    LOAD_IDX = 14
-    STORE_IDX = 15
-    --
-    - code : int
-    --
-    + getCode() : int
-    + {static} fromCode(code : int) : Opcode
-  }
-}
-
-package &quot;exception&quot; {
-  class InvalidOpcodeException {
-    + InvalidOpcodeException(code : int)
-  }
-  class MemoryOutOfBoundsException {
-    + MemoryOutOfBoundsException(address : int)
-  }
-  class RegisterOutOfBoundsException {
-    + RegisterOutOfBoundsException(index : int)
-  }
-  InvalidOpcodeException --|&gt; RuntimeException
-  MemoryOutOfBoundsException --|&gt; RuntimeException
-  RegisterOutOfBoundsException --|&gt; RuntimeException
-}
-
-package &quot;core&quot; {
-  class Memory {
-    - {static} SIZE : int = 65536
-    - data : byte[]
-    --
-    + read(address : int) : byte
-    + write(address : int, value : byte) : void
-    + readWord(address : int) : int
-    + writeWord(address : int, value : int) : void
-  }
-
-  class RegisterFile {
-    - {static} COUNT : int = 16
-    - registers : byte[]
-    --
-    + get(index : int) : byte
-    + set(index : int, value : byte) : void
-    + reset() : void
-  }
-
-  class ALU {
-    + add(a : byte, b : byte) : byte
-    + sub(a : byte, b : byte) : byte
-    + mul(a : byte, b : byte) : int
-    + div(a : byte, b : byte) : int[]
-    + or(a : byte, b : byte) : byte
-    + and(a : byte, b : byte) : byte
-    + xor(a : byte, b : byte) : byte
-  }
-
-  class CPU {
-    - pc : int
-    - running : boolean
-    --
-    + CPU(memory : Memory, registers : RegisterFile, alu : ALU)
-    + run() : void
-    + reset() : void
-    + getPC() : int
-    - fetch() : int
-    - decode(code : int) : Opcode
-    - execute(opcode : Opcode) : void
-  }
-}
-
-package &quot;assembler&quot; {
-  class Assembler {
-    - writePointer : int
-    --
-    + Assembler(memory : Memory)
-    + assemble(program : String) : void
-    - assembleLine(line : String) : void
-    - parseRegister(token : String) : byte
-    - parseValue(token : String) : int
-    - emitByte(value : byte) : void
-    - emitWord(value : int) : void
-  }
-}
-
-package &quot;app&quot; {
-  class Main {
-    + {static} main(args : String[]) : void
-  }
-}
-
-CPU &quot;1&quot; o--&gt; &quot;1&quot; Memory
-CPU &quot;1&quot; o--&gt; &quot;1&quot; RegisterFile
-CPU &quot;1&quot; o--&gt; &quot;1&quot; ALU
-CPU ..&gt; Opcode : décode
-CPU ..&gt; InvalidOpcodeException : &lt;&lt;throws&gt;&gt;
-Memory ..&gt; MemoryOutOfBoundsException : &lt;&lt;throws&gt;&gt;
-RegisterFile ..&gt; RegisterOutOfBoundsException : &lt;&lt;throws&gt;&gt;
-Assembler &quot;1&quot; o--&gt; &quot;1&quot; Memory
-Assembler ..&gt; Opcode : traduit vers
-Main ..&gt; CPU : instancie
-Main ..&gt; Memory : instancie
-Main ..&gt; RegisterFile : instancie
-Main ..&gt; ALU : instancie
-Main ..&gt; Assembler : instancie
-
-@enduml</panel_attributes>
-    <additional_attributes/>
+    <panel_attributes>instruction</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>20</x>
+      <y>40</y>
+      <w>380</w>
+      <h>410</h>
+    </coordinates>
+    <panel_attributes>Opcode
+&lt;&lt;enumeration>>
+--
+BREAK = 0
+LOAD_CONST = 1
+LOAD_MEM = 2
+STORE = 3
+ADD = 4
+SUB = 5
+MUL = 6
+DIV = 7
+OR = 8
+AND = 9
+XOR = 10
+JUMP = 11
+BEQ = 12
+BNE = 13
+LOAD_IDX = 14
+STORE_IDX = 15
+--
+- code : int
+--
++ getCode() : int
++ {static} fromCode(int) : Opcode</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>430</x>
+      <y>10</y>
+      <w>400</w>
+      <h>350</h>
+    </coordinates>
+    <panel_attributes>exception</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>440</x>
+      <y>45</y>
+      <w>380</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>RuntimeException  (externe)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>440</x>
+      <y>110</y>
+      <w>380</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>InvalidOpcodeException
+--
++ InvalidOpcodeException(code : int)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>440</x>
+      <y>200</y>
+      <w>380</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>MemoryOutOfBoundsException
+--
++ MemoryOutOfBoundsException(address : int)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>440</x>
+      <y>290</y>
+      <w>380</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>RegisterOutOfBoundsException
+--
++ RegisterOutOfBoundsException(index : int)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>860</x>
+      <y>10</y>
+      <w>640</w>
+      <h>640</h>
+    </coordinates>
+    <panel_attributes>core</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>870</x>
+      <y>45</y>
+      <w>290</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>Memory
+--
+- {static} SIZE : int = 65536
+- data : byte[]
+--
++ read(address : int) : byte
++ write(address : int, byte) : void
++ readWord(address : int) : int
++ writeWord(address : int, int) : void</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>870</x>
+      <y>270</y>
+      <w>290</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>RegisterFile
+--
+- {static} COUNT : int = 16
+- registers : byte[]
+--
++ get(index : int) : byte
++ set(index : int, byte) : void
++ reset() : void</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1200</x>
+      <y>45</y>
+      <w>285</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>ALU
+--
++ add(a : byte, b : byte) : byte
++ sub(a : byte, b : byte) : byte
++ mul(a : byte, b : byte) : int
++ div(a : byte, b : byte) : int[]
++ or(a : byte, b : byte) : byte
++ and(a : byte, b : byte) : byte
++ xor(a : byte, b : byte) : byte</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1200</x>
+      <y>300</y>
+      <w>285</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>CPU
+--
+- pc : int
+- running : boolean
+--
++ CPU(Memory, RegisterFile, ALU)
++ run() : void
++ reset() : void
++ getPC() : int
+- fetch() : int
+- decode(int) : Opcode
+- execute(Opcode) : void</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1530</x>
+      <y>10</y>
+      <w>310</w>
+      <h>310</h>
+    </coordinates>
+    <panel_attributes>assembler</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1540</x>
+      <y>45</y>
+      <w>290</w>
+      <h>265</h>
+    </coordinates>
+    <panel_attributes>Assembler
+--
+- writePointer : int
+--
++ Assembler(Memory)
++ assemble(String) : void
+- assembleLine(String) : void
+- parseRegister(String) : byte
+- parseValue(String) : int
+- emitByte(byte) : void
+- emitWord(int) : void</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1530</x>
+      <y>340</y>
+      <w>310</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>app</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1540</x>
+      <y>370</y>
+      <w>290</w>
+      <h>75</h>
+    </coordinates>
+    <panel_attributes>Main
+--
++ {static} main(String[]) : void</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>625</x>
+      <y>80</y>
+      <w>14</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=-|></panel_attributes>
+    <additional_attributes>5;30;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>625</x>
+      <y>80</y>
+      <w>14</w>
+      <h>125</h>
+    </coordinates>
+    <panel_attributes>lt=-|></panel_attributes>
+    <additional_attributes>5;120;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>625</x>
+      <y>80</y>
+      <w>14</w>
+      <h>215</h>
+    </coordinates>
+    <panel_attributes>lt=-|></panel_attributes>
+    <additional_attributes>5;210;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1155</x>
+      <y>140</y>
+      <w>50</w>
+      <h>265</h>
+    </coordinates>
+    <panel_attributes>lt=o->
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>45;260;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1155</x>
+      <y>345</y>
+      <w>50</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=o->
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>45;85;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1337</x>
+      <y>270</y>
+      <w>14</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=o->
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>5;30;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>395</x>
+      <y>240</y>
+      <w>810</w>
+      <h>245</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+utilise Opcode</panel_attributes>
+    <additional_attributes>805;240;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>815</x>
+      <y>137</y>
+      <w>390</w>
+      <h>238</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;throws>></panel_attributes>
+    <additional_attributes>385;233;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>815</x>
+      <y>170</y>
+      <w>60</w>
+      <h>67</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;throws>></panel_attributes>
+    <additional_attributes>55;5;5;62</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>815</x>
+      <y>317</y>
+      <w>60</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;throws>></panel_attributes>
+    <additional_attributes>55;43;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1155</x>
+      <y>160</y>
+      <w>380</w>
+      <h>22</h>
+    </coordinates>
+    <panel_attributes>lt=o->
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>375;17;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>395</x>
+      <y>212</y>
+      <w>1140</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+traduit vers</panel_attributes>
+    <additional_attributes>1135;5;5;63</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1479</x>
+      <y>402</y>
+      <w>56</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+instancie</panel_attributes>
+    <additional_attributes>51;5;5;78</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1680</x>
+      <y>304</y>
+      <w>14</w>
+      <h>71</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+instancie</panel_attributes>
+    <additional_attributes>5;66;5;5</additional_attributes>
   </element>
 </diagram>

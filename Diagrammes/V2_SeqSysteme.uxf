@@ -1,60 +1,279 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umletino" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
-    <id>UMLPlantUML</id>
+    <id>UMLNote</id>
     <coordinates>
       <x>10</x>
-      <y>10</y>
-      <w>1400</w>
-      <h>900</h>
+      <y>5</y>
+      <w>840</w>
+      <h>30</h>
     </coordinates>
-    <panel_attributes>@startuml V2_SeqSysteme
-
-skinparam sequenceMessageAlign center
-skinparam sequence {
-  ArrowColor #2E75B6
-  LifeLineBorderColor #2E75B6
-  ParticipantBackgroundColor #EEF4FB
-  ParticipantBorderColor #2E75B6
-}
-
-actor &quot;Utilisateur&quot; as U
-boundary &quot;Système\n(CPU Simulateur)&quot; as S
-
-title Séquence système — Assemblage puis Exécution
-
-== Phase 1 : Assemblage ==
-U -&gt; S : fournir le programme assembleur (texte)
-activate S
-  alt syntaxe valide
-    S --&gt; U : programme chargé en mémoire
-  else erreur de syntaxe
-    S --&gt; U : AssemblerException (ligne N)
-  end
-deactivate S
-
-== Phase 2 : Exécution ==
-U -&gt; S : lancer l'exécution du CPU
-activate S
-  loop jusqu'à BREAK
-    S -&gt; S : Fetch → Decode → Execute
-  end
-  alt exécution normale
-    S --&gt; U : exécution terminée
-  else opcode invalide / accès mémoire hors borne
-    S --&gt; U : exception levée
-  end
-deactivate S
-
-== Phase 3 : Consultation ==
-U -&gt; S : consulter l'état des registres
-S --&gt; U : valeurs des 16 registres
-
-U -&gt; S : consulter une zone mémoire
-S --&gt; U : contenu de la zone demandée
-
-@enduml</panel_attributes>
-    <additional_attributes/>
+    <panel_attributes>Sequence systeme - Assemblage puis Execution</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>45</x>
+      <y>50</y>
+      <w>70</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>Utilisateur</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>310</x>
+      <y>50</y>
+      <w>220</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Systeme
+(CPU Simulateur)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>75</x>
+      <y>145</y>
+      <w>14</w>
+      <h>690</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;685</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>415</x>
+      <y>95</y>
+      <w>14</w>
+      <h>740</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;735</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>165</y>
+      <w>840</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== Phase 1 : Assemblage ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>75</x>
+      <y>210</y>
+      <w>240</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+fournir le programme assembleur (texte)</panel_attributes>
+    <additional_attributes>5;5;235;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>70</x>
+      <y>241</y>
+      <w>680</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>alt  syntaxe valide</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>80</x>
+      <y>264</y>
+      <w>345</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+programme charge en memoire</panel_attributes>
+    <additional_attributes>340;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>70</x>
+      <y>293</y>
+      <w>680</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>else  erreur de syntaxe</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>80</x>
+      <y>304</y>
+      <w>345</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+AssemblerException (ligne N)</panel_attributes>
+    <additional_attributes>340;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>351</y>
+      <w>840</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== Phase 2 : Execution ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>75</x>
+      <y>396</y>
+      <w>240</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+lancer l'execution du CPU</panel_attributes>
+    <additional_attributes>5;5;235;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>310</x>
+      <y>427</y>
+      <w>200</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>loop  jusqu'a BREAK</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>270</x>
+      <y>455</y>
+      <w>290</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>Fetch -> Decode -> Execute</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>70</x>
+      <y>493</y>
+      <w>680</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>alt  execution normale</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>80</x>
+      <y>516</y>
+      <w>345</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+execution terminee</panel_attributes>
+    <additional_attributes>340;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>70</x>
+      <y>545</y>
+      <w>680</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>else  exception</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>80</x>
+      <y>556</y>
+      <w>345</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+exception levee</panel_attributes>
+    <additional_attributes>340;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>603</y>
+      <w>840</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== Phase 3 : Consultation ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>75</x>
+      <y>648</y>
+      <w>240</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+consulter l'etat des registres</panel_attributes>
+    <additional_attributes>5;5;235;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>80</x>
+      <y>683</y>
+      <w>345</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+valeurs des 16 registres</panel_attributes>
+    <additional_attributes>340;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>75</x>
+      <y>718</y>
+      <w>240</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+consulter une zone memoire</panel_attributes>
+    <additional_attributes>5;5;235;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>80</x>
+      <y>753</y>
+      <w>345</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+contenu de la zone demandee</panel_attributes>
+    <additional_attributes>340;5;5;5</additional_attributes>
   </element>
 </diagram>

@@ -1,54 +1,265 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umletino" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
-    <id>UMLPlantUML</id>
+    <id>UMLNote</id>
     <coordinates>
       <x>10</x>
-      <y>10</y>
-      <w>1400</w>
-      <h>900</h>
+      <y>5</y>
+      <w>840</w>
+      <h>30</h>
     </coordinates>
-    <panel_attributes>@startuml V2_SeqDetailAssembler
-
-skinparam sequenceMessageAlign center
-skinparam sequence {
-  ArrowColor #1F4E79
-  LifeLineBorderColor #1F4E79
-  ParticipantBackgroundColor #F7FBFF
-  ParticipantBorderColor #1F4E79
-}
-
-participant &quot;Main&quot; as MAIN
-participant &quot;Assembler&quot; as ASM
-participant &quot;Memory&quot; as MEM
-
-title Séquence détaillée — Assembleur (&quot;load r2, @100&quot; puis &quot;break&quot;)
-
-MAIN -&gt; ASM : assemble(&quot;load r2, @100\nbreak&quot;)
-activate ASM
-
-== Ligne 1 : &quot;load r2, @100&quot; ==
-ASM -&gt; ASM : parseLine() → mnémonique=&quot;load&quot;, args=[&quot;r2&quot;, &quot;@100&quot;]
-note right of ASM : &quot;@100&quot; commence par &quot;@&quot;\n→ mode mémoire → LOAD_MEM (opcode 2)
-ASM -&gt; ASM : parseRegister(&quot;r2&quot;) → 2
-ASM -&gt; ASM : parseValue(&quot;100&quot;) → 100 = 0x0064
-
-ASM -&gt; MEM : write(ptr=0, opcode=2)
-ASM -&gt; MEM : write(ptr=1, reg=2)
-ASM -&gt; MEM : write(ptr=2, addrHigh=0x00)
-ASM -&gt; MEM : write(ptr=3, addrLow=0x64)
-note right of ASM : writePointer = 4
-
-== Ligne 2 : &quot;break&quot; ==
-ASM -&gt; ASM : parseLine() → mnémonique=&quot;break&quot;
-ASM -&gt; MEM : write(ptr=4, opcode=0)
-note right of ASM : writePointer = 5
-
-ASM --&gt; MAIN : assemblage OK (5 octets écrits)
-deactivate ASM
-
-@enduml</panel_attributes>
-    <additional_attributes/>
+    <panel_attributes>Sequence detaillee - Assembleur : 'load r2, @100' puis 'break'</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>-15</x>
+      <y>45</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Main</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>225</x>
+      <y>45</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Assembler</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>485</x>
+      <y>45</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Memory</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>90</y>
+      <w>14</w>
+      <h>745</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;740</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>325</x>
+      <y>90</y>
+      <w>14</w>
+      <h>745</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;740</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>585</x>
+      <y>90</y>
+      <w>14</w>
+      <h>745</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;740</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>122</y>
+      <w>145</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+assemble('load r2, @100  /  break')</panel_attributes>
+    <additional_attributes>5;5;140;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>153</y>
+      <w>840</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== Ligne 1 : 'load r2, @100' ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>120</x>
+      <y>188</y>
+      <w>410</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>parseLine() : mnemomique='load', args=['r2','@100']</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>120</x>
+      <y>223</y>
+      <w>530</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>'@100' commence par '@'
+-> mode memoire  ->  LOAD_MEM (opcode 2)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>120</x>
+      <y>265</y>
+      <w>410</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>parseRegister('r2')  =  2</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>120</x>
+      <y>300</y>
+      <w>410</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>parseValue('100')  =  100  =  0x0064</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>325</x>
+      <y>347</y>
+      <w>165</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+write(ptr=0,  opcode=2)</panel_attributes>
+    <additional_attributes>5;5;160;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>325</x>
+      <y>377</y>
+      <w>165</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+write(ptr=1,  reg=2)</panel_attributes>
+    <additional_attributes>5;5;160;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>325</x>
+      <y>407</y>
+      <w>165</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+write(ptr=2,  addrHigh=0x00)</panel_attributes>
+    <additional_attributes>5;5;160;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>325</x>
+      <y>437</y>
+      <w>165</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+write(ptr=3,  addrLow=0x64)</panel_attributes>
+    <additional_attributes>5;5;160;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>500</x>
+      <y>460</y>
+      <w>190</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>writePointer = 4</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>502</y>
+      <w>840</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== Ligne 2 : 'break' ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>120</x>
+      <y>537</y>
+      <w>410</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>parseLine()  :  mnemomique='break'</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>325</x>
+      <y>579</y>
+      <w>165</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+write(ptr=4,  opcode=0)</panel_attributes>
+    <additional_attributes>5;5;160;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>500</x>
+      <y>602</y>
+      <w>190</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>writePointer = 5</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>190</x>
+      <y>651</y>
+      <w>145</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+assemblage OK  (5 octets ecrits)</panel_attributes>
+    <additional_attributes>140;5;5;5</additional_attributes>
   </element>
 </diagram>

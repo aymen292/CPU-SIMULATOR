@@ -1,66 +1,291 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umletino" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
-    <id>UMLPlantUML</id>
+    <id>UMLActor</id>
     <coordinates>
-      <x>10</x>
-      <y>10</y>
-      <w>1400</w>
-      <h>900</h>
+      <x>20</x>
+      <y>340</y>
+      <w>70</w>
+      <h>100</h>
     </coordinates>
-    <panel_attributes>@startuml V2_CasUtilisation
-
-skinparam actorStyle awesome
-skinparam usecase {
-  BackgroundColor #EEF4FB
-  BorderColor #2E75B6
-  ArrowColor #2E75B6
-}
-skinparam package {
-  BorderColor #1F4E79
-  BackgroundColor #F7FBFF
-}
-
-left to right direction
-
-actor &quot;Utilisateur&quot; as U
-
-rectangle &quot;Simulateur CPU — Carré Petit Utile&quot; {
-
-  package &quot;Assemblage&quot; {
-    usecase &quot;Écrire un programme\nassembleur&quot; as UC1
-    usecase &quot;Assembler le programme\n(traduit en codes numériques)&quot; as UC2
-    usecase &quot;Charger le programme\nen mémoire&quot; as UC3
-  }
-
-  package &quot;Exécution CPU&quot; {
-    usecase &quot;Lancer l'exécution&quot; as UC4
-    usecase &quot;Exécuter LOAD / STORE&quot; as UC5
-    usecase &quot;Exécuter opérations ALU\n(ADD, SUB, MUL, DIV, OR, AND, XOR)&quot; as UC6
-    usecase &quot;Exécuter sauts\n(JUMP, BEQ, BNE)&quot; as UC7
-    usecase &quot;Arrêter le CPU (BREAK)&quot; as UC8
-  }
-
-  package &quot;Consultation&quot; {
-    usecase &quot;Consulter les registres&quot; as UC9
-    usecase &quot;Consulter la mémoire&quot; as UC10
-  }
-
-}
-
-U --&gt; UC1
-UC1 ..&gt; UC2 : &lt;&lt;include&gt;&gt;
-UC2 ..&gt; UC3 : &lt;&lt;include&gt;&gt;
-U --&gt; UC4
-UC4 ..&gt; UC5 : &lt;&lt;extend&gt;&gt;
-UC4 ..&gt; UC6 : &lt;&lt;extend&gt;&gt;
-UC4 ..&gt; UC7 : &lt;&lt;extend&gt;&gt;
-UC4 ..&gt; UC8 : &lt;&lt;include&gt;&gt;
-U --&gt; UC9
-U --&gt; UC10
-
-@enduml</panel_attributes>
-    <additional_attributes/>
+    <panel_attributes>Utilisateur</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>130</x>
+      <y>10</y>
+      <w>1250</w>
+      <h>880</h>
+    </coordinates>
+    <panel_attributes>Simulateur CPU - Carre Petit Utile</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>150</x>
+      <y>50</y>
+      <w>440</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>Assemblage</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>165</x>
+      <y>95</y>
+      <w>405</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Ecrire un programme
+assembleur</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>165</x>
+      <y>178</y>
+      <w>405</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Assembler le programme
+(codes numeriques)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>165</x>
+      <y>261</y>
+      <w>405</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Charger le programme
+en memoire</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>620</x>
+      <y>50</y>
+      <w>730</w>
+      <h>500</h>
+    </coordinates>
+    <panel_attributes>Execution CPU</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>635</x>
+      <y>95</y>
+      <w>240</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Lancer l'execution</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>910</x>
+      <y>95</y>
+      <w>420</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Executer LOAD / STORE</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>910</x>
+      <y>185</y>
+      <w>420</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Executer operations ALU
+(ADD, SUB, MUL, DIV, OR, AND, XOR)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>910</x>
+      <y>285</y>
+      <w>420</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Executer sauts
+(JUMP, BEQ, BNE)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>635</x>
+      <y>205</y>
+      <w>240</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Arreter le CPU
+(BREAK)</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>150</x>
+      <y>370</y>
+      <w>440</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>Consultation</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>165</x>
+      <y>405</y>
+      <w>405</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Consulter les registres</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>165</x>
+      <y>490</y>
+      <w>405</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Consulter la memoire</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>120</y>
+      <w>85</w>
+      <h>245</h>
+    </coordinates>
+    <panel_attributes>lt=-></panel_attributes>
+    <additional_attributes>5;240;80;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>120</y>
+      <w>555</w>
+      <h>275</h>
+    </coordinates>
+    <panel_attributes>lt=-></panel_attributes>
+    <additional_attributes>5;270;550;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>415</y>
+      <w>85</w>
+      <h>25</h>
+    </coordinates>
+    <panel_attributes>lt=-></panel_attributes>
+    <additional_attributes>5;5;80;20</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>435</y>
+      <w>85</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=-></panel_attributes>
+    <additional_attributes>5;5;80;85</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>362</x>
+      <y>150</y>
+      <w>14</w>
+      <h>33</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;include>></panel_attributes>
+    <additional_attributes>5;5;5;28</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>362</x>
+      <y>233</y>
+      <w>14</w>
+      <h>33</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;include>></panel_attributes>
+    <additional_attributes>5;5;5;28</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>870</x>
+      <y>120</y>
+      <w>45</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;extend>></panel_attributes>
+    <additional_attributes>5;5;40;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>870</x>
+      <y>120</y>
+      <w>45</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;extend>></panel_attributes>
+    <additional_attributes>5;5;40;100</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>870</x>
+      <y>120</y>
+      <w>45</w>
+      <h>205</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;extend>></panel_attributes>
+    <additional_attributes>5;5;40;200</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>750</x>
+      <y>150</y>
+      <w>14</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=..>
+&lt;&lt;include>></panel_attributes>
+    <additional_attributes>5;5;5;55</additional_attributes>
   </element>
 </diagram>

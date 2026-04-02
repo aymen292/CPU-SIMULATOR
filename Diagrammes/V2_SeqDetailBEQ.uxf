@@ -1,56 +1,300 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umletino" version="14.3.0">
+<diagram program="umlet" version="15.1">
   <zoom_level>10</zoom_level>
   <element>
-    <id>UMLPlantUML</id>
+    <id>UMLNote</id>
     <coordinates>
       <x>10</x>
-      <y>10</y>
-      <w>1400</w>
-      <h>900</h>
+      <y>5</y>
+      <w>840</w>
+      <h>30</h>
     </coordinates>
-    <panel_attributes>@startuml V2_SeqDetailBEQ
-
-skinparam sequenceMessageAlign center
-skinparam sequence {
-  ArrowColor #1F4E79
-  LifeLineBorderColor #1F4E79
-  ParticipantBackgroundColor #F7FBFF
-  ParticipantBorderColor #1F4E79
-}
-
-participant &quot;CPU&quot; as CPU
-participant &quot;Memory&quot; as MEM
-participant &quot;RegisterFile&quot; as REG
-
-title Séquence détaillée — Instruction BEQ r0, r1, @adresse
-
-== FETCH + DECODE ==
-CPU -&gt; MEM : read(pc++)
-MEM --&gt; CPU : 12  [opcode BEQ]
-note over CPU : Opcode.fromCode(12) → BEQ
-
-== EXECUTE — lecture des paramètres ==
-CPU -&gt; MEM : read(pc++) → idx1 = 0  [r0]
-CPU -&gt; MEM : read(pc++) → idx2 = 1  [r1]
-CPU -&gt; MEM : read(pc++) → addrHigh
-CPU -&gt; MEM : read(pc++) → addrLow
-note over CPU : targetAddr = (addrHigh &lt;&lt; 8) | addrLow
-
-== EXECUTE — comparaison ==
-CPU -&gt; REG : get(0)
-REG --&gt; CPU : val_r0
-
-CPU -&gt; REG : get(1)
-REG --&gt; CPU : val_r1
-
-alt val_r0 == val_r1
-  note over CPU : SAUT EFFECTUÉ\nPC ← targetAddr
-else val_r0 != val_r1
-  note over CPU : PAS DE SAUT\nPC reste sur l'instruction suivante
-end
-
-@enduml</panel_attributes>
-    <additional_attributes/>
+    <panel_attributes>Sequence detaillee - Instruction BEQ r0, r1, adresse</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>-15</x>
+      <y>45</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>CPU</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>225</x>
+      <y>45</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Memory</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>475</x>
+      <y>45</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>RegisterFile</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>90</y>
+      <w>14</w>
+      <h>745</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;740</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>325</x>
+      <y>90</y>
+      <w>14</w>
+      <h>745</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;740</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>575</x>
+      <y>90</y>
+      <w>14</w>
+      <h>745</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>5;5;5;740</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>115</y>
+      <w>840</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== FETCH + DECODE ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>157</y>
+      <w>145</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++)</panel_attributes>
+    <additional_attributes>5;5;140;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>190</x>
+      <y>185</y>
+      <w>145</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+12  [opcode BEQ]</panel_attributes>
+    <additional_attributes>140;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>0</x>
+      <y>206</y>
+      <w>280</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>Opcode.fromCode(12)  =  BEQ</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>244</y>
+      <w>840</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== EXECUTE - lecture des parametres ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>286</y>
+      <w>145</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++)  =  idx1=0  [r0]</panel_attributes>
+    <additional_attributes>5;5;140;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>316</y>
+      <w>145</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++)  =  idx2=1  [r1]</panel_attributes>
+    <additional_attributes>5;5;140;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>346</y>
+      <w>145</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++)  =  addrHigh</panel_attributes>
+    <additional_attributes>5;5;140;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>376</y>
+      <w>145</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+read(pc++)  =  addrLow</panel_attributes>
+    <additional_attributes>5;5;140;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>0</x>
+      <y>399</y>
+      <w>330</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>targetAddr = (addrHigh * 256) + addrLow</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>437</y>
+      <w>840</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>== EXECUTE - comparaison ==</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>479</y>
+      <w>395</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+get(0)</panel_attributes>
+    <additional_attributes>5;5;390;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>190</x>
+      <y>507</y>
+      <w>395</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+val_r0</panel_attributes>
+    <additional_attributes>390;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>85</x>
+      <y>535</y>
+      <w>395</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=->
+get(1)</panel_attributes>
+    <additional_attributes>5;5;390;5</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>190</x>
+      <y>563</y>
+      <w>395</w>
+      <h>14</h>
+    </coordinates>
+    <panel_attributes>lt=.>
+val_r1</panel_attributes>
+    <additional_attributes>390;5;5;5</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>594</y>
+      <w>840</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>alt  val_r0 == val_r1</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>5</x>
+      <y>622</y>
+      <w>295</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>SAUT EFFECTUE  :  PC  =  targetAddr</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>652</y>
+      <w>840</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>else  val_r0 != val_r1</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>5</x>
+      <y>672</y>
+      <w>330</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>PAS DE SAUT  :  PC reste sur instruction suivante</panel_attributes>
+    <additional_attributes></additional_attributes>
   </element>
 </diagram>
