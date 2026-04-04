@@ -394,20 +394,20 @@ cpu-simulator/
    │  ├─ assembler/
    │  │  └─ Assembler.java
    │  ├─ core/
-   │  │  ├─ ALU.java                ← NOUVEAU
+   │  │  ├─ ALU.java                
    │  │  ├─ CPU.java
    │  │  ├─ Memory.java
    │  │  └─ RegisterFile.java
-   │  ├─ exception/                  ← NOUVEAU PACKAGE
+   │  ├─ exception/                  
    │  │  ├─ InvalidOpcodeException.java
    │  │  ├─ MemoryOutOfBoundsException.java
    │  │  └─ RegisterOutOfBoundsException.java
    │  └─ instruction/
-   │     └─ Opcode.java             ← TRANSFORMÉ EN ENUM
+   │     └─ Opcode.java             
    └─ test/java/
-      ├─ assembler/                  ← NOUVEAU
+      ├─ assembler/                  
       │  └─ AssemblerTest.java
-      └─ core/                       ← NOUVEAU
+      └─ core/                       
          ├─ ALUTest.java
          ├─ CPUTest.java
          ├─ MemoryTest.java
@@ -416,4 +416,3 @@ cpu-simulator/
 
 ## Rappel final
 
-**NE CODE PAS LA LOGIQUE.** Tous les corps de méthodes doivent contenir uniquement `// TODO : à implémenter` avec un return par défaut si nécessaire. Seules les exceptions (package exception/) sont complètes car triviales.
