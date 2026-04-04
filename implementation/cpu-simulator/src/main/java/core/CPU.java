@@ -4,6 +4,7 @@ package core;
  * Processeur simulé. Exécute le cycle fetch/decode/execute sur les instructions en mémoire.
  */
 public class CPU {
+    
 
     /** Mémoire du système. */
     private Memory memory;
