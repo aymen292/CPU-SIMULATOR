@@ -1,25 +1,22 @@
 package core;
 
+import instruction.Opcode;
+import exception.InvalidOpcodeException;
+
 /**
- * Processeur simulé. Exécute le cycle fetch/decode/execute sur les instructions en mémoire.
+ Le CPU est le cœur du simulateur . Il implémente le cycle classique Fetch -> Decode -> Execute : il lit
+ une instruction depuis la mémoire à l'adresse pointée par le compteur de programme (pc) , décode l'opcode
+ récupéré, puis délégue l'exécution à la méthode spécialisée correspondante. Il maintient son propre état
+ d'exécution via le booléen running
  */
 public class CPU {
     
 
-    /** Mémoire du système. */
-    private Memory memory;
-
-    /** Banc de registres du processeur. */
-    private RegisterFile registers;
-
-    /** Unité arithmétique et logique. */
-    private ALU alu;
-
-    /** Compteur de programme (program counter). */
-    private int pc;
-
-    /** Indicateur d'exécution en cours. */
-    private boolean running;
+    private Memory memory; // la mémoire système partagé
+    private RegisterFile registers; // Banc de registres du processeur
+    private ALU alu; // l'unité arithmétique et logique
+    private int pc; // le compteur de programme, pointe vers la prochaine instruction à lire
+    private boolean running; // indique si le processeur est en cours d'éxécution
 
     /**
      * Construit un nouveau CPU avec la mémoire et les registres donnés.
@@ -27,21 +24,30 @@ public class CPU {
      * @param registers le banc de registres
      */
     public CPU(Memory memory, RegisterFile registers) {
-        // TODO : à implémenter
+       this.memory = memory;
+       this.registers = registers;
+       this.alu = new ALU();
+       this.pc = 0;
+       this.running = false;
     }
 
     /**
      * Lance la boucle d'exécution jusqu'à l'instruction BREAK.
      */
     public void run() {
-        // TODO : à implémenter
+        running = true;
+        while (running) {
+            byte opcodeByte = fetch();
+            decode(opcodeByte);
+        }
     }
 
     /**
      * Remet le compteur de programme à 0 et arrête l'exécution.
      */
     public void reset() {
-        // TODO : à implémenter
+        this.pc = 0;
+        this.running = false;
     }
 
     /**
@@ -49,8 +55,7 @@ public class CPU {
      * @return la valeur du compteur de programme
      */
     public int getPC() {
-        // TODO : à implémenter
-        return 0;
+        return pc;
     }
 
     /**
@@ -58,8 +63,7 @@ public class CPU {
      * @return true si le CPU est en cours d'exécution
      */
     public boolean isRunning() {
-        // TODO : à implémenter
-        return false;
+        return running;
     }
 
     /**
@@ -67,8 +71,9 @@ public class CPU {
      * @return l'octet lu
      */
     private byte fetch() {
-        // TODO : à implémenter
-        return 0;
+        byte value = memory.read(pc);
+        pc++;
+        return value;
     }
 
     /**
@@ -76,14 +81,70 @@ public class CPU {
      * @param opcodeByte l'octet représentant l'opcode à décoder
      */
     private void decode(byte opcodeByte) {
-        // TODO : à implémenter
+        int code = opcodeByte ;
+        Opcode opcode = Opcode.fromCode(code);
+        if (opcode == null) {
+            throw new InvalidOpcodeException(code);
+        }
+        switch (opcode) {
+            case BREAK:
+                executeBreak();
+                break;
+            case LOAD_CONST:
+                executeLoadConst();
+                break;
+            case LOAD_MEM:
+                executeLoadMem();
+                break;
+            case STORE:
+                executeStore();
+                break;
+            case ADD:
+                executeAdd();
+                break;
+            case SUB:
+                executeSub();
+                break;
+            case MUL:
+                executeMul();
+                break;
+            case DIV:
+                executeDiv();
+                break;
+            case AND:
+                executeAnd();
+                break;
+            case OR:
+                executeOr();
+                break;
+            case XOR:
+                executeXor();
+                break;
+            case JUMP:
+                executeJump();
+                break;
+            case BEQ:
+                executeBeq();
+                break;
+            case BNE:
+                executeBne();
+                break;
+            case LOAD_INDEXED:
+                executeLoadIndexed();
+                break;
+            case STORE_INDEXED:
+                executeStoreIndexed();
+                break;
+            default:
+                throw new InvalidOpcodeException(code);
+        }
     }
 
     /**
      * Exécute l'instruction BREAK : arrête l'exécution du CPU.
      */
     private void executeBreak() {
-        // TODO : à implémenter
+        running = false;
     }
 
     /**
@@ -91,7 +152,9 @@ public class CPU {
      * Lit en mémoire : [registre destination, valeur constante].
      */
     private void executeLoadConst() {
-        // TODO : à implémenter
+        int dest = fetch();
+        byte value = fetch();
+        registers.set(dest, value);
     }
 
     /**
@@ -99,7 +162,10 @@ public class CPU {
      * Lit en mémoire : [registre destination, adresse 16 bits].
      */
     private void executeLoadMem() {
-        // TODO : à implémenter
+        int dest = fetch();
+        int address = memory.readWord(pc);
+        pc+=2;
+        registers.set(dest,memory.read(address));
     }
 
     /**
@@ -107,7 +173,10 @@ public class CPU {
      * Lit en mémoire : [registre source, adresse 16 bits].
      */
     private void executeStore() {
-        // TODO : à implémenter
+        int src = fetch() ;
+        int address = memory.readWord(pc);
+        pc += 2;
+        memory.write(address, registers.get(src));
     }
 
     /**
@@ -115,7 +184,10 @@ public class CPU {
      * Lit en mémoire : [registre destination, registre A, registre B].
      */
     private void executeAdd() {
-        // TODO : à implémenter
+        int dest = fetch() ;
+        int regA = fetch();
+        int regB = fetch();
+        registers.set(dest, alu.add(registers.get(regA), registers.get(regB)));
     }
 
     /**
@@ -123,7 +195,10 @@ public class CPU {
      * Lit en mémoire : [registre destination, registre A, registre B].
      */
     private void executeSub() {
-        // TODO : à implémenter
+        int dest = fetch();
+        int regA = fetch() ;
+        int regB = fetch() ;
+        registers.set(dest, alu.sub(registers.get(regA), registers.get(regB)));
     }
 
     /**
@@ -131,7 +206,13 @@ public class CPU {
      * Lit en mémoire : [registre high destination, registre low destination, registre A, registre B].
      */
     private void executeMul() {
-        // TODO : à implémenter
+        int destHigh = fetch() ;
+        int destLow  = fetch();
+        int regA     = fetch() ;
+        int regB     = fetch() ;
+        byte[] result = alu.mul(registers.get(regA), registers.get(regB));
+        registers.set(destHigh, result[0]);
+        registers.set(destLow,  result[1]);
     }
 
     /**
@@ -139,7 +220,13 @@ public class CPU {
      * Lit en mémoire : [registre quotient, registre reste, registre A, registre B].
      */
     private void executeDiv() {
-        // TODO : à implémenter
+        int destQuotient  = fetch();
+        int destRemainder = fetch();
+        int regA          = fetch() ;
+        int regB          = fetch();
+        byte[] result = alu.div(registers.get(regA), registers.get(regB));
+        registers.set(destQuotient,  result[0]);
+        registers.set(destRemainder, result[1]);
     }
 
     /**
@@ -147,7 +234,10 @@ public class CPU {
      * Lit en mémoire : [registre destination, registre A, registre B].
      */
     private void executeAnd() {
-        // TODO : à implémenter
+        int dest = fetch();
+        int regA = fetch() ;
+        int regB = fetch() ;
+        registers.set(dest, alu.and(registers.get(regA), registers.get(regB)));
     }
 
     /**
@@ -155,7 +245,10 @@ public class CPU {
      * Lit en mémoire : [registre destination, registre A, registre B].
      */
     private void executeOr() {
-        // TODO : à implémenter
+        int dest = fetch();
+        int regA = fetch() ;
+        int regB = fetch() ;
+        registers.set(dest, alu.or(registers.get(regA), registers.get(regB)));
     }
 
     /**
@@ -163,7 +256,10 @@ public class CPU {
      * Lit en mémoire : [registre destination, registre A, registre B].
      */
     private void executeXor() {
-        // TODO : à implémenter
+        int dest = fetch();
+        int regA = fetch() ;
+        int regB = fetch() ;
+        registers.set(dest, alu.xor(registers.get(regA), registers.get(regB)));
     }
 
     /**
@@ -171,7 +267,8 @@ public class CPU {
      * Lit en mémoire : [adresse 16 bits de destination].
      */
     private void executeJump() {
-        // TODO : à implémenter
+        int address = memory.readWord(pc);
+        pc = address;
     }
 
     /**
@@ -179,7 +276,13 @@ public class CPU {
      * Lit en mémoire : [registre A, registre B, adresse 16 bits de destination].
      */
     private void executeBeq() {
-        // TODO : à implémenter
+        int regA    = fetch() ;
+        int regB    = fetch();
+        int address = memory.readWord(pc);
+        pc += 2;
+        if (registers.get(regA) == registers.get(regB)) {
+            pc = address;
+        }
     }
 
     /**
@@ -187,7 +290,13 @@ public class CPU {
      * Lit en mémoire : [registre A, registre B, adresse 16 bits de destination].
      */
     private void executeBne() {
-        // TODO : à implémenter
+        int regA    = fetch() ;
+        int regB    = fetch() ;
+        int address = memory.readWord(pc);
+        pc += 2;
+        if (registers.get(regA) != registers.get(regB)) {
+            pc = address;
+        }
     }
 
     /**
@@ -195,7 +304,12 @@ public class CPU {
      * Lit en mémoire : [registre destination, adresse 16 bits de base, registre offset].
      */
     private void executeLoadIndexed() {
-        // TODO : à implémenter
+        int dest    = fetch() ;
+        int base    = memory.readWord(pc);
+        pc += 2;
+        int regOffset = fetch() ;
+        int address   = base + (registers.get(regOffset) );
+        registers.set(dest, memory.read(address));
     }
 
     /**
@@ -203,6 +317,11 @@ public class CPU {
      * Lit en mémoire : [registre source, adresse 16 bits de base, registre offset].
      */
     private void executeStoreIndexed() {
-        // TODO : à implémenter
+        int src     = fetch() & 0xFF;
+        int base    = memory.readWord(pc);
+        pc += 2;
+        int regOffset = fetch() & 0xFF;
+        int address   = base + (registers.get(regOffset) & 0xFF);
+        memory.write(address, registers.get(src));
     }
 }
