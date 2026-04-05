@@ -1,7 +1,8 @@
 package core;
 
 /**
- * Unité Arithmétique et Logique (ALU). Effectue les opérations de calcul sur les registres.
+ * Unité Arithmétique et Logique (ALU). C'est le composant qui réalise tous les calculs du processeur. Elle ne possède
+ * aucun attribut : elle reçoit des opérandes, effectue une opération, et retourne un resultat.
  */
 public class ALU {
 
@@ -12,8 +13,7 @@ public class ALU {
      * @return a + b
      */
     public byte add(byte a, byte b) {
-        // TODO : à implémenter
-        return 0;
+        return (byte) (a + b) ;
     }
 
     /**
@@ -23,8 +23,7 @@ public class ALU {
      * @return a - b
      */
     public byte sub(byte a, byte b) {
-        // TODO : à implémenter
-        return 0;
+        return (byte) (a - b);
     }
 
     /**
@@ -34,8 +33,20 @@ public class ALU {
      * @return tableau [highByte, lowByte] du résultat 16 bits
      */
     public byte[] mul(byte a, byte b) {
-        // TODO : à implémenter
-        return null;
+        // On multiplie les deux valeurs en int pour éviter les pertes
+        int resultat = a * b;
+
+        // On décompose le résultat en deux octets
+        int octetHaut = resultat / 256;  // partie gauche
+        int octetBas  = resultat % 256;  // partie droite
+
+        // On crée un tableau de 2 octets et on le retourne
+        byte[] tableau = new byte[2];
+        tableau[0] = (byte) octetHaut;
+        tableau[1] = (byte) octetBas;
+
+        return tableau;
+
     }
 
     /**
@@ -46,8 +57,15 @@ public class ALU {
      * @throws ArithmeticException si b == 0
      */
     public byte[] div(byte a, byte b) {
-        // TODO : à implémenter
-        return null;
+        // La division par zéro est impossible en mathématiques
+        if (b == 0) {
+            throw new ArithmeticException("Division par zéro interdite");
+        }
+
+        byte quotient = (byte) (a / b);  // résultat entier de la division
+        byte reste    = (byte) (a % b);  // ce qui reste après la division
+
+        return new byte[]{quotient, reste};
     }
 
     /**
@@ -57,8 +75,7 @@ public class ALU {
      * @return a & b
      */
     public byte and(byte a, byte b) {
-        // TODO : à implémenter
-        return 0;
+        return (byte) (a & b);
     }
 
     /**
@@ -68,8 +85,7 @@ public class ALU {
      * @return a | b
      */
     public byte or(byte a, byte b) {
-        // TODO : à implémenter
-        return 0;
+        return (byte) (a | b);
     }
 
     /**
@@ -79,7 +95,6 @@ public class ALU {
      * @return a ^ b
      */
     public byte xor(byte a, byte b) {
-        // TODO : à implémenter
-        return 0;
+        return (byte) (a ^ b);
     }
 }

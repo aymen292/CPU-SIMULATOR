@@ -3,21 +3,19 @@ package core;
 import exception.RegisterOutOfBoundsException;
 
 /**
- * Représente le banc de 16 registres 8 bits du processeur.
+ * Représente le banc de 16 registres 8 bits du processeur.C'est une zone de stockage , directement accessible par
+ * le CPU , contrairement à la mémoire principale. Implémentée comme un tableau de byte[16]
  */
 public class RegisterFile {
 
-    /** Nombre total de registres. */
-    public static final int NUM_REGISTERS = 16;
-
-    /** Tableau des valeurs de registres. */
-    private byte[] registers;
+    public static final int NUM_REGISTERS = 16; // Nombre total de registres
+    private byte[] registers; // Tableau des valeurs de registres/
 
     /**
      * Construit un nouveau banc de registres initialisés à zéro.
      */
     public RegisterFile() {
-        // TODO : à implémenter
+        registers = new byte[NUM_REGISTERS];
     }
 
     /**
@@ -27,8 +25,11 @@ public class RegisterFile {
      * @throws RegisterOutOfBoundsException si l'index est hors limites
      */
     public byte get(int index) {
-        // TODO : à implémenter
-        return 0;
+        // On vérifie que le numéro de registre demandé existe bien
+        if (index < 0 || index >= NUM_REGISTERS) {
+            throw new RegisterOutOfBoundsException(index);
+        }
+        return registers[index];
     }
 
     /**
@@ -38,13 +39,18 @@ public class RegisterFile {
      * @throws RegisterOutOfBoundsException si l'index est hors limites
      */
     public void set(int index, byte value) {
-        // TODO : à implémenter
+        // On vérifie que le numéro de registre demandé existe bien
+        if (index < 0 || index >= NUM_REGISTERS) {
+            throw new RegisterOutOfBoundsException(index);
+        }
+        registers[index] = value;
     }
 
     /**
      * Remet tous les registres à zéro.
      */
     public void reset() {
-        // TODO : à implémenter
+        // On recrée simplement un tableau vierge
+        registers = new byte[NUM_REGISTERS];
     }
 }

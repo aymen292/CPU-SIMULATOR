@@ -3,21 +3,19 @@ package core;
 import exception.MemoryOutOfBoundsException;
 
 /**
- * Représente la mémoire du simulateur (64 Ko = 65536 octets).
+ * Modélise la mémoire vive (RAM) du simulateur. Elle est implémentée comme un tableau de 65536 octets , ce qui
+ * représente 64 Ko adressables de 0x0000 à 0xFFFF . Elle gère les accès en lecture et en écritur.
  */
 public class Memory {
 
-    /** Taille totale de la mémoire en octets. */
-    public static final int MEMORY_SIZE = 65536;
-
-    /** Tableau d'octets représentant la mémoire. */
-    private byte[] data;
+    public static final int MEMORY_SIZE = 65536; // Taille totale de la mémoire en octets
+    private byte[] data; // Tableau d'octets représentant la mémoire
 
     /**
      * Construit une nouvelle mémoire initialisée à zéro.
      */
     public Memory() {
-        // TODO : à implémenter
+        this.data = new byte[MEMORY_SIZE];
     }
 
     /**
@@ -27,8 +25,13 @@ public class Memory {
      * @throws MemoryOutOfBoundsException si l'adresse est hors limites
      */
     public byte read(int address) {
-        // TODO : à implémenter
-        return 0;
+        if (address < 0) {
+            throw new MemoryOutOfBoundsException(address);
+        }
+        if (address >= MEMORY_SIZE) {
+            throw new MemoryOutOfBoundsException(address);
+        }
+        return data[address];
     }
 
     /**
@@ -38,7 +41,13 @@ public class Memory {
      * @throws MemoryOutOfBoundsException si l'adresse est hors limites
      */
     public void write(int address, byte value) {
-        // TODO : à implémenter
+        if (address < 0) {
+            throw new MemoryOutOfBoundsException(address);
+        }
+        if (address >= MEMORY_SIZE) {
+            throw new MemoryOutOfBoundsException(address);
+        }
+        data[address] = value;
     }
 
     /**
@@ -47,8 +56,9 @@ public class Memory {
      * @return la valeur 16 bits non signée
      */
     public int readWord(int address) {
-        // TODO : à implémenter
-        return 0;
+        int high = read(address); // octet de gauche (poids fort)
+        int low  = read(address + 1); // octet de droite (poids faible)
+        return high * 256 + low;
     }
 
     /**
@@ -57,13 +67,19 @@ public class Memory {
      * @param value la valeur 16 bits à écrire
      */
     public void writeWord(int address, int value) {
-        // TODO : à implémenter
+        // On décompose le nombre en deux octets
+        int high = value / 256;   // octet de gauche (poids fort)
+        int low  = value % 256;   // octet de droite (poids faible)
+
+        write(address,     (byte) high);
+        write(address + 1, (byte) low);
     }
 
     /**
      * Remet toute la mémoire à zéro.
      */
     public void reset() {
-        // TODO : à implémenter
+        // On recrée simplement un tableau vierge
+        data = new byte[MEMORY_SIZE];
     }
 }
