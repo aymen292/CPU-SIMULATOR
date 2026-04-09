@@ -39,8 +39,7 @@ public enum Opcode {
      * @return le code numérique
      */
     public int getCode() {
-        // TODO : à implémenter
-        return 0;
+        return this.code;
     }
 
     /**
@@ -49,7 +48,13 @@ public enum Opcode {
      * @return l'Opcode correspondant, ou null si inconnu
      */
     public static Opcode fromCode(int code) {
-        // TODO : à implémenter
+        // On parcourt toutes les valeurs de l'enum pour trouver celle dont le code correspond
+        for (Opcode opcode : Opcode.values()) {
+            if (opcode.code == code) {
+                return opcode;
+            }
+        }
+        // Aucun opcode ne correspond à ce code
         return null;
     }
 }
