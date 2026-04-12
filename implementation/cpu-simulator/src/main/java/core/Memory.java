@@ -56,9 +56,9 @@ public class Memory {
      * @return la valeur 16 bits non signée
      */
     public int readWord(int address) {
-        int high = read(address); // octet de gauche (poids fort)
-        int low  = read(address + 1); // octet de droite (poids faible)
-        return high * 256 + low;
+        int high = read(address) & 0xFF; // octet de poids fort, masqué pour éviter l'extension de signe
+        int low  = read(address + 1) & 0xFF; // octet de poids faible, masqué pour éviter l'extension de signe
+        return (high << 8) | low;
     }
 
     /**

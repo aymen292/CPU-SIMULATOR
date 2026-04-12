@@ -1,8 +1,10 @@
 package core;
 
+import exception.MemoryOutOfBoundsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests unitaires pour la classe Memory.
@@ -11,67 +13,59 @@ public class MemoryTest {
 
     private Memory memory;
 
-    /**
-     * Initialise une nouvelle mémoire avant chaque test.
-     */
     @BeforeEach
     public void setUp() {
-        // TODO : à implémenter
+        memory = new Memory();
     }
 
-    /**
-     * Vérifie qu'on peut écrire et relire un octet à une adresse donnée.
-     */
+    /** Écriture puis lecture d'un octet à l'adresse 100 */
     @Test
     public void testReadWriteByte() {
-        // TODO : à implémenter
+        memory.write(100, (byte) 42);
+        assertEquals((byte) 42, memory.read(100));
     }
 
-    /**
-     * Vérifie qu'on peut écrire et relire un mot de 16 bits.
-     */
+    /** Écriture puis lecture d'un mot 16 bits (big-endian) */
     @Test
     public void testReadWriteWord() {
-        // TODO : à implémenter
+        memory.writeWord(200, 1000);
+        assertEquals(1000, memory.readWord(200));
     }
 
-    /**
-     * Vérifie que la valeur par défaut d'une adresse non écrite est 0.
-     */
+    /** Une adresse non écrite doit valoir 0 par défaut */
     @Test
     public void testReadDefaultValue() {
-        // TODO : à implémenter
+        assertEquals((byte) 0, memory.read(5000));
     }
 
-    /**
-     * Vérifie que les adresses aux limites de la mémoire sont accessibles.
-     */
+    /** Lecture et écriture aux adresses limites : 0 et 65535 */
     @Test
     public void testBoundaryAddresses() {
-        // TODO : à implémenter
+        memory.write(0,     (byte) 1);
+        memory.write(65535, (byte) 2);
+        assertEquals((byte) 1, memory.read(0));
+        assertEquals((byte) 2, memory.read(65535));
     }
 
-    /**
-     * Vérifie qu'une lecture hors limites lève une MemoryOutOfBoundsException.
-     */
+    /** Lecture à l'adresse 65536 et -1 → MemoryOutOfBoundsException */
     @Test
     public void testOutOfBoundsRead() {
-        // TODO : à implémenter
+        assertThrows(MemoryOutOfBoundsException.class, () -> memory.read(65536));
+        assertThrows(MemoryOutOfBoundsException.class, () -> memory.read(-1));
     }
 
-    /**
-     * Vérifie qu'une écriture hors limites lève une MemoryOutOfBoundsException.
-     */
+    /** Écriture à l'adresse 65536 et -1 → MemoryOutOfBoundsException */
     @Test
     public void testOutOfBoundsWrite() {
-        // TODO : à implémenter
+        assertThrows(MemoryOutOfBoundsException.class, () -> memory.write(65536, (byte) 0));
+        assertThrows(MemoryOutOfBoundsException.class, () -> memory.write(-1,    (byte) 0));
     }
 
-    /**
-     * Vérifie que reset() remet toute la mémoire à zéro.
-     */
+    /** reset() remet toute la mémoire à zéro */
     @Test
     public void testReset() {
-        // TODO : à implémenter
+        memory.write(100, (byte) 99);
+        memory.reset();
+        assertEquals((byte) 0, memory.read(100));
     }
 }
