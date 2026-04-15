@@ -1,8 +1,7 @@
 package instruction;
 
 /**
- * Enumération des codes d'instructions du processeur simulé.
- * Chaque constante représente une instruction avec son code numérique associé.
+ * Les 16 instructions du processeur. Chacune a un code entre 0 et 15.
  */
 public enum Opcode {
 
@@ -23,38 +22,23 @@ public enum Opcode {
     LOAD_INDEXED(14),
     STORE_INDEXED(15);
 
-    /** Code numérique de l'instruction. */
     private final int code;
 
-    /**
-     * Constructeur privé de l'enum.
-     * @param code le code numérique associé à l'instruction
-     */
     private Opcode(int code) {
         this.code = code;
     }
 
-    /**
-     * Retourne le code numérique de l'instruction.
-     * @return le code numérique
-     */
     public int getCode() {
-        return this.code;
+        return code;
     }
 
-    /**
-     * Retourne l'Opcode correspondant à un code numérique donné.
-     * @param code le code numérique à rechercher
-     * @return l'Opcode correspondant, ou null si inconnu
-     */
+    // renvoie l'opcode qui a ce code, ou null si il existe pas
     public static Opcode fromCode(int code) {
-        // On parcourt toutes les valeurs de l'enum pour trouver celle dont le code correspond
-        for (Opcode opcode : Opcode.values()) {
-            if (opcode.code == code) {
-                return opcode;
+        for (Opcode op : Opcode.values()) {
+            if (op.code == code) {
+                return op;
             }
         }
-        // Aucun opcode ne correspond à ce code
         return null;
     }
 }

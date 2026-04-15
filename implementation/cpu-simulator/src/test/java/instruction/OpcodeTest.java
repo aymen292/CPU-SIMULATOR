@@ -5,11 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Tests unitaires pour l'énumération Opcode.
+ * Tests pour l'enum Opcode.
  */
 public class OpcodeTest {
 
-    /** Chaque opcode retourne son code numérique attendu (0 à 15) */
+    // chaque opcode a bien le code attendu (0 a 15)
     @Test
     public void testGetCode() {
         assertEquals(0,  Opcode.BREAK.getCode());
@@ -30,7 +30,7 @@ public class OpcodeTest {
         assertEquals(15, Opcode.STORE_INDEXED.getCode());
     }
 
-    /** fromCode(n) retourne le bon opcode pour chaque code valide */
+    // fromCode(n) renvoie le bon opcode
     @Test
     public void testFromCodeValide() {
         assertEquals(Opcode.BREAK,         Opcode.fromCode(0));
@@ -40,7 +40,7 @@ public class OpcodeTest {
         assertEquals(Opcode.STORE_INDEXED, Opcode.fromCode(15));
     }
 
-    /** fromCode retourne null pour un code inconnu */
+    // pour un code inconnu on doit avoir null
     @Test
     public void testFromCodeInconnu() {
         assertNull(Opcode.fromCode(99));
@@ -48,7 +48,7 @@ public class OpcodeTest {
         assertNull(Opcode.fromCode(16));
     }
 
-    /** fromCode(op.getCode()) == op pour chaque opcode (cohérence aller-retour) */
+    // aller-retour : fromCode(op.getCode()) == op pour tous les opcodes
     @Test
     public void testAllerRetour() {
         for (Opcode op : Opcode.values()) {

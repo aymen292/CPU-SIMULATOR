@@ -1,14 +1,16 @@
 package core;
 
+import exception.InvalidOpcodeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests unitaires pour la classe CPU.
- * Chaque test écrit directement les opcodes en mémoire et vérifie l'état après exécution.
+ * Tests pour la classe CPU. Pour chaque test on ecrit les opcodes direct
+ * en memoire (sans passer par l'assembleur) et on verifie l'etat apres run.
  *
  * Rappel des opcodes :
  *   0=BREAK  1=LOAD_CONST  2=LOAD_MEM  3=STORE
@@ -29,12 +31,7 @@ public class CPUTest {
         cpu       = new CPU(memory, registers);
     }
 
-    // ------------------------------------------------------------------ BREAK
-
-    /**
-     * BREAK (opcode 0) doit arrêter l'exécution immédiatement.
-     * Programme : [0]
-     */
+    // BREAK tout seul doit arreter le CPU
     @Test
     public void testBreak() {
         memory.write(0, (byte) 0); // BREAK
@@ -42,66 +39,48 @@ public class CPUTest {
         assertFalse(cpu.isRunning());
     }
 
-    // -------------------------------------------------------------- LOAD_CONST
-
-    /**
-     * LOAD_CONST r0, 42 charge la valeur 42 dans r0.
-     * Programme : [1, 0, 42, 0]
-     */
+    // LOAD_CONST r0, 42 -> r0 = 42
     @Test
     public void testLoadConst() {
         memory.write(0, (byte) 1);  // LOAD_CONST
         memory.write(1, (byte) 0);  // dest = r0
-        memory.write(2, (byte) 42); // valeur = 42
+        memory.write(2, (byte) 42); // valeur
         memory.write(3, (byte) 0);  // BREAK
         cpu.run();
         assertEquals((byte) 42, registers.get(0));
     }
 
-    // ---------------------------------------------------------------- LOAD_MEM
-
-    /**
-     * LOAD_MEM r1, @1000 charge en r1 la valeur stockée à l'adresse 1000.
-     * 1000 en big-endian = 0x03, 0xE8
-     * Programme : [2, 1, 0x03, 0xE8, 0]
-     */
+    // LOAD_MEM r1, @1000 -> r1 = memoire[1000]
+    // 1000 en big-endian = 0x03, 0xE8
     @Test
     public void testLoadMem() {
-        memory.write(1000, (byte) 77); // valeur cible
-        memory.write(0, (byte) 2);    // LOAD_MEM
-        memory.write(1, (byte) 1);    // dest = r1
-        memory.write(2, (byte) 0x03); // adresse haute (1000 >> 8)
-        memory.write(3, (byte) 0xE8); // adresse basse (1000 & 0xFF)
-        memory.write(4, (byte) 0);    // BREAK
+        memory.write(1000, (byte) 77); // valeur en memoire
+        memory.write(0, (byte) 2);     // LOAD_MEM
+        memory.write(1, (byte) 1);     // dest = r1
+        memory.write(2, (byte) 0x03);
+        memory.write(3, (byte) 0xE8);
+        memory.write(4, (byte) 0);     // BREAK
         cpu.run();
         assertEquals((byte) 77, registers.get(1));
     }
 
-    // ------------------------------------------------------------------- STORE
-
-    /**
-     * STORE r2, @2000 écrit la valeur de r2 à l'adresse 2000.
-     * 2000 en big-endian = 0x07, 0xD0
-     */
+    // STORE r2, @2000 -> memoire[2000] = r2
+    // 2000 en big-endian = 0x07, 0xD0
     @Test
     public void testStore() {
-        memory.write(0, (byte) 1);    // LOAD_CONST
-        memory.write(1, (byte) 2);    // dest = r2
-        memory.write(2, (byte) 55);   // valeur = 55
-        memory.write(3, (byte) 3);    // STORE
-        memory.write(4, (byte) 2);    // src = r2
-        memory.write(5, (byte) 0x07); // adresse haute (2000 >> 8)
-        memory.write(6, (byte) 0xD0); // adresse basse (2000 & 0xFF)
+        memory.write(0, (byte) 1);    // LOAD_CONST r2, 55
+        memory.write(1, (byte) 2);
+        memory.write(2, (byte) 55);
+        memory.write(3, (byte) 3);    // STORE r2, @2000
+        memory.write(4, (byte) 2);
+        memory.write(5, (byte) 0x07);
+        memory.write(6, (byte) 0xD0);
         memory.write(7, (byte) 0);    // BREAK
         cpu.run();
         assertEquals((byte) 55, memory.read(2000));
     }
 
-    // --------------------------------------------------------------------- ADD
-
-    /**
-     * ADD r2, r0, r1 : r2 = r0 + r1 = 10 + 20 = 30
-     */
+    // ADD r2, r0, r1 : r2 = 10 + 20 = 30
     @Test
     public void testAdd() {
         memory.write(0,  (byte) 1);  // LOAD_CONST r0, 10
@@ -119,11 +98,7 @@ public class CPUTest {
         assertEquals((byte) 30, registers.get(2));
     }
 
-    // --------------------------------------------------------------------- SUB
-
-    /**
-     * SUB r2, r0, r1 : r2 = r0 - r1 = 15 - 5 = 10
-     */
+    // SUB r2, r0, r1 : r2 = 15 - 5 = 10
     @Test
     public void testSub() {
         memory.write(0,  (byte) 1);  // LOAD_CONST r0, 15
@@ -141,32 +116,115 @@ public class CPUTest {
         assertEquals((byte) 10, registers.get(2));
     }
 
-    // ---------------------------------------------------------------------- JUMP
+    // MUL r2, r3, r0, r1 : 6 * 7 = 42 -> high=0, low=42
+    @Test
+    public void testMul() {
+        memory.write(0,  (byte) 1);  // LOAD_CONST r0, 6
+        memory.write(1,  (byte) 0);
+        memory.write(2,  (byte) 6);
+        memory.write(3,  (byte) 1);  // LOAD_CONST r1, 7
+        memory.write(4,  (byte) 1);
+        memory.write(5,  (byte) 7);
+        memory.write(6,  (byte) 6);  // MUL r2, r3, r0, r1
+        memory.write(7,  (byte) 2);
+        memory.write(8,  (byte) 3);
+        memory.write(9,  (byte) 0);
+        memory.write(10, (byte) 1);
+        memory.write(11, (byte) 0);  // BREAK
+        cpu.run();
+        assertEquals((byte) 0,  registers.get(2)); // octet haut
+        assertEquals((byte) 42, registers.get(3)); // octet bas
+    }
 
-    /**
-     * JUMP @5 saute à l'adresse 5, en ignorant les octets 3 et 4.
-     * Programme : [11, 0, 5, 99, 99, 0]
-     *              addr0  1  2   3   4  5
-     */
+    // DIV r2, r3, r0, r1 : 17 / 5 -> quotient 3, reste 2
+    @Test
+    public void testDiv() {
+        memory.write(0,  (byte) 1);  // LOAD_CONST r0, 17
+        memory.write(1,  (byte) 0);
+        memory.write(2,  (byte) 17);
+        memory.write(3,  (byte) 1);  // LOAD_CONST r1, 5
+        memory.write(4,  (byte) 1);
+        memory.write(5,  (byte) 5);
+        memory.write(6,  (byte) 7);  // DIV r2, r3, r0, r1
+        memory.write(7,  (byte) 2);
+        memory.write(8,  (byte) 3);
+        memory.write(9,  (byte) 0);
+        memory.write(10, (byte) 1);
+        memory.write(11, (byte) 0);  // BREAK
+        cpu.run();
+        assertEquals((byte) 3, registers.get(2)); // quotient
+        assertEquals((byte) 2, registers.get(3)); // reste
+    }
+
+    // AND r2, r0, r1 : 0b1100 & 0b1010 = 0b1000 = 8
+    @Test
+    public void testAnd() {
+        memory.write(0,  (byte) 1);  // LOAD_CONST r0, 12
+        memory.write(1,  (byte) 0);
+        memory.write(2,  (byte) 0b1100);
+        memory.write(3,  (byte) 1);  // LOAD_CONST r1, 10
+        memory.write(4,  (byte) 1);
+        memory.write(5,  (byte) 0b1010);
+        memory.write(6,  (byte) 8);  // AND r2, r0, r1
+        memory.write(7,  (byte) 2);
+        memory.write(8,  (byte) 0);
+        memory.write(9,  (byte) 1);
+        memory.write(10, (byte) 0);  // BREAK
+        cpu.run();
+        assertEquals((byte) 0b1000, registers.get(2));
+    }
+
+    // OR r2, r0, r1 : 0b1100 | 0b0011 = 0b1111 = 15
+    @Test
+    public void testOr() {
+        memory.write(0,  (byte) 1);  // LOAD_CONST r0, 12
+        memory.write(1,  (byte) 0);
+        memory.write(2,  (byte) 0b1100);
+        memory.write(3,  (byte) 1);  // LOAD_CONST r1, 3
+        memory.write(4,  (byte) 1);
+        memory.write(5,  (byte) 0b0011);
+        memory.write(6,  (byte) 9);  // OR r2, r0, r1
+        memory.write(7,  (byte) 2);
+        memory.write(8,  (byte) 0);
+        memory.write(9,  (byte) 1);
+        memory.write(10, (byte) 0);  // BREAK
+        cpu.run();
+        assertEquals((byte) 0b1111, registers.get(2));
+    }
+
+    // XOR r2, r0, r1 : 0b1100 ^ 0b1010 = 0b0110 = 6
+    @Test
+    public void testXor() {
+        memory.write(0,  (byte) 1);  // LOAD_CONST r0, 12
+        memory.write(1,  (byte) 0);
+        memory.write(2,  (byte) 0b1100);
+        memory.write(3,  (byte) 1);  // LOAD_CONST r1, 10
+        memory.write(4,  (byte) 1);
+        memory.write(5,  (byte) 0b1010);
+        memory.write(6,  (byte) 10); // XOR r2, r0, r1
+        memory.write(7,  (byte) 2);
+        memory.write(8,  (byte) 0);
+        memory.write(9,  (byte) 1);
+        memory.write(10, (byte) 0);  // BREAK
+        cpu.run();
+        assertEquals((byte) 0b0110, registers.get(2));
+    }
+
+    // JUMP @5 : on saute par dessus les adresses 3 et 4
     @Test
     public void testJump() {
         memory.write(0, (byte) 11); // JUMP
-        memory.write(1, (byte) 0);  // adresse haute = 0
-        memory.write(2, (byte) 5);  // adresse basse = 5
-        memory.write(3, (byte) 99); // ne doit PAS être exécuté
-        memory.write(4, (byte) 99); // ne doit PAS être exécuté
-        memory.write(5, (byte) 0);  // BREAK (cible du saut)
+        memory.write(1, (byte) 0);
+        memory.write(2, (byte) 5);
+        memory.write(3, (byte) 99); // doit pas etre execute
+        memory.write(4, (byte) 99); // doit pas etre execute
+        memory.write(5, (byte) 0);  // BREAK
         cpu.run();
         assertFalse(cpu.isRunning());
-        assertEquals(6, cpu.getPC()); // le PC avance d'un octet après BREAK
+        assertEquals(6, cpu.getPC()); // le PC avance d'un cran apres BREAK
     }
 
-    // --------------------------------------------------------------------- BEQ
-
-    /**
-     * BEQ r0, r1, @15 : saute si r0 == r1.
-     * Ici r0=r1=7 → saut pris → r2 reste 0.
-     */
+    // BEQ r0, r1, @15 avec r0 == r1 : saut pris
     @Test
     public void testBeqPris() {
         memory.write(0,  (byte) 1);    // LOAD_CONST r0, 7
@@ -178,20 +236,18 @@ public class CPUTest {
         memory.write(6,  (byte) 12);   // BEQ r0, r1, @15
         memory.write(7,  (byte) 0);
         memory.write(8,  (byte) 1);
-        memory.write(9,  (byte) 0);    // adresse haute
-        memory.write(10, (byte) 15);   // adresse basse
-        memory.write(11, (byte) 1);    // LOAD_CONST r2, 1 — ne doit PAS s'exécuter
+        memory.write(9,  (byte) 0);
+        memory.write(10, (byte) 15);
+        memory.write(11, (byte) 1);    // LOAD_CONST r2, 1 (saute)
         memory.write(12, (byte) 2);
         memory.write(13, (byte) 1);
-        memory.write(14, (byte) 0);    // BREAK (séquence)
-        memory.write(15, (byte) 0);    // BREAK (cible du saut)
+        memory.write(14, (byte) 0);    // BREAK
+        memory.write(15, (byte) 0);    // BREAK (cible)
         cpu.run();
-        assertEquals((byte) 0, registers.get(2)); // r2 non modifié = saut pris
+        assertEquals((byte) 0, registers.get(2)); // r2 = 0 => saut pris
     }
 
-    /**
-     * BEQ r0, r1, @15 : r0=3, r1=5 → saut non pris → r2 = 1.
-     */
+    // BEQ r0, r1, @15 avec r0 != r1 : saut non pris
     @Test
     public void testBeqNonPris() {
         memory.write(0,  (byte) 1);    // LOAD_CONST r0, 3
@@ -205,20 +261,16 @@ public class CPUTest {
         memory.write(8,  (byte) 1);
         memory.write(9,  (byte) 0);
         memory.write(10, (byte) 15);
-        memory.write(11, (byte) 1);    // LOAD_CONST r2, 1 — DOIT s'exécuter
+        memory.write(11, (byte) 1);    // LOAD_CONST r2, 1 (execute)
         memory.write(12, (byte) 2);
         memory.write(13, (byte) 1);
         memory.write(14, (byte) 0);    // BREAK
-        memory.write(15, (byte) 0);    // BREAK (cible non atteinte)
+        memory.write(15, (byte) 0);    // BREAK (pas atteinte)
         cpu.run();
         assertEquals((byte) 1, registers.get(2));
     }
 
-    // --------------------------------------------------------------------- BNE
-
-    /**
-     * BNE r0, r1, @15 : r0=3, r1=8 → saut pris → r2 reste 0.
-     */
+    // BNE r0, r1, @15 avec r0 != r1 : saut pris
     @Test
     public void testBnePris() {
         memory.write(0,  (byte) 1);    // LOAD_CONST r0, 3
@@ -232,20 +284,84 @@ public class CPUTest {
         memory.write(8,  (byte) 1);
         memory.write(9,  (byte) 0);
         memory.write(10, (byte) 15);
-        memory.write(11, (byte) 1);    // LOAD_CONST r2, 1 — ne doit PAS s'exécuter
+        memory.write(11, (byte) 1);    // LOAD_CONST r2, 1 (saute)
         memory.write(12, (byte) 2);
         memory.write(13, (byte) 1);
         memory.write(14, (byte) 0);    // BREAK
-        memory.write(15, (byte) 0);    // BREAK (cible du saut)
+        memory.write(15, (byte) 0);    // BREAK (cible)
         cpu.run();
         assertEquals((byte) 0, registers.get(2));
     }
 
-    // ------------------------------------------------------------------- RESET
+    // BNE r0, r1, @15 avec r0 == r1 : saut non pris
+    @Test
+    public void testBneNonPris() {
+        memory.write(0,  (byte) 1);    // LOAD_CONST r0, 4
+        memory.write(1,  (byte) 0);
+        memory.write(2,  (byte) 4);
+        memory.write(3,  (byte) 1);    // LOAD_CONST r1, 4
+        memory.write(4,  (byte) 1);
+        memory.write(5,  (byte) 4);
+        memory.write(6,  (byte) 13);   // BNE r0, r1, @15
+        memory.write(7,  (byte) 0);
+        memory.write(8,  (byte) 1);
+        memory.write(9,  (byte) 0);
+        memory.write(10, (byte) 15);
+        memory.write(11, (byte) 1);    // LOAD_CONST r2, 1 (execute)
+        memory.write(12, (byte) 2);
+        memory.write(13, (byte) 1);
+        memory.write(14, (byte) 0);    // BREAK
+        memory.write(15, (byte) 0);    // BREAK (pas atteinte)
+        cpu.run();
+        assertEquals((byte) 1, registers.get(2));
+    }
 
-    /**
-     * reset() remet le PC à 0 et arrête l'exécution.
-     */
+    // LOAD_INDEXED r0, @1000, r1 : charge memoire[1000 + r1] dans r0
+    // r1 = 5, memoire[1005] = 88 -> r0 doit valoir 88
+    @Test
+    public void testLoadIndexed() {
+        memory.write(1005, (byte) 88);  // valeur en memoire
+        memory.write(0, (byte) 1);      // LOAD_CONST r1, 5
+        memory.write(1, (byte) 1);
+        memory.write(2, (byte) 5);
+        memory.write(3, (byte) 14);     // LOAD_INDEXED r0, @1000, r1
+        memory.write(4, (byte) 0);
+        memory.write(5, (byte) 0x03);   // base high (1000 = 0x03E8)
+        memory.write(6, (byte) 0xE8);   // base low
+        memory.write(7, (byte) 1);      // offset = r1
+        memory.write(8, (byte) 0);      // BREAK
+        cpu.run();
+        assertEquals((byte) 88, registers.get(0));
+    }
+
+    // STORE_INDEXED r0, @1000, r1 : ecrit r0 a memoire[1000 + r1]
+    // r0 = 77, r1 = 3 -> memoire[1003] = 77
+    @Test
+    public void testStoreIndexed() {
+        memory.write(0,  (byte) 1);     // LOAD_CONST r0, 77
+        memory.write(1,  (byte) 0);
+        memory.write(2,  (byte) 77);
+        memory.write(3,  (byte) 1);     // LOAD_CONST r1, 3
+        memory.write(4,  (byte) 1);
+        memory.write(5,  (byte) 3);
+        memory.write(6,  (byte) 15);    // STORE_INDEXED r0, @1000, r1
+        memory.write(7,  (byte) 0);
+        memory.write(8,  (byte) 0x03);
+        memory.write(9,  (byte) 0xE8);
+        memory.write(10, (byte) 1);
+        memory.write(11, (byte) 0);     // BREAK
+        cpu.run();
+        assertEquals((byte) 77, memory.read(1003));
+    }
+
+    // un opcode inconnu (ex : 99) doit lever InvalidOpcodeException
+    @Test
+    public void testOpcodeInvalide() {
+        memory.write(0, (byte) 99); // opcode qui n'existe pas
+        assertThrows(InvalidOpcodeException.class, () -> cpu.run());
+    }
+
+    // reset() remet le PC a 0 et arrete le CPU
     @Test
     public void testReset() {
         memory.write(0, (byte) 1);  // LOAD_CONST r0, 5

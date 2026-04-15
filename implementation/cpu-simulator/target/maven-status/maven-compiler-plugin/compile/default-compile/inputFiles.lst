@@ -1,0 +1,10 @@
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\app\Main.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\assembler\Assembler.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\core\ALU.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\core\CPU.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\core\Memory.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\core\RegisterFile.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\exception\InvalidOpcodeException.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\exception\MemoryOutOfBoundsException.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\exception\RegisterOutOfBoundsException.java
+C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\main\java\instruction\Opcode.java

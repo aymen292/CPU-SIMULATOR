@@ -4,36 +4,27 @@ import instruction.Opcode;
 import exception.InvalidOpcodeException;
 
 /**
- Le CPU est le cœur du simulateur . Il implémente le cycle classique Fetch -> Decode -> Execute : il lit
- une instruction depuis la mémoire à l'adresse pointée par le compteur de programme (pc) , décode l'opcode
- récupéré, puis délégue l'exécution à la méthode spécialisée correspondante. Il maintient son propre état
- d'exécution via le booléen running
+ * Le CPU fait tourner le programme. Il fait le cycle Fetch -> Decode -> Execute :
+ * il lit l'instruction a l'adresse du PC, regarde ce qu'elle veut dire, et l'execute.
+ * Il tourne jusqu'a rencontrer un BREAK.
  */
 public class CPU {
-    
 
-    private Memory memory; // la mémoire système partagé
-    private RegisterFile registers; // Banc de registres du processeur
-    private ALU alu; // l'unité arithmétique et logique
-    private int pc; // le compteur de programme, pointe vers la prochaine instruction à lire
-    private boolean running; // indique si le processeur est en cours d'éxécution
+    private Memory memory;
+    private RegisterFile registers;
+    private ALU alu;
+    private int pc;           // compteur de programme (pointe vers la prochaine instruction)
+    private boolean running;  // true pendant que le CPU tourne
 
-    /**
-     * Construit un nouveau CPU avec la mémoire et les registres donnés.
-     * @param memory la mémoire du système
-     * @param registers le banc de registres
-     */
     public CPU(Memory memory, RegisterFile registers) {
-       this.memory = memory;
-       this.registers = registers;
-       this.alu = new ALU();
-       this.pc = 0;
-       this.running = false;
+        this.memory = memory;
+        this.registers = registers;
+        this.alu = new ALU();
+        this.pc = 0;
+        this.running = false;
     }
 
-    /**
-     * Lance la boucle d'exécution jusqu'à l'instruction BREAK.
-     */
+    // lance le programme jusqu'au BREAK
     public void run() {
         running = true;
         while (running) {
@@ -42,241 +33,151 @@ public class CPU {
         }
     }
 
-    /**
-     * Remet le compteur de programme à 0 et arrête l'exécution.
-     */
+    // remet le PC a 0 et stoppe le CPU
     public void reset() {
-        this.pc = 0;
-        this.running = false;
+        pc = 0;
+        running = false;
     }
 
-    /**
-     * Retourne la valeur du compteur de programme.
-     * @return la valeur du compteur de programme
-     */
     public int getPC() {
         return pc;
     }
 
-    /**
-     * Indique si le CPU est en cours d'exécution.
-     * @return true si le CPU est en cours d'exécution
-     */
     public boolean isRunning() {
         return running;
     }
 
-    /**
-     * Lit l'octet à l'adresse PC et incrémente le PC.
-     * @return l'octet lu
-     */
+    // lit l'octet a l'adresse du PC et avance le PC d'un cran
     private byte fetch() {
         byte value = memory.read(pc);
         pc++;
         return value;
     }
 
-    /**
-     * Décode l'opcode et exécute l'instruction correspondante.
-     * @param opcodeByte l'octet représentant l'opcode à décoder
-     */
+    // regarde quel opcode c'est et appelle la bonne methode
     private void decode(byte opcodeByte) {
-        int code = opcodeByte ;
-        Opcode opcode = Opcode.fromCode(code);
+        Opcode opcode = Opcode.fromCode(opcodeByte);
         if (opcode == null) {
-            throw new InvalidOpcodeException(code);
+            throw new InvalidOpcodeException(opcodeByte);
         }
         switch (opcode) {
-            case BREAK:
-                executeBreak();
-                break;
-            case LOAD_CONST:
-                executeLoadConst();
-                break;
-            case LOAD_MEM:
-                executeLoadMem();
-                break;
-            case STORE:
-                executeStore();
-                break;
-            case ADD:
-                executeAdd();
-                break;
-            case SUB:
-                executeSub();
-                break;
-            case MUL:
-                executeMul();
-                break;
-            case DIV:
-                executeDiv();
-                break;
-            case AND:
-                executeAnd();
-                break;
-            case OR:
-                executeOr();
-                break;
-            case XOR:
-                executeXor();
-                break;
-            case JUMP:
-                executeJump();
-                break;
-            case BEQ:
-                executeBeq();
-                break;
-            case BNE:
-                executeBne();
-                break;
-            case LOAD_INDEXED:
-                executeLoadIndexed();
-                break;
-            case STORE_INDEXED:
-                executeStoreIndexed();
-                break;
+            case BREAK:         executeBreak();        break;
+            case LOAD_CONST:    executeLoadConst();    break;
+            case LOAD_MEM:      executeLoadMem();      break;
+            case STORE:         executeStore();        break;
+            case ADD:           executeAdd();          break;
+            case SUB:           executeSub();          break;
+            case MUL:           executeMul();          break;
+            case DIV:           executeDiv();          break;
+            case AND:           executeAnd();          break;
+            case OR:            executeOr();           break;
+            case XOR:           executeXor();          break;
+            case JUMP:          executeJump();         break;
+            case BEQ:           executeBeq();          break;
+            case BNE:           executeBne();          break;
+            case LOAD_INDEXED:  executeLoadIndexed();  break;
+            case STORE_INDEXED: executeStoreIndexed(); break;
             default:
-                throw new InvalidOpcodeException(code);
+                throw new InvalidOpcodeException(opcodeByte);
         }
     }
 
-    /**
-     * Exécute l'instruction BREAK : arrête l'exécution du CPU.
-     */
+    // BREAK : on arrete le CPU
     private void executeBreak() {
         running = false;
     }
 
-    /**
-     * Exécute l'instruction LOAD_CONST : charge une constante dans un registre.
-     * Lit en mémoire : [registre destination, valeur constante].
-     */
+    // load rX, valeur : met une constante dans un registre
     private void executeLoadConst() {
         int dest = fetch();
         byte value = fetch();
         registers.set(dest, value);
     }
 
-    /**
-     * Exécute l'instruction LOAD_MEM : charge une valeur depuis une adresse mémoire dans un registre.
-     * Lit en mémoire : [registre destination, adresse 16 bits].
-     */
+    // load rX, @adresse : copie un octet de la memoire dans un registre
     private void executeLoadMem() {
         int dest = fetch();
         int address = memory.readWord(pc);
-        pc+=2;
-        registers.set(dest,memory.read(address));
+        pc += 2;
+        registers.set(dest, memory.read(address));
     }
 
-    /**
-     * Exécute l'instruction STORE : écrit la valeur d'un registre en mémoire.
-     * Lit en mémoire : [registre source, adresse 16 bits].
-     */
+    // store rX, @adresse : copie un registre dans la memoire
     private void executeStore() {
-        int src = fetch() ;
+        int src = fetch();
         int address = memory.readWord(pc);
         pc += 2;
         memory.write(address, registers.get(src));
     }
 
-    /**
-     * Exécute l'instruction ADD : additionne deux registres et stocke le résultat.
-     * Lit en mémoire : [registre destination, registre A, registre B].
-     */
+    // add : r[dest] = r[A] + r[B]
     private void executeAdd() {
-        int dest = fetch() ;
+        int dest = fetch();
         int regA = fetch();
         int regB = fetch();
         registers.set(dest, alu.add(registers.get(regA), registers.get(regB)));
     }
 
-    /**
-     * Exécute l'instruction SUB : soustrait deux registres et stocke le résultat.
-     * Lit en mémoire : [registre destination, registre A, registre B].
-     */
+    // sub : r[dest] = r[A] - r[B]
     private void executeSub() {
         int dest = fetch();
-        int regA = fetch() ;
-        int regB = fetch() ;
+        int regA = fetch();
+        int regB = fetch();
         registers.set(dest, alu.sub(registers.get(regA), registers.get(regB)));
     }
 
-    /**
-     * Exécute l'instruction MUL : multiplie deux registres et stocke le résultat sur 16 bits.
-     * Lit en mémoire : [registre high destination, registre low destination, registre A, registre B].
-     */
+    // mul : resultat sur 16 bits donc il faut 2 registres (high + low)
     private void executeMul() {
-        int destHigh = fetch() ;
+        int destHigh = fetch();
         int destLow  = fetch();
-        int regA     = fetch() ;
-        int regB     = fetch() ;
+        int regA     = fetch();
+        int regB     = fetch();
         byte[] result = alu.mul(registers.get(regA), registers.get(regB));
         registers.set(destHigh, result[0]);
         registers.set(destLow,  result[1]);
     }
 
-    /**
-     * Exécute l'instruction DIV : divise deux registres et stocke le quotient et le reste.
-     * Lit en mémoire : [registre quotient, registre reste, registre A, registre B].
-     */
+    // div : quotient dans un registre, reste dans un autre
     private void executeDiv() {
         int destQuotient  = fetch();
         int destRemainder = fetch();
-        int regA          = fetch() ;
+        int regA          = fetch();
         int regB          = fetch();
         byte[] result = alu.div(registers.get(regA), registers.get(regB));
         registers.set(destQuotient,  result[0]);
         registers.set(destRemainder, result[1]);
     }
 
-    /**
-     * Exécute l'instruction AND : effectue un ET logique entre deux registres.
-     * Lit en mémoire : [registre destination, registre A, registre B].
-     */
     private void executeAnd() {
         int dest = fetch();
-        int regA = fetch() ;
-        int regB = fetch() ;
+        int regA = fetch();
+        int regB = fetch();
         registers.set(dest, alu.and(registers.get(regA), registers.get(regB)));
     }
 
-    /**
-     * Exécute l'instruction OR : effectue un OU logique entre deux registres.
-     * Lit en mémoire : [registre destination, registre A, registre B].
-     */
     private void executeOr() {
         int dest = fetch();
-        int regA = fetch() ;
-        int regB = fetch() ;
+        int regA = fetch();
+        int regB = fetch();
         registers.set(dest, alu.or(registers.get(regA), registers.get(regB)));
     }
 
-    /**
-     * Exécute l'instruction XOR : effectue un OU exclusif entre deux registres.
-     * Lit en mémoire : [registre destination, registre A, registre B].
-     */
     private void executeXor() {
         int dest = fetch();
-        int regA = fetch() ;
-        int regB = fetch() ;
+        int regA = fetch();
+        int regB = fetch();
         registers.set(dest, alu.xor(registers.get(regA), registers.get(regB)));
     }
 
-    /**
-     * Exécute l'instruction JUMP : effectue un saut inconditionnel à une adresse.
-     * Lit en mémoire : [adresse 16 bits de destination].
-     */
+    // jump : on change juste le PC pour continuer ailleurs
     private void executeJump() {
         int address = memory.readWord(pc);
         pc = address;
     }
 
-    /**
-     * Exécute l'instruction BEQ : saut conditionnel si deux registres sont égaux.
-     * Lit en mémoire : [registre A, registre B, adresse 16 bits de destination].
-     */
+    // beq : saute si r[A] == r[B]
     private void executeBeq() {
-        int regA    = fetch() ;
+        int regA    = fetch();
         int regB    = fetch();
         int address = memory.readWord(pc);
         pc += 2;
@@ -285,13 +186,10 @@ public class CPU {
         }
     }
 
-    /**
-     * Exécute l'instruction BNE : saut conditionnel si deux registres sont différents.
-     * Lit en mémoire : [registre A, registre B, adresse 16 bits de destination].
-     */
+    // bne : saute si r[A] != r[B]
     private void executeBne() {
-        int regA    = fetch() ;
-        int regB    = fetch() ;
+        int regA    = fetch();
+        int regB    = fetch();
         int address = memory.readWord(pc);
         pc += 2;
         if (registers.get(regA) != registers.get(regB)) {
@@ -299,28 +197,23 @@ public class CPU {
         }
     }
 
-    /**
-     * Exécute l'instruction LOAD_INDEXED : charge depuis l'adresse base + offset registre.
-     * Lit en mémoire : [registre destination, adresse 16 bits de base, registre offset].
-     */
+    // load indexe : adresse effective = base + offset (offset est dans un registre)
     private void executeLoadIndexed() {
-        int dest    = fetch() ;
-        int base    = memory.readWord(pc);
+        int dest      = fetch();
+        int base      = memory.readWord(pc);
         pc += 2;
-        int regOffset = fetch() ;
-        int address   = base + (registers.get(regOffset) );
+        int regOffset = fetch();
+        // & 0xFF pour traiter le registre comme un entier non-signe 0..255
+        int address   = base + (registers.get(regOffset) & 0xFF);
         registers.set(dest, memory.read(address));
     }
 
-    /**
-     * Exécute l'instruction STORE_INDEXED : écrit à l'adresse base + offset registre.
-     * Lit en mémoire : [registre source, adresse 16 bits de base, registre offset].
-     */
+    // store indexe : pareil mais dans l'autre sens
     private void executeStoreIndexed() {
-        int src     = fetch() & 0xFF;
-        int base    = memory.readWord(pc);
+        int src       = fetch();
+        int base      = memory.readWord(pc);
         pc += 2;
-        int regOffset = fetch() & 0xFF;
+        int regOffset = fetch();
         int address   = base + (registers.get(regOffset) & 0xFF);
         memory.write(address, registers.get(src));
     }

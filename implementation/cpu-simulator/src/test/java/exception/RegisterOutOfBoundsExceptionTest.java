@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests unitaires pour RegisterOutOfBoundsException.
+ * Tests pour RegisterOutOfBoundsException.
  */
 public class RegisterOutOfBoundsExceptionTest {
 
-    /** Le message doit contenir l'index invalide et la plage autorisée (0 à 15) */
+    // le message doit contenir l'index et la plage 0 a 15
     @Test
     public void testMessageContientIndexEtPlage() {
         RegisterOutOfBoundsException e = new RegisterOutOfBoundsException(16);
@@ -17,14 +17,14 @@ public class RegisterOutOfBoundsExceptionTest {
         assertTrue(e.getMessage().contains("15"));
     }
 
-    /** Le message fonctionne aussi pour les index négatifs */
+    // marche aussi pour les index negatifs
     @Test
     public void testMessageIndexNegatif() {
         RegisterOutOfBoundsException e = new RegisterOutOfBoundsException(-1);
         assertTrue(e.getMessage().contains("-1"));
     }
 
-    /** RegisterOutOfBoundsException est une RuntimeException (non vérifiée) */
+    // c'est bien une RuntimeException
     @Test
     public void testEstRuntimeException() {
         assertTrue(new RegisterOutOfBoundsException(16) instanceof RuntimeException);

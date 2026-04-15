@@ -6,23 +6,23 @@ import core.Memory;
 import core.RegisterFile;
 
 /**
- * Programme de démonstration qui teste les 16 instructions du simulateur CPU.
- * Pour chaque test, le programme assembleur utilisé est affiché, ainsi que
- * la valeur attendue et la valeur réellement obtenue après exécution.
+ * Programme de demo qui teste les 16 instructions du simulateur.
+ * Pour chaque instruction on ecrit un petit programme, on l'execute,
+ * et on verifie que le resultat est bien celui attendu.
  */
 public class Main {
 
+    // composants du simulateur (reinitialises avant chaque test)
     private static Memory       mem;
     private static RegisterFile reg;
     private static CPU          cpu;
     private static Assembler    asm;
-    private static int          numTest    = 0;
-    private static int          nbOk       = 0;
-    private static int          nbEchec    = 0;
 
-    // -----------------------------------------------------------------------
+    // compteurs de tests
+    private static int nbOk    = 0;
+    private static int nbEchec = 0;
 
-    /** Réinitialise tous les composants avant chaque sous-test. */
+    // remet tout a zero avant chaque test
     private static void init() {
         mem = new Memory();
         reg = new RegisterFile();
@@ -30,41 +30,19 @@ public class Main {
         asm = new Assembler(mem);
     }
 
-    /** Affiche une ligne de résultat avec la valeur attendue et la valeur obtenue. */
-    private static void verifier(String description, long attendu, long obtenu) {
-        boolean ok = attendu == obtenu;
-        if (ok) nbOk++; else nbEchec++;
-        System.out.printf("    %-48s attendu=%-5d obtenu=%-5d [%s]%n",
-                description, attendu, obtenu, ok ? "OK   " : "ECHEC");
-    }
-
-    /** Affiche le titre d'un bloc de test. */
-    private static void titreTest(String instruction, String description) {
-        numTest++;
-        System.out.println();
-        System.out.println("  ┌─────────────────────────────────────────────────────────────────┐");
-        System.out.printf( "  │ TEST %-2d : %-57s│%n", numTest, instruction);
-        System.out.printf( "  │ Objectif : %-52s│%n", description);
-        System.out.println("  └─────────────────────────────────────────────────────────────────┘");
-    }
-
-    /** Affiche le code assembleur du test. */
-    private static void programme(String... lignes) {
-        System.out.println("  Programme assembleur :");
-        for (String l : lignes) {
-            System.out.println("    " + l);
+    // compare attendu et obtenu, affiche OK ou ECHEC
+    private static void verifier(String description, int attendu, int obtenu) {
+        if (attendu == obtenu) {
+            System.out.println("  OK    : " + description);
+            nbOk++;
+        } else {
+            System.out.println("  ECHEC : " + description + " (attendu=" + attendu + ", obtenu=" + obtenu + ")");
+            nbEchec++;
         }
-        System.out.println("  Résultats :");
     }
-
-    // =======================================================================
-    //  TESTS
-    // =======================================================================
 
     public static void main(String[] args) {
-        System.out.println("╔══════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║        SIMULATEUR CPU — TEST DE TOUTES LES INSTRUCTIONS             ║");
-        System.out.println("╚══════════════════════════════════════════════════════════════════════╝");
+        System.out.println("=== Simulateur CPU : test des instructions ===");
 
         testLoadConst();
         testAdd();
@@ -84,422 +62,262 @@ public class Main {
         testAccesIndexe();
 
         System.out.println();
-        System.out.println("╔══════════════════════════════════════════════════════════════════════╗");
-        System.out.printf( "║  BILAN : %d test(s) OK  /  %d test(s) ECHEC  /  %d au total%n",
-                nbOk, nbEchec, nbOk + nbEchec);
-        System.out.println("╚══════════════════════════════════════════════════════════════════════╝");
+        System.out.println("=== Bilan : " + nbOk + " OK / " + nbEchec + " ECHEC sur " + (nbOk + nbEchec) + " tests ===");
     }
 
-    // ---------------------------------------------------------------- LOAD_CONST
-
-    /**
-     * LOAD_CONST charge une valeur immédiate (constante) directement dans un registre,
-     * sans passer par la mémoire. Aucun calcul n'est effectué.
-     */
+    // load rX, valeur : met une constante dans un registre
     private static void testLoadConst() {
-        titreTest("LOAD_CONST", "Charger des constantes dans les registres r0, r1 et r15");
-        programme(
-            "LOAD_CONST r0 10     ; r0 reçoit la valeur 10",
-            "LOAD_CONST r1 42     ; r1 reçoit la valeur 42",
-            "LOAD_CONST r15 127   ; r15 reçoit la valeur 127 (max byte signé)",
-            "BREAK                ; arrêt du processeur"
-        );
+        System.out.println();
+        System.out.println("-- Test 1 : load (constante) --");
         init();
-        asm.assemble("LOAD_CONST r0 10\nLOAD_CONST r1 42\nLOAD_CONST r15 127\nBREAK");
+        asm.assemble(
+            "load r0, 10\n" +
+            "load r1, 42\n" +
+            "load r15, 127\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r0  après LOAD_CONST r0  10",  10,  reg.get(0));
-        verifier("r1  après LOAD_CONST r1  42",  42,  reg.get(1));
-        verifier("r15 après LOAD_CONST r15 127", 127, reg.get(15));
+        verifier("r0 = 10",   10,  reg.get(0));
+        verifier("r1 = 42",   42,  reg.get(1));
+        verifier("r15 = 127", 127, reg.get(15));
     }
 
-    // ---------------------------------------------------------------------- ADD
-
-    /**
-     * ADD additionne deux registres et place le résultat dans un troisième.
-     * Ici : r0=10, r1=20, r2 = r0 + r1 = 30.
-     */
+    // add r2, r0, r1 : r2 = r0 + r1
     private static void testAdd() {
-        titreTest("ADD", "Addition de r0 (10) et r1 (20), résultat dans r2");
-        programme(
-            "LOAD_CONST r0 10     ; r0 = 10",
-            "LOAD_CONST r1 20     ; r1 = 20",
-            "ADD r2 r0 r1         ; r2 = r0 + r1 = 10 + 20 = 30",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 2 : add --");
         init();
-        asm.assemble("LOAD_CONST r0 10\nLOAD_CONST r1 20\nADD r2 r0 r1\nBREAK");
+        asm.assemble(
+            "load r0, 10\n" +
+            "load r1, 20\n" +
+            "add r2, r0, r1\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r2 = r0 + r1 = 10 + 20", 30, reg.get(2));
+        verifier("r2 = 10 + 20 = 30", 30, reg.get(2));
     }
 
-    // ---------------------------------------------------------------------- SUB
-
-    /**
-     * SUB soustrait le deuxième registre du premier et place le résultat dans le troisième.
-     * Ici : r0=15, r1=5, r2 = r0 - r1 = 10.
-     */
+    // sub r2, r0, r1 : r2 = r0 - r1
     private static void testSub() {
-        titreTest("SUB", "Soustraction de r0 (15) moins r1 (5), résultat dans r2");
-        programme(
-            "LOAD_CONST r0 15     ; r0 = 15",
-            "LOAD_CONST r1 5      ; r1 = 5",
-            "SUB r2 r0 r1         ; r2 = r0 - r1 = 15 - 5 = 10",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 3 : sub --");
         init();
-        asm.assemble("LOAD_CONST r0 15\nLOAD_CONST r1 5\nSUB r2 r0 r1\nBREAK");
+        asm.assemble(
+            "load r0, 15\n" +
+            "load r1, 5\n" +
+            "sub r2, r0, r1\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r2 = r0 - r1 = 15 - 5", 10, reg.get(2));
+        verifier("r2 = 15 - 5 = 10", 10, reg.get(2));
     }
 
-    // ---------------------------------------------------------------------- MUL
-
-    /**
-     * MUL multiplie deux registres sur 8 bits et retourne un résultat 16 bits
-     * stocké dans DEUX registres : le registre de poids fort (high) et de poids faible (low).
-     *
-     * Ici : r0=30, r1=10.
-     * 30 × 10 = 300 = 0x012C
-     *   → octet haut = 0x01 = 1   stocké dans r4
-     *   → octet bas  = 0x2C = 44  stocké dans r5
-     */
+    // mul : resultat sur 16 bits (donc 2 registres)
+    // 30 * 10 = 300 = 0x012C -> r4 = 1 (haut), r5 = 44 (bas)
     private static void testMul() {
-        titreTest("MUL", "Multiplication de r0 (30) × r1 (10) → résultat 16 bits dans r4:r5");
-        programme(
-            "LOAD_CONST r0 30     ; r0 = 30",
-            "LOAD_CONST r1 10     ; r1 = 10",
-            "MUL r4 r5 r0 r1      ; 30 x 10 = 300 = 0x012C",
-            "                     ;   → r4 = octet haut = 0x01 = 1",
-            "                     ;   → r5 = octet bas  = 0x2C = 44",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 4 : mul --");
         init();
-        asm.assemble("LOAD_CONST r0 30\nLOAD_CONST r1 10\nMUL r4 r5 r0 r1\nBREAK");
+        asm.assemble(
+            "load r0, 30\n" +
+            "load r1, 10\n" +
+            "mul r4, r5, r0, r1\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r4 = octet haut de (30 x 10 = 300) = 300 / 256 = 1",  1,  reg.get(4));
-        verifier("r5 = octet bas  de (30 x 10 = 300) = 300 % 256 = 44", 44, reg.get(5));
+        verifier("r4 = octet haut de 300 = 1",  1,  reg.get(4));
+        verifier("r5 = octet bas de 300  = 44", 44, reg.get(5));
     }
 
-    // ---------------------------------------------------------------------- DIV
-
-    /**
-     * DIV divise deux registres et retourne le quotient ET le reste dans deux registres séparés.
-     * Ici : r0=30, r1=7.
-     * 30 ÷ 7 = quotient 4, reste 2.
-     */
+    // div : quotient dans un reg, reste dans un autre
+    // 30 / 7 -> quotient 4, reste 2
     private static void testDiv() {
-        titreTest("DIV", "Division de r0 (30) ÷ r1 (7) → quotient dans r6, reste dans r7");
-        programme(
-            "LOAD_CONST r0 30     ; r0 = 30 (dividende)",
-            "LOAD_CONST r1 7      ; r1 = 7  (diviseur)",
-            "DIV r6 r7 r0 r1      ; 30 / 7 : quotient=4, reste=2",
-            "                     ;   → r6 = quotient = 4",
-            "                     ;   → r7 = reste    = 2",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 5 : div --");
         init();
-        asm.assemble("LOAD_CONST r0 30\nLOAD_CONST r1 7\nDIV r6 r7 r0 r1\nBREAK");
+        asm.assemble(
+            "load r0, 30\n" +
+            "load r1, 7\n" +
+            "div r6, r7, r0, r1\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r6 = quotient de (30 / 7) = 4", 4, reg.get(6));
-        verifier("r7 = reste    de (30 / 7) = 2", 2, reg.get(7));
+        verifier("r6 = quotient de 30/7 = 4", 4, reg.get(6));
+        verifier("r7 = reste de 30/7    = 2", 2, reg.get(7));
     }
 
-    // ---------------------------------------------------------------------- AND
-
-    /**
-     * AND effectue un ET logique bit à bit entre deux registres.
-     * Ici : r0 = 60 = 0b00111100, r1 = 15 = 0b00001111
-     * r0 AND r1 = 0b00001100 = 12
-     * (seuls les bits à 1 dans LES DEUX opérandes restent à 1)
-     */
+    // and bit a bit : 60 & 15 = 12
     private static void testAnd() {
-        titreTest("AND", "ET logique bit à bit entre r0 (60 = 0b00111100) et r1 (15 = 0b00001111)");
-        programme(
-            "LOAD_CONST r0 60     ; r0 = 60 = 0b00111100",
-            "LOAD_CONST r1 15     ; r1 = 15 = 0b00001111",
-            "AND r2 r0 r1         ; r2 = 0b00111100",
-            "                     ;       & 0b00001111",
-            "                     ;       = 0b00001100 = 12",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 6 : and --");
         init();
-        asm.assemble("LOAD_CONST r0 60\nLOAD_CONST r1 15\nAND r2 r0 r1\nBREAK");
+        asm.assemble(
+            "load r0, 60\n" +
+            "load r1, 15\n" +
+            "and r2, r0, r1\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r2 = 60 AND 15 = 0b00001100 = 12", 12, reg.get(2));
+        verifier("r2 = 60 AND 15 = 12", 12, reg.get(2));
     }
 
-    // ----------------------------------------------------------------------- OR
-
-    /**
-     * OR effectue un OU logique bit à bit entre deux registres.
-     * Ici : r0 = 60 = 0b00111100, r1 = 15 = 0b00001111
-     * r0 OR r1 = 0b00111111 = 63
-     * (un bit reste à 1 si au moins UN des deux opérandes l'a à 1)
-     */
+    // or bit a bit : 60 | 15 = 63
     private static void testOr() {
-        titreTest("OR", "OU logique bit à bit entre r0 (60 = 0b00111100) et r1 (15 = 0b00001111)");
-        programme(
-            "LOAD_CONST r0 60     ; r0 = 60 = 0b00111100",
-            "LOAD_CONST r1 15     ; r1 = 15 = 0b00001111",
-            "OR r2 r0 r1          ; r2 = 0b00111100",
-            "                     ;       | 0b00001111",
-            "                     ;       = 0b00111111 = 63",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 7 : or --");
         init();
-        asm.assemble("LOAD_CONST r0 60\nLOAD_CONST r1 15\nOR r2 r0 r1\nBREAK");
+        asm.assemble(
+            "load r0, 60\n" +
+            "load r1, 15\n" +
+            "or r2, r0, r1\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r2 = 60 OR 15 = 0b00111111 = 63", 63, reg.get(2));
+        verifier("r2 = 60 OR 15 = 63", 63, reg.get(2));
     }
 
-    // ---------------------------------------------------------------------- XOR
-
-    /**
-     * XOR effectue un OU exclusif bit à bit entre deux registres.
-     * Ici : r0 = 60 = 0b00111100, r1 = 15 = 0b00001111
-     * r0 XOR r1 = 0b00110011 = 51
-     * (un bit est à 1 seulement si les deux opérandes sont DIFFÉRENTS sur ce bit)
-     */
+    // xor bit a bit : 60 ^ 15 = 51
     private static void testXor() {
-        titreTest("XOR", "OU exclusif bit à bit entre r0 (60 = 0b00111100) et r1 (15 = 0b00001111)");
-        programme(
-            "LOAD_CONST r0 60     ; r0 = 60 = 0b00111100",
-            "LOAD_CONST r1 15     ; r1 = 15 = 0b00001111",
-            "XOR r2 r0 r1         ; r2 = 0b00111100",
-            "                     ;       ^ 0b00001111",
-            "                     ;       = 0b00110011 = 51",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 8 : xor --");
         init();
-        asm.assemble("LOAD_CONST r0 60\nLOAD_CONST r1 15\nXOR r2 r0 r1\nBREAK");
+        asm.assemble(
+            "load r0, 60\n" +
+            "load r1, 15\n" +
+            "xor r2, r0, r1\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r2 = 60 XOR 15 = 0b00110011 = 51", 51, reg.get(2));
+        verifier("r2 = 60 XOR 15 = 51", 51, reg.get(2));
     }
 
-    // -------------------------------------------------------------------- STORE
-
-    /**
-     * STORE copie la valeur d'un registre vers une adresse en mémoire.
-     * Ici : r0 = 99, on l'écrit à l'adresse mémoire 100.
-     */
+    // store rX, @adresse : ecrit le registre en memoire
     private static void testStore() {
-        titreTest("STORE", "Écrire la valeur de r0 (99) à l'adresse mémoire 100");
-        programme(
-            "LOAD_CONST r0 99     ; r0 = 99",
-            "STORE r0 @100        ; mémoire[100] ← valeur de r0 = 99",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 9 : store --");
         init();
-        asm.assemble("LOAD_CONST r0 99\nSTORE r0 @100\nBREAK");
+        asm.assemble(
+            "load r0, 99\n" +
+            "store r0, @100\n" +
+            "break"
+        );
         cpu.run();
-        verifier("mémoire[100] = 99 après STORE r0 @100", 99, mem.read(100));
+        verifier("memoire[100] = 99", 99, mem.read(100));
     }
 
-    // ----------------------------------------------------------------- LOAD_MEM
-
-    /**
-     * LOAD_MEM lit une valeur depuis une adresse mémoire et la charge dans un registre.
-     * Ici : on place 77 à l'adresse 200 directement, puis LOAD_MEM va le lire dans r1.
-     */
+    // load rX, @adresse : lit la memoire vers le registre
     private static void testLoadMem() {
-        titreTest("LOAD_MEM", "Lire la valeur à l'adresse mémoire 200 (= 77) et la mettre dans r1");
-        programme(
-            "; la valeur 77 est déjà présente à l'adresse 200 en mémoire",
-            "LOAD_MEM r1 @200     ; r1 ← mémoire[200] = 77",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 10 : load (memoire) --");
         init();
-        mem.write(200, (byte) 77); // prépare la valeur en mémoire avant assemblage
-        asm.assemble("LOAD_MEM r1 @200\nBREAK");
+        mem.write(200, (byte) 77);  // on prepare la valeur en memoire
+        asm.assemble(
+            "load r1, @200\n" +
+            "break"
+        );
         cpu.run();
-        verifier("r1 = mémoire[200] = 77 après LOAD_MEM r1 @200", 77, reg.get(1));
+        verifier("r1 = memoire[200] = 77", 77, reg.get(1));
     }
 
-    // -------------------------------------------------------------------- JUMP
-
-    /**
-     * JUMP effectue un saut inconditionnel : le CPU saute à l'adresse indiquée,
-     * en ignorant tout ce qui se trouve entre l'instruction JUMP et la cible.
-     *
-     * Layout mémoire :
-     *   addr 0-2 : LOAD_CONST r0 5    (exécuté)
-     *   addr 3-5 : JUMP @9            (saut vers l'adresse 9)
-     *   addr 6-8 : LOAD_CONST r1 99   (IGNORÉ : jamais exécuté)
-     *   addr 9   : BREAK              (cible du saut)
-     */
+    // jump : saut inconditionnel (on ignore ce qu'il y a entre les 2)
     private static void testJump() {
-        titreTest("JUMP", "Saut inconditionnel de l'adresse 3 vers l'adresse 9 (ignore addr 6-8)");
-        programme(
-            "LOAD_CONST r0 5      ; addr 0-2 : exécuté → r0 = 5",
-            "JUMP @9              ; addr 3-5 : saut vers l'adresse 9",
-            "LOAD_CONST r1 99     ; addr 6-8 : JAMAIS exécuté (sauté par JUMP)",
-            "BREAK                ; addr 9   : cible du saut, arrêt"
-        );
+        System.out.println();
+        System.out.println("-- Test 11 : jump --");
         init();
         asm.assemble(
-            "LOAD_CONST r0 5\n" +
-            "JUMP @9\n"         +
-            "LOAD_CONST r1 99\n"+
-            "BREAK"
+            "load r0, 5\n" +     // addr 0-2
+            "jump @9\n" +        // addr 3-5
+            "load r1, 99\n" +    // addr 6-8 : sera saute
+            "break"              // addr 9
         );
         cpu.run();
-        verifier("r0 = 5  (instruction AVANT le saut : exécutée)",      5, reg.get(0));
-        verifier("r1 = 0  (instruction SAUTÉE : jamais exécutée → 0)", 0, reg.get(1));
+        verifier("r0 = 5 (avant le saut)",       5, reg.get(0));
+        verifier("r1 = 0 (saute par le jump)",   0, reg.get(1));
     }
 
-    // -------------------------------------------------------------------- BEQ pris
-
-    /**
-     * BEQ saute à une adresse si les deux registres sont ÉGAUX.
-     * Cas 1 : r0 = r1 = 7 → les registres sont égaux → le saut EST effectué.
-     * L'instruction après BEQ (LOAD_CONST r2 1) est ignorée → r2 reste à 0.
-     *
-     * Layout :
-     *   addr 0-2   : LOAD_CONST r0 7
-     *   addr 3-5   : LOAD_CONST r1 7
-     *   addr 6-10  : BEQ r0 r1 @15
-     *   addr 11-13 : LOAD_CONST r2 1   ← ignoré si saut pris
-     *   addr 14    : BREAK
-     *   addr 15    : BREAK              ← cible du saut
-     */
+    // beq : saut pris quand les deux registres sont egaux
     private static void testBeqPris() {
-        titreTest("BEQ (saut pris)", "r0=7, r1=7 : r0 == r1 → saut vers addr 15, r2 reste à 0");
-        programme(
-            "LOAD_CONST r0 7      ; r0 = 7",
-            "LOAD_CONST r1 7      ; r1 = 7  (même valeur que r0)",
-            "BEQ r0 r1 @15        ; r0 == r1 → SAUT vers addr 15",
-            "LOAD_CONST r2 1      ; addr 11-13 : SAUTÉ, r2 reste à 0",
-            "BREAK                ; addr 14",
-            "BREAK                ; addr 15 : cible du saut"
-        );
+        System.out.println();
+        System.out.println("-- Test 12 : beq (saut pris) --");
         init();
         asm.assemble(
-            "LOAD_CONST r0 7\n" +
-            "LOAD_CONST r1 7\n" +
-            "BEQ r0 r1 @15\n"   +
-            "LOAD_CONST r2 1\n" +
-            "BREAK\n"           +
-            "BREAK"
+            "load r0, 7\n" +
+            "load r1, 7\n" +
+            "beq r0, r1, @15\n" +
+            "load r2, 1\n" +     // saute
+            "break\n" +          // addr 14
+            "break"              // addr 15 (cible)
         );
         cpu.run();
-        verifier("r2 = 0 : l'instruction après BEQ a été sautée (saut pris)", 0, reg.get(2));
+        verifier("r2 = 0 (le saut a ete pris)", 0, reg.get(2));
     }
 
-    // ---------------------------------------------------------------- BEQ non pris
-
-    /**
-     * BEQ cas 2 : r0 = 3, r1 = 5 → les registres sont différents → le saut N'EST PAS effectué.
-     * L'instruction après BEQ (LOAD_CONST r2 1) est exécutée normalement → r2 = 1.
-     */
+    // beq : saut non pris quand les deux registres sont differents
     private static void testBeqNonPris() {
-        titreTest("BEQ (saut non pris)", "r0=3, r1=5 : r0 != r1 → pas de saut, r2 prend la valeur 1");
-        programme(
-            "LOAD_CONST r0 3      ; r0 = 3",
-            "LOAD_CONST r1 5      ; r1 = 5  (valeur différente de r0)",
-            "BEQ r0 r1 @15        ; r0 != r1 → PAS de saut, on continue",
-            "LOAD_CONST r2 1      ; exécuté car pas de saut → r2 = 1",
-            "BREAK                ; arrêt",
-            "BREAK                ; addr 15 : non atteinte"
-        );
+        System.out.println();
+        System.out.println("-- Test 13 : beq (saut non pris) --");
         init();
         asm.assemble(
-            "LOAD_CONST r0 3\n" +
-            "LOAD_CONST r1 5\n" +
-            "BEQ r0 r1 @15\n"   +
-            "LOAD_CONST r2 1\n" +
-            "BREAK\n"           +
-            "BREAK"
+            "load r0, 3\n" +
+            "load r1, 5\n" +
+            "beq r0, r1, @15\n" +
+            "load r2, 1\n" +
+            "break\n" +
+            "break"
         );
         cpu.run();
-        verifier("r2 = 1 : l'instruction après BEQ a été exécutée (saut non pris)", 1, reg.get(2));
+        verifier("r2 = 1 (le saut n'a pas ete pris)", 1, reg.get(2));
     }
 
-    // -------------------------------------------------------------------- BNE pris
-
-    /**
-     * BNE saute si les deux registres sont DIFFÉRENTS.
-     * Cas 1 : r0 = 3, r1 = 8 → différents → le saut EST effectué → r2 reste 0.
-     */
+    // bne : saut pris quand les deux registres sont differents
     private static void testBnePris() {
-        titreTest("BNE (saut pris)", "r0=3, r1=8 : r0 != r1 → saut vers addr 15, r2 reste à 0");
-        programme(
-            "LOAD_CONST r0 3      ; r0 = 3",
-            "LOAD_CONST r1 8      ; r1 = 8  (différent de r0)",
-            "BNE r0 r1 @15        ; r0 != r1 → SAUT vers addr 15",
-            "LOAD_CONST r2 1      ; SAUTÉ → r2 reste à 0",
-            "BREAK                ; addr 14",
-            "BREAK                ; addr 15 : cible du saut"
-        );
+        System.out.println();
+        System.out.println("-- Test 14 : bne (saut pris) --");
         init();
         asm.assemble(
-            "LOAD_CONST r0 3\n" +
-            "LOAD_CONST r1 8\n" +
-            "BNE r0 r1 @15\n"   +
-            "LOAD_CONST r2 1\n" +
-            "BREAK\n"           +
-            "BREAK"
+            "load r0, 3\n" +
+            "load r1, 8\n" +
+            "bne r0, r1, @15\n" +
+            "load r2, 1\n" +
+            "break\n" +
+            "break"
         );
         cpu.run();
-        verifier("r2 = 0 : l'instruction après BNE a été sautée (saut pris)", 0, reg.get(2));
+        verifier("r2 = 0 (le saut a ete pris)", 0, reg.get(2));
     }
 
-    // ---------------------------------------------------------------- BNE non pris
-
-    /**
-     * BNE cas 2 : r0 = r1 = 5 → égaux → le saut N'EST PAS effectué → r2 = 1.
-     */
+    // bne : saut non pris quand les registres sont egaux
     private static void testBneNonPris() {
-        titreTest("BNE (saut non pris)", "r0=5, r1=5 : r0 == r1 → pas de saut, r2 prend la valeur 1");
-        programme(
-            "LOAD_CONST r0 5      ; r0 = 5",
-            "LOAD_CONST r1 5      ; r1 = 5  (même valeur que r0)",
-            "BNE r0 r1 @15        ; r0 == r1 → PAS de saut, on continue",
-            "LOAD_CONST r2 1      ; exécuté → r2 = 1",
-            "BREAK                ; arrêt",
-            "BREAK                ; addr 15 : non atteinte"
-        );
+        System.out.println();
+        System.out.println("-- Test 15 : bne (saut non pris) --");
         init();
         asm.assemble(
-            "LOAD_CONST r0 5\n" +
-            "LOAD_CONST r1 5\n" +
-            "BNE r0 r1 @15\n"   +
-            "LOAD_CONST r2 1\n" +
-            "BREAK\n"           +
-            "BREAK"
+            "load r0, 5\n" +
+            "load r1, 5\n" +
+            "bne r0, r1, @15\n" +
+            "load r2, 1\n" +
+            "break\n" +
+            "break"
         );
         cpu.run();
-        verifier("r2 = 1 : l'instruction après BNE a été exécutée (saut non pris)", 1, reg.get(2));
+        verifier("r2 = 1 (le saut n'a pas ete pris)", 1, reg.get(2));
     }
 
-    // -------------------------------------------------- LOAD_INDEXED / STORE_INDEXED
-
-    /**
-     * STORE_INDEXED écrit à l'adresse base + offset_registre.
-     * LOAD_INDEXED lit depuis l'adresse base + offset_registre.
-     *
-     * Ici : base = 100, offset dans r1 = 5 → adresse effective = 100 + 5 = 105.
-     * On stocke r0 = 10 à l'adresse 105, puis on le relit dans r2.
-     */
+    // load / store indexes : adresse = base + registre d'offset
+    // base = 100, r1 = 5 -> on ecrit a l'adresse 105 puis on relit
     private static void testAccesIndexe() {
-        titreTest("LOAD_INDEXED / STORE_INDEXED",
-                  "Écrire r0 (10) à l'adresse base(100)+offset(r1=5)=105, puis relire dans r2");
-        programme(
-            "LOAD_CONST r0 10         ; r0 = 10  (valeur à stocker)",
-            "LOAD_CONST r1 5          ; r1 = 5   (offset)",
-            "STORE_INDEXED r0 @100 r1 ; mémoire[100 + r1] = mémoire[105] = r0 = 10",
-            "LOAD_INDEXED  r2 @100 r1 ; r2 = mémoire[100 + r1] = mémoire[105] = 10",
-            "BREAK"
-        );
+        System.out.println();
+        System.out.println("-- Test 16 : load / store indexes --");
         init();
         asm.assemble(
-            "LOAD_CONST r0 10\n"         +
-            "LOAD_CONST r1 5\n"          +
-            "STORE_INDEXED r0 @100 r1\n" +
-            "LOAD_INDEXED  r2 @100 r1\n" +
-            "BREAK"
+            "load r0, 10\n" +
+            "load r1, 5\n" +
+            "store r0, @100, r1\n" +  // memoire[100 + 5] = 10
+            "load r2, @100, r1\n" +   // r2 = memoire[100 + 5]
+            "break"
         );
         cpu.run();
-        verifier("mémoire[105] = 10 après STORE_INDEXED r0 @100 r1", 10, mem.read(105));
-        verifier("r2 = 10 après LOAD_INDEXED r2 @100 r1",            10, reg.get(2));
+        verifier("memoire[105] = 10", 10, mem.read(105));
+        verifier("r2 = 10",           10, reg.get(2));
     }
 }
