@@ -22,7 +22,11 @@
       "Bash(pdftotext -layout \"Sujet/CoursTests.pdf\" /tmp/courstests.txt)",
       "Read(//tmp/**)",
       "Bash(pdftotext -layout \"Sujet/CoursTests.pdf\" \"./courstests.txt\")",
-      "Bash(/c/Users/Dan/.maven/maven-3.9.14/bin/mvn.cmd test:*)"
+      "Bash(/c/Users/Dan/.maven/maven-3.9.14/bin/mvn.cmd test:*)",
+      "Bash(mkdir -p /tmp/humanizer-analyse)",
+      "Bash(unzip -o \"/c/Users/Dan/Downloads/humanizer-main.zip\")",
+      "Bash(cp /tmp/humanizer-analyse/humanizer-main/*.md \"/c/Users/Dan/Documents/COURS STRI1A/ProjetJAVA/CPU-SIMULATOR/\")",
+      "Bash(ls -la *.md)"
     ]
   }
 }
