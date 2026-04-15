@@ -8,20 +8,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests pour la classe Assembler.
- * On verifie que chaque instruction assembleur produit les bons octets en memoire.
- *
- * Rappel pour les adresses 16 bits en big-endian :
- *   1000 = 0x03E8 -> octet haut = 0x03, octet bas = 0xE8
- *    500 = 0x01F4 -> octet haut = 0x01, octet bas = 0xF4
+ * On verifie que chaque instruction assembleur produit bien les bons octets en memoire.
+ * Pour les adresses sur 16 bits en big-endian : 1000 -> 0x03E8, 500 -> 0x01F4, etc.
  */
 public class AssemblerTest {
 
-    private Memory    memory;
+    private Memory memory;
     private Assembler assembler;
 
     @BeforeEach
     public void setUp() {
-        memory    = new Memory();
+        memory = new Memory();
         assembler = new Assembler(memory);
     }
 

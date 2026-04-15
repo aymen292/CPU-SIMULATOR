@@ -14,28 +14,26 @@ public class ALU {
         return (byte) (a - b);
     }
 
-    // multiplication : le resultat peut aller jusqu'a 16 bits donc on renvoie 2 octets
+    // multiplication : resultat sur 16 bits donc on le renvoie en 2 octets
     public byte[] mul(byte a, byte b) {
         int resultat = a * b;
-
-        // on decoupe le resultat en 2 octets
-        int octetHaut = resultat / 256;
-        int octetBas  = resultat % 256;
-
+        // on coupe en 2 : la partie haute et la partie basse
+        int haut = resultat / 256;
+        int bas = resultat % 256;
         byte[] tab = new byte[2];
-        tab[0] = (byte) octetHaut;
-        tab[1] = (byte) octetBas;
+        tab[0] = (byte) haut;
+        tab[1] = (byte) bas;
         return tab;
     }
 
-    // division : renvoie le quotient et le reste
+    // division entiere : on renvoie [quotient, reste]
     public byte[] div(byte a, byte b) {
         if (b == 0) {
             throw new ArithmeticException("Division par zéro interdite");
         }
-        byte quotient = (byte) (a / b);
-        byte reste    = (byte) (a % b);
-        return new byte[]{quotient, reste};
+        byte q = (byte) (a / b);
+        byte r = (byte) (a % b);
+        return new byte[]{q, r};
     }
 
     public byte and(byte a, byte b) {

@@ -32,12 +32,10 @@ public enum Opcode {
         return code;
     }
 
-    // renvoie l'opcode qui a ce code, ou null si il existe pas
+    // cherche l'opcode qui correspond au code donne, renvoie null si on trouve pas
     public static Opcode fromCode(int code) {
         for (Opcode op : Opcode.values()) {
-            if (op.code == code) {
-                return op;
-            }
+            if (op.code == code) return op;
         }
         return null;
     }

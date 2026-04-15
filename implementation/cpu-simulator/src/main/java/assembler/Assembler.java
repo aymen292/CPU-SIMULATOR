@@ -4,14 +4,9 @@ import core.Memory;
 import instruction.Opcode;
 
 /**
- * L'assembleur prend un programme ecrit en texte et le traduit en code machine
- * (des octets qu'on ecrit dans la memoire).
- *
- * Syntaxe :
- *   - les mnemoniques en minuscules : load, store, add, sub, ...
- *   - les operandes sont separes par des virgules
- *   - rX pour un registre, @X pour une adresse, 0x.. pour de l'hexa
- *   - ; ou # pour un commentaire
+ * L'assembleur transforme du texte en octets (le code machine).
+ * Syntaxe : mnemoniques en minuscules, operandes separees par des virgules,
+ * rX pour les registres, @adresse pour les adresses.
  */
 public class Assembler {
 
@@ -70,26 +65,25 @@ public class Assembler {
                 break;
 
             case "load": {
-                // 3 formes possibles :
-                //   load rX, valeur           -> LOAD_CONST
-                //   load rX, @adresse         -> LOAD_MEM
-                //   load rX, @base, rOffset   -> LOAD_INDEXED
+                // load a plusieurs formes, on regarde le nombre d'arguments et si y'a un @
                 int dest = parseRegister(tokens[1]);
                 if (tokens.length == 3) {
                     if (isAddress(tokens[2])) {
+                        // load rX, @adresse
                         int address = parseValue(tokens[2]);
                         writeByte((byte) Opcode.LOAD_MEM.getCode());
                         writeByte((byte) dest);
                         writeAddress(address);
                     } else {
+                        // load rX, valeur (constante)
                         int value = parseValue(tokens[2]);
                         writeByte((byte) Opcode.LOAD_CONST.getCode());
                         writeByte((byte) dest);
                         writeByte((byte) value);
                     }
                 } else {
-                    // load indexe : adresse + registre d'offset
-                    int base      = parseValue(tokens[2]);
+                    // 4 tokens : load indexe (base + registre)
+                    int base = parseValue(tokens[2]);
                     int regOffset = parseRegister(tokens[3]);
                     writeByte((byte) Opcode.LOAD_INDEXED.getCode());
                     writeByte((byte) dest);
@@ -100,10 +94,8 @@ public class Assembler {
             }
 
             case "store": {
-                // 2 formes :
-                //   store rX, @adresse        -> STORE
-                //   store rX, @base, rOffset  -> STORE_INDEXED
-                int src     = parseRegister(tokens[1]);
+                // store normal ou indexe (comme load)
+                int src = parseRegister(tokens[1]);
                 int address = parseValue(tokens[2]);
                 if (tokens.length == 3) {
                     writeByte((byte) Opcode.STORE.getCode());
@@ -136,11 +128,11 @@ public class Assembler {
                 break;
 
             case "mul": {
-                // mul rHigh, rLow, rA, rB (resultat sur 16 bits)
+                // mul a 4 registres : les 2 premiers c'est pour le resultat (16 bits)
                 int destHigh = parseRegister(tokens[1]);
-                int destLow  = parseRegister(tokens[2]);
-                int regA     = parseRegister(tokens[3]);
-                int regB     = parseRegister(tokens[4]);
+                int destLow = parseRegister(tokens[2]);
+                int regA = parseRegister(tokens[3]);
+                int regB = parseRegister(tokens[4]);
                 writeByte((byte) Opcode.MUL.getCode());
                 writeByte((byte) destHigh);
                 writeByte((byte) destLow);
@@ -150,11 +142,11 @@ public class Assembler {
             }
 
             case "div": {
-                // div rQuotient, rReste, rA, rB
+                // div : quotient dans r1, reste dans r2
                 int destQ = parseRegister(tokens[1]);
                 int destR = parseRegister(tokens[2]);
-                int regA  = parseRegister(tokens[3]);
-                int regB  = parseRegister(tokens[4]);
+                int regA = parseRegister(tokens[3]);
+                int regB = parseRegister(tokens[4]);
                 writeByte((byte) Opcode.DIV.getCode());
                 writeByte((byte) destQ);
                 writeByte((byte) destR);
@@ -190,7 +182,8 @@ public class Assembler {
         }
     }
 
-    // pour les instructions de la forme : op rDest, rA, rB (add, sub, and, or, xor)
+    // petite methode pour eviter de recopier le meme code pour add/sub/and/or/xor
+    // (elles marchent toutes pareil : op rDest, rA, rB)
     private void writeInstructionRRR(Opcode opcode, String[] tokens) {
         int dest = parseRegister(tokens[1]);
         int regA = parseRegister(tokens[2]);
@@ -201,10 +194,10 @@ public class Assembler {
         writeByte((byte) regB);
     }
 
-    // pour les branchements : op rA, rB, @adresse
+    // meme idee pour beq et bne : op rA, rB, @adresse
     private void writeBranch(Opcode opcode, String[] tokens) {
-        int regA    = parseRegister(tokens[1]);
-        int regB    = parseRegister(tokens[2]);
+        int regA = parseRegister(tokens[1]);
+        int regB = parseRegister(tokens[2]);
         int address = parseValue(tokens[3]);
         writeByte((byte) opcode.getCode());
         writeByte((byte) regA);
@@ -212,27 +205,28 @@ public class Assembler {
         writeAddress(address);
     }
 
-    // ecrit un octet a currentAddress et avance
+    // ecrit un octet et avance la position
     private void writeByte(byte value) {
         memory.write(currentAddress, value);
         currentAddress++;
     }
 
-    // ecrit une adresse sur 2 octets (big-endian)
+    // ecrit une adresse 16 bits sur 2 octets (big endian : poids fort d'abord)
     private void writeAddress(int address) {
-        writeByte((byte) ((address >> 8) & 0xFF));  // octet de poids fort
-        writeByte((byte) (address & 0xFF));         // octet de poids faible
+        writeByte((byte) ((address >> 8) & 0xFF));
+        writeByte((byte) (address & 0xFF));
     }
 
-    // parse "rX" et renvoie le numero X
+    // parse "rX" et renvoie juste le numero X
     private int parseRegister(String token) {
         return Integer.parseInt(token.substring(1));
     }
 
-    // parse une valeur (decimale, hexa, ou adresse avec @)
+    // parse un nombre : decimale, hexa (0x..) ou adresse (@..)
     private int parseValue(String token) {
         if (isAddress(token)) {
-            token = token.substring(1);  // on enleve le @
+            // on enleve le @ du debut
+            token = token.substring(1);
         }
         if (token.startsWith("0x") || token.startsWith("0X")) {
             return Integer.parseInt(token.substring(2), 16);
@@ -240,6 +234,7 @@ public class Assembler {
         return Integer.parseInt(token);
     }
 
+    // dit si c'est une adresse (ca commence par @)
     private boolean isAddress(String token) {
         return token.startsWith("@");
     }

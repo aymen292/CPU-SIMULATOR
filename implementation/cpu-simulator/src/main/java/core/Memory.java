@@ -31,18 +31,19 @@ public class Memory {
         data[address] = value;
     }
 
-    // lit une valeur sur 16 bits (2 octets, big-endian : poids fort en premier)
+    // lit une valeur sur 16 bits (2 octets, big-endian)
     public int readWord(int address) {
-        int high = read(address) & 0xFF;      // on masque pour eviter le signe
-        int low  = read(address + 1) & 0xFF;
+        int high = read(address) & 0xFF;
+        int low = read(address + 1) & 0xFF;
+        // le & 0xFF c'est pour eviter que le byte devienne negatif quand on le met dans un int
         return (high << 8) | low;
     }
 
-    // ecrit une valeur sur 16 bits (2 octets, big-endian)
+    // ecrit une valeur sur 16 bits en big endian
     public void writeWord(int address, int value) {
-        int high = value / 256;  // octet de gauche
-        int low  = value % 256;  // octet de droite
-        write(address,     (byte) high);
+        int high = value / 256;
+        int low = value % 256;
+        write(address, (byte) high);
         write(address + 1, (byte) low);
     }
 

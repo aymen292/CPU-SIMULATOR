@@ -9,26 +9,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests pour la classe CPU. Pour chaque test on ecrit les opcodes direct
- * en memoire (sans passer par l'assembleur) et on verifie l'etat apres run.
- *
- * Rappel des opcodes :
- *   0=BREAK  1=LOAD_CONST  2=LOAD_MEM  3=STORE
- *   4=ADD    5=SUB         6=MUL       7=DIV
- *   8=AND    9=OR         10=XOR      11=JUMP
- *  12=BEQ   13=BNE        14=LOAD_INDEXED  15=STORE_INDEXED
+ * Tests pour la classe CPU. On ecrit les opcodes directement en memoire
+ * (sans passer par l'assembleur) et on verifie l'etat des registres apres run().
+ * Opcodes : 0=BREAK, 1=LOAD_CONST, 2=LOAD_MEM, 3=STORE, 4=ADD, 5=SUB, 6=MUL,
+ * 7=DIV, 8=AND, 9=OR, 10=XOR, 11=JUMP, 12=BEQ, 13=BNE, 14=LOAD_INDEXED, 15=STORE_INDEXED.
  */
 public class CPUTest {
 
-    private Memory       memory;
+    private Memory memory;
     private RegisterFile registers;
-    private CPU          cpu;
+    private CPU cpu;
 
     @BeforeEach
     public void setUp() {
-        memory    = new Memory();
+        memory = new Memory();
         registers = new RegisterFile();
-        cpu       = new CPU(memory, registers);
+        cpu = new CPU(memory, registers);
     }
 
     // BREAK tout seul doit arreter le CPU

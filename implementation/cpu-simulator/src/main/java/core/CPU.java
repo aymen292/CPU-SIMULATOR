@@ -29,6 +29,7 @@ public class CPU {
         running = true;
         while (running) {
             byte opcodeByte = fetch();
+            //System.out.println("pc=" + pc + " opcode=" + opcodeByte); // debug
             decode(opcodeByte);
         }
     }
@@ -54,28 +55,28 @@ public class CPU {
         return value;
     }
 
-    // regarde quel opcode c'est et appelle la bonne methode
+    // on regarde quel opcode c'est et on appelle la bonne methode
     private void decode(byte opcodeByte) {
         Opcode opcode = Opcode.fromCode(opcodeByte);
         if (opcode == null) {
             throw new InvalidOpcodeException(opcodeByte);
         }
         switch (opcode) {
-            case BREAK:         executeBreak();        break;
-            case LOAD_CONST:    executeLoadConst();    break;
-            case LOAD_MEM:      executeLoadMem();      break;
-            case STORE:         executeStore();        break;
-            case ADD:           executeAdd();          break;
-            case SUB:           executeSub();          break;
-            case MUL:           executeMul();          break;
-            case DIV:           executeDiv();          break;
-            case AND:           executeAnd();          break;
-            case OR:            executeOr();           break;
-            case XOR:           executeXor();          break;
-            case JUMP:          executeJump();         break;
-            case BEQ:           executeBeq();          break;
-            case BNE:           executeBne();          break;
-            case LOAD_INDEXED:  executeLoadIndexed();  break;
+            case BREAK: executeBreak(); break;
+            case LOAD_CONST: executeLoadConst(); break;
+            case LOAD_MEM: executeLoadMem(); break;
+            case STORE: executeStore(); break;
+            case ADD: executeAdd(); break;
+            case SUB: executeSub(); break;
+            case MUL: executeMul(); break;
+            case DIV: executeDiv(); break;
+            case AND: executeAnd(); break;
+            case OR: executeOr(); break;
+            case XOR: executeXor(); break;
+            case JUMP: executeJump(); break;
+            case BEQ: executeBeq(); break;
+            case BNE: executeBne(); break;
+            case LOAD_INDEXED: executeLoadIndexed(); break;
             case STORE_INDEXED: executeStoreIndexed(); break;
             default:
                 throw new InvalidOpcodeException(opcodeByte);
@@ -126,26 +127,26 @@ public class CPU {
         registers.set(dest, alu.sub(registers.get(regA), registers.get(regB)));
     }
 
-    // mul : resultat sur 16 bits donc il faut 2 registres (high + low)
+    // mul : le resultat tient sur 16 bits donc on a besoin de 2 registres (high + low)
     private void executeMul() {
         int destHigh = fetch();
-        int destLow  = fetch();
-        int regA     = fetch();
-        int regB     = fetch();
+        int destLow = fetch();
+        int regA = fetch();
+        int regB = fetch();
         byte[] result = alu.mul(registers.get(regA), registers.get(regB));
         registers.set(destHigh, result[0]);
-        registers.set(destLow,  result[1]);
+        registers.set(destLow, result[1]);
     }
 
-    // div : quotient dans un registre, reste dans un autre
+    // div : on stocke le quotient dans un registre et le reste dans un autre
     private void executeDiv() {
-        int destQuotient  = fetch();
-        int destRemainder = fetch();
-        int regA          = fetch();
-        int regB          = fetch();
-        byte[] result = alu.div(registers.get(regA), registers.get(regB));
-        registers.set(destQuotient,  result[0]);
-        registers.set(destRemainder, result[1]);
+        int destQ = fetch();
+        int destR = fetch();
+        int regA = fetch();
+        int regB = fetch();
+        byte[] res = alu.div(registers.get(regA), registers.get(regB));
+        registers.set(destQ, res[0]);
+        registers.set(destR, res[1]);
     }
 
     private void executeAnd() {
@@ -175,10 +176,10 @@ public class CPU {
         pc = address;
     }
 
-    // beq : saute si r[A] == r[B]
+    // beq : on saute seulement si r[A] == r[B]
     private void executeBeq() {
-        int regA    = fetch();
-        int regB    = fetch();
+        int regA = fetch();
+        int regB = fetch();
         int address = memory.readWord(pc);
         pc += 2;
         if (registers.get(regA) == registers.get(regB)) {
@@ -186,10 +187,10 @@ public class CPU {
         }
     }
 
-    // bne : saute si r[A] != r[B]
+    // bne : on saute seulement si r[A] != r[B]
     private void executeBne() {
-        int regA    = fetch();
-        int regB    = fetch();
+        int regA = fetch();
+        int regB = fetch();
         int address = memory.readWord(pc);
         pc += 2;
         if (registers.get(regA) != registers.get(regB)) {
@@ -197,24 +198,24 @@ public class CPU {
         }
     }
 
-    // load indexe : adresse effective = base + offset (offset est dans un registre)
+    // load indexe : adresse = base + valeur du registre offset
     private void executeLoadIndexed() {
-        int dest      = fetch();
-        int base      = memory.readWord(pc);
+        int dest = fetch();
+        int base = memory.readWord(pc);
         pc += 2;
         int regOffset = fetch();
-        // & 0xFF pour traiter le registre comme un entier non-signe 0..255
-        int address   = base + (registers.get(regOffset) & 0xFF);
+        // le & 0xFF c'est pour traiter le registre comme non signe (0 a 255 au lieu de -128 a 127)
+        int address = base + (registers.get(regOffset) & 0xFF);
         registers.set(dest, memory.read(address));
     }
 
-    // store indexe : pareil mais dans l'autre sens
+    // store indexe : pareil que load indexe mais dans l'autre sens
     private void executeStoreIndexed() {
-        int src       = fetch();
-        int base      = memory.readWord(pc);
+        int src = fetch();
+        int base = memory.readWord(pc);
         pc += 2;
         int regOffset = fetch();
-        int address   = base + (registers.get(regOffset) & 0xFF);
+        int address = base + (registers.get(regOffset) & 0xFF);
         memory.write(address, registers.get(src));
     }
 }
