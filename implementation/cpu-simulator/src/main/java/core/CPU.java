@@ -16,7 +16,7 @@ public class CPU {
     private Memory memory;
     private RegisterFile registers;
     private ALU alu;
-    private int pc;          // compteur ordinal : adresse de la prochaine instruction
+    private int pc;          // compteur : adresse de la prochaine instruction
     private boolean running; // true pendant que le CPU exécute des instructions
 
     /**
@@ -27,11 +27,11 @@ public class CPU {
      * @param registers banc de registres que le CPU utilisera pour ses opérations
      */
     public CPU(Memory memory, RegisterFile registers) {
-        this.memory = memory;
+        this.memory    = memory;
         this.registers = registers;
-        this.alu = new ALU();
-        this.pc = 0;
-        this.running = false;
+        this.alu       = new ALU();
+        this.pc        = 0;
+        this.running   = false;
     }
 
     /**
@@ -50,7 +50,6 @@ public class CPU {
 
     /**
      * Exécute une seule instruction (un cycle Fetch-Decode-Execute).
-     * Met running à true avant d'exécuter si ce n'est pas déjà le cas.
      * Retourne false si le CPU vient de s'arrêter (BREAK rencontré), true sinon.
      *
      * @return true si le CPU continue de tourner, false s'il vient de s'arrêter
@@ -68,7 +67,7 @@ public class CPU {
      * Le contenu de la mémoire et des registres n'est pas modifié.
      */
     public void reset() {
-        pc = 0;
+        pc      = 0;
         running = false;
     }
 
@@ -96,9 +95,9 @@ public class CPU {
      * @return l'octet lu en mémoire
      */
     private byte fetch() {
-        byte value = memory.read(pc);
-        pc++;
-        return value;
+        byte valeur = memory.read(pc);
+        pc = pc + 1;
+        return valeur;
     }
 
     /**
@@ -109,28 +108,43 @@ public class CPU {
      */
     private void decode(byte opcodeByte) {
         Opcode opcode = Opcode.fromCode(opcodeByte);
+
         if (opcode == null) {
             throw new InvalidOpcodeException(opcodeByte);
         }
-        switch (opcode) {
-            case BREAK:         executeBreak();        break;
-            case LOAD_CONST:    executeLoadConst();    break;
-            case LOAD_MEM:      executeLoadMem();      break;
-            case STORE:         executeStore();        break;
-            case ADD:           executeAdd();          break;
-            case SUB:           executeSub();          break;
-            case MUL:           executeMul();          break;
-            case DIV:           executeDiv();          break;
-            case AND:           executeAnd();          break;
-            case OR:            executeOr();           break;
-            case XOR:           executeXor();          break;
-            case JUMP:          executeJump();         break;
-            case BEQ:           executeBeq();          break;
-            case BNE:           executeBne();          break;
-            case LOAD_INDEXED:  executeLoadIndexed();  break;
-            case STORE_INDEXED: executeStoreIndexed(); break;
-            default:
-                throw new InvalidOpcodeException(opcodeByte);
+
+        if (opcode == Opcode.BREAK) {
+            executeBreak();
+        } else if (opcode == Opcode.LOAD_CONST) {
+            executeLoadConst();
+        } else if (opcode == Opcode.LOAD_MEM) {
+            executeLoadMem();
+        } else if (opcode == Opcode.STORE) {
+            executeStore();
+        } else if (opcode == Opcode.ADD) {
+            executeAdd();
+        } else if (opcode == Opcode.SUB) {
+            executeSub();
+        } else if (opcode == Opcode.MUL) {
+            executeMul();
+        } else if (opcode == Opcode.DIV) {
+            executeDiv();
+        } else if (opcode == Opcode.AND) {
+            executeAnd();
+        } else if (opcode == Opcode.OR) {
+            executeOr();
+        } else if (opcode == Opcode.XOR) {
+            executeXor();
+        } else if (opcode == Opcode.JUMP) {
+            executeJump();
+        } else if (opcode == Opcode.BEQ) {
+            executeBeq();
+        } else if (opcode == Opcode.BNE) {
+            executeBne();
+        } else if (opcode == Opcode.LOAD_INDEXED) {
+            executeLoadIndexed();
+        } else if (opcode == Opcode.STORE_INDEXED) {
+            executeStoreIndexed();
         }
     }
 
@@ -146,7 +160,7 @@ public class CPU {
      * Format en mémoire : [opcode][dest][valeur]
      */
     private void executeLoadConst() {
-        int dest = fetch();
+        int dest   = fetch();
         byte value = fetch();
         registers.set(dest, value);
     }
@@ -157,10 +171,11 @@ public class CPU {
      * Format en mémoire : [opcode][dest][adresse_haut][adresse_bas]
      */
     private void executeLoadMem() {
-        int dest = fetch();
-        int address = memory.readWord(pc);
-        pc += 2;
-        registers.set(dest, memory.read(address));
+        int dest    = fetch();
+        int adresse = memory.readWord(pc);
+        pc = pc + 2;
+        byte valeur = memory.read(adresse);
+        registers.set(dest, valeur);
     }
 
     /**
@@ -169,10 +184,11 @@ public class CPU {
      * Format en mémoire : [opcode][src][adresse_haut][adresse_bas]
      */
     private void executeStore() {
-        int src = fetch();
-        int address = memory.readWord(pc);
-        pc += 2;
-        memory.write(address, registers.get(src));
+        int src     = fetch();
+        int adresse = memory.readWord(pc);
+        pc = pc + 2;
+        byte valeur = registers.get(src);
+        memory.write(adresse, valeur);
     }
 
     /**
@@ -183,7 +199,10 @@ public class CPU {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
-        registers.set(dest, alu.add(registers.get(regA), registers.get(regB)));
+        byte valeurA  = registers.get(regA);
+        byte valeurB  = registers.get(regB);
+        byte resultat = alu.add(valeurA, valeurB);
+        registers.set(dest, resultat);
     }
 
     /**
@@ -194,7 +213,10 @@ public class CPU {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
-        registers.set(dest, alu.sub(registers.get(regA), registers.get(regB)));
+        byte valeurA  = registers.get(regA);
+        byte valeurB  = registers.get(regB);
+        byte resultat = alu.sub(valeurA, valeurB);
+        registers.set(dest, resultat);
     }
 
     /**
@@ -203,13 +225,15 @@ public class CPU {
      * Format en mémoire : [opcode][destHigh][destLow][regA][regB]
      */
     private void executeMul() {
-        int destHigh = fetch();
-        int destLow = fetch();
-        int regA = fetch();
-        int regB = fetch();
-        byte[] result = alu.mul(registers.get(regA), registers.get(regB));
-        registers.set(destHigh, result[0]);
-        registers.set(destLow, result[1]);
+        int destHaut = fetch();
+        int destBas  = fetch();
+        int regA     = fetch();
+        int regB     = fetch();
+        byte valeurA    = registers.get(regA);
+        byte valeurB    = registers.get(regB);
+        byte[] resultat = alu.mul(valeurA, valeurB);
+        registers.set(destHaut, resultat[0]);
+        registers.set(destBas,  resultat[1]);
     }
 
     /**
@@ -222,11 +246,13 @@ public class CPU {
     private void executeDiv() {
         int destQ = fetch();
         int destR = fetch();
-        int regA = fetch();
-        int regB = fetch();
-        byte[] res = alu.div(registers.get(regA), registers.get(regB));
-        registers.set(destQ, res[0]);
-        registers.set(destR, res[1]);
+        int regA  = fetch();
+        int regB  = fetch();
+        byte valeurA    = registers.get(regA);
+        byte valeurB    = registers.get(regB);
+        byte[] resultat = alu.div(valeurA, valeurB);
+        registers.set(destQ, resultat[0]);
+        registers.set(destR, resultat[1]);
     }
 
     /**
@@ -237,7 +263,10 @@ public class CPU {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
-        registers.set(dest, alu.and(registers.get(regA), registers.get(regB)));
+        byte valeurA  = registers.get(regA);
+        byte valeurB  = registers.get(regB);
+        byte resultat = alu.and(valeurA, valeurB);
+        registers.set(dest, resultat);
     }
 
     /**
@@ -248,7 +277,10 @@ public class CPU {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
-        registers.set(dest, alu.or(registers.get(regA), registers.get(regB)));
+        byte valeurA  = registers.get(regA);
+        byte valeurB  = registers.get(regB);
+        byte resultat = alu.or(valeurA, valeurB);
+        registers.set(dest, resultat);
     }
 
     /**
@@ -259,7 +291,10 @@ public class CPU {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
-        registers.set(dest, alu.xor(registers.get(regA), registers.get(regB)));
+        byte valeurA  = registers.get(regA);
+        byte valeurB  = registers.get(regB);
+        byte resultat = alu.xor(valeurA, valeurB);
+        registers.set(dest, resultat);
     }
 
     /**
@@ -268,8 +303,8 @@ public class CPU {
      * Format en mémoire : [opcode][adresse_haut][adresse_bas]
      */
     private void executeJump() {
-        int address = memory.readWord(pc);
-        pc = address;
+        int adresse = memory.readWord(pc);
+        pc = adresse;
     }
 
     /**
@@ -277,12 +312,13 @@ public class CPU {
      * Format en mémoire : [opcode][regA][regB][adresse_haut][adresse_bas]
      */
     private void executeBeq() {
-        int regA = fetch();
-        int regB = fetch();
-        int address = memory.readWord(pc);
-        pc += 2;
+        int regA    = fetch();
+        int regB    = fetch();
+        int adresse = memory.readWord(pc);
+        pc = pc + 2;
+
         if (registers.get(regA) == registers.get(regB)) {
-            pc = address;
+            pc = adresse;
         }
     }
 
@@ -291,12 +327,13 @@ public class CPU {
      * Format en mémoire : [opcode][regA][regB][adresse_haut][adresse_bas]
      */
     private void executeBne() {
-        int regA = fetch();
-        int regB = fetch();
-        int address = memory.readWord(pc);
-        pc += 2;
+        int regA    = fetch();
+        int regB    = fetch();
+        int adresse = memory.readWord(pc);
+        pc = pc + 2;
+
         if (registers.get(regA) != registers.get(regB)) {
-            pc = address;
+            pc = adresse;
         }
     }
 
@@ -306,12 +343,16 @@ public class CPU {
      * Format en mémoire : [opcode][dest][base_haut][base_bas][regOffset]
      */
     private void executeLoadIndexed() {
-        int dest = fetch();
-        int base = memory.readWord(pc);
-        pc += 2;
+        int dest      = fetch();
+        int base      = memory.readWord(pc);
+        pc = pc + 2;
         int regOffset = fetch();
-        int address = base + (registers.get(regOffset) & 0xFF);
-        registers.set(dest, memory.read(address));
+
+        int offset  = registers.get(regOffset) & 0xFF;
+        int adresse = base + offset;
+
+        byte valeur = memory.read(adresse);
+        registers.set(dest, valeur);
     }
 
     /**
@@ -320,11 +361,15 @@ public class CPU {
      * Format en mémoire : [opcode][src][base_haut][base_bas][regOffset]
      */
     private void executeStoreIndexed() {
-        int src = fetch();
-        int base = memory.readWord(pc);
-        pc += 2;
+        int src       = fetch();
+        int base      = memory.readWord(pc);
+        pc = pc + 2;
         int regOffset = fetch();
-        int address = base + (registers.get(regOffset) & 0xFF);
-        memory.write(address, registers.get(src));
+
+        int offset  = registers.get(regOffset) & 0xFF;
+        int adresse = base + offset;
+
+        byte valeur = registers.get(src);
+        memory.write(adresse, valeur);
     }
 }

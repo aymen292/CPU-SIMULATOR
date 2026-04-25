@@ -10,7 +10,6 @@ import java.util.Scanner;
 
 /**
  * Interface en ligne de commande du simulateur de processeur.
- * Les options du menu correspondent aux cas d'utilisation du diagramme :
  * ecrire un programme, assembler, executer, consulter l'etat et reinitialiser.
  */
 public class Main {
@@ -235,7 +234,6 @@ public class Main {
             // ----------------------------------------------------------------
             } else if (choix.equals("7")) {
 
-                System.out.println("Au revoir !");
                 continuer = false;
 
             } else {

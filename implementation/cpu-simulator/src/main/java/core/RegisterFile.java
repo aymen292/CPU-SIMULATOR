@@ -23,6 +23,7 @@ public class RegisterFile {
 
     /**
      * Retourne la valeur du registre numéro index.
+     * Lève une RegisterOutOfBoundsException si index est hors de la plage [0, 15].
      *
      * @param index numéro du registre, compris entre 0 et 15
      * @return valeur 8 bits stockée dans le registre
@@ -37,6 +38,7 @@ public class RegisterFile {
 
     /**
      * Écrit value dans le registre numéro index.
+     * Lève une RegisterOutOfBoundsException si index est hors de la plage [0, 15].
      *
      * @param index numéro du registre, compris entre 0 et 15
      * @param value valeur 8 bits à stocker

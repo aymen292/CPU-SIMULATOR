@@ -17,7 +17,8 @@ public class ALU {
      * @return (byte)(a + b), tronqué sur 8 bits
      */
     public byte add(byte a, byte b) {
-        return (byte) (a + b);
+        int resultat = a + b;
+        return (byte) resultat;
     }
 
     /**
@@ -29,7 +30,8 @@ public class ALU {
      * @return (byte)(a - b), tronqué sur 8 bits
      */
     public byte sub(byte a, byte b) {
-        return (byte) (a - b);
+        int resultat = a - b;
+        return (byte) resultat;
     }
 
     /**
@@ -45,11 +47,14 @@ public class ALU {
      */
     public byte[] mul(byte a, byte b) {
         int resultat = a * b;
-        int haut = resultat / 256;
-        int bas = resultat % 256;
+
+        int octetHaut = resultat / 256;
+        int octetBas  = resultat % 256;
+
         byte[] tab = new byte[2];
-        tab[0] = (byte) haut;
-        tab[1] = (byte) bas;
+        tab[0] = (byte) octetHaut;
+        tab[1] = (byte) octetBas;
+
         return tab;
     }
 
@@ -66,9 +71,15 @@ public class ALU {
         if (b == 0) {
             throw new ArithmeticException("Division par zéro interdite");
         }
-        byte q = (byte) (a / b);
-        byte r = (byte) (a % b);
-        return new byte[]{q, r};
+
+        byte quotient = (byte) (a / b);
+        byte reste    = (byte) (a % b);
+
+        byte[] resultat = new byte[2];
+        resultat[0] = quotient;
+        resultat[1] = reste;
+
+        return resultat;
     }
 
     /**
@@ -79,7 +90,8 @@ public class ALU {
      * @return (byte)(a & b)
      */
     public byte and(byte a, byte b) {
-        return (byte) (a & b);
+        int resultat = a & b;
+        return (byte) resultat;
     }
 
     /**
@@ -90,7 +102,8 @@ public class ALU {
      * @return (byte)(a | b)
      */
     public byte or(byte a, byte b) {
-        return (byte) (a | b);
+        int resultat = a | b;
+        return (byte) resultat;
     }
 
     /**
@@ -101,6 +114,7 @@ public class ALU {
      * @return (byte)(a ^ b)
      */
     public byte xor(byte a, byte b) {
-        return (byte) (a ^ b);
+        int resultat = a ^ b;
+        return (byte) resultat;
     }
 }

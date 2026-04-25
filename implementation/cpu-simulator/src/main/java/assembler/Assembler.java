@@ -30,7 +30,7 @@ public class Assembler {
      * @param memory mémoire cible qui recevra les octets assemblés
      */
     public Assembler(Memory memory) {
-        this.memory = memory;
+        this.memory         = memory;
         this.currentAddress = 0;
     }
 
@@ -42,13 +42,19 @@ public class Assembler {
      * @throws IllegalArgumentException si une ligne contient un mnémonique inconnu
      */
     public void assemble(String program) {
-        String[] lines = program.split("\n");
-        for (String line : lines) {
-            String trimmed = line.trim();
-            if (trimmed.isEmpty() || trimmed.startsWith(";") || trimmed.startsWith("#")) {
+        String[] lignes = program.split("\n");
+
+        for (int i = 0; i < lignes.length; i++) {
+            String ligne = lignes[i].trim();
+
+            if (ligne.isEmpty()) {
                 continue;
             }
-            parseLine(trimmed);
+            if (ligne.startsWith(";") || ligne.startsWith("#")) {
+                continue;
+            }
+
+            parseLine(ligne);
         }
     }
 
@@ -63,140 +69,153 @@ public class Assembler {
      * @throws IllegalArgumentException si le mnémonique n'est pas reconnu
      */
     private void parseLine(String line) {
-        int commentIndex = line.indexOf(';');
-        if (commentIndex >= 0) {
-            line = line.substring(0, commentIndex).trim();
+        // on enlève les commentaires en fin de ligne
+        int indexCommentaire = line.indexOf(';');
+        if (indexCommentaire >= 0) {
+            line = line.substring(0, indexCommentaire).trim();
         }
         if (line.isEmpty()) {
             return;
         }
 
+        // cas spécial : string "texte" (on ne peut pas découper sur les virgules)
         if (line.toLowerCase().startsWith("string")) {
-            int start = line.indexOf('"') + 1;
-            int end   = line.lastIndexOf('"');
-            String text = line.substring(start, end);
-            for (char c : text.toCharArray()) {
+            int debut = line.indexOf('"') + 1;
+            int fin   = line.lastIndexOf('"');
+            String texte = line.substring(debut, fin);
+
+            for (int i = 0; i < texte.length(); i++) {
+                char c = texte.charAt(i);
                 writeByte((byte) c);
             }
             return;
         }
 
-        String[] tokens = line.replace(",", " ").split("\\s+");
-        String mnemonic = tokens[0].toLowerCase();
+        // on remplace les virgules par des espaces puis on découpe
+        String lineNettoye = line.replace(",", " ");
+        String[] tokens    = lineNettoye.split("\\s+");
+        String mnemonic    = tokens[0].toLowerCase();
 
-        switch (mnemonic) {
+        if (mnemonic.equals("break")) {
 
-            case "break":
-                writeByte((byte) Opcode.BREAK.getCode());
-                break;
+            writeByte((byte) Opcode.BREAK.getCode());
 
-            case "load": {
-                int dest = parseRegister(tokens[1]);
-                if (tokens.length == 3) {
-                    if (isAddress(tokens[2])) {
-                        int address = parseValue(tokens[2]);
-                        writeByte((byte) Opcode.LOAD_MEM.getCode());
-                        writeByte((byte) dest);
-                        writeAddress(address);
-                    } else {
-                        int value = parseValue(tokens[2]);
-                        writeByte((byte) Opcode.LOAD_CONST.getCode());
-                        writeByte((byte) dest);
-                        writeByte((byte) value);
-                    }
-                } else {
-                    int base = parseValue(tokens[2]);
-                    int regOffset = parseRegister(tokens[3]);
-                    writeByte((byte) Opcode.LOAD_INDEXED.getCode());
+        } else if (mnemonic.equals("load")) {
+
+            int dest = parseRegister(tokens[1]);
+
+            if (tokens.length == 3) {
+                if (isAddress(tokens[2])) {
+                    // load rX, @adresse
+                    int adresse = parseValue(tokens[2]);
+                    writeByte((byte) Opcode.LOAD_MEM.getCode());
                     writeByte((byte) dest);
-                    writeAddress(base);
-                    writeByte((byte) regOffset);
-                }
-                break;
-            }
-
-            case "store": {
-                int src = parseRegister(tokens[1]);
-                int address = parseValue(tokens[2]);
-                if (tokens.length == 3) {
-                    writeByte((byte) Opcode.STORE.getCode());
-                    writeByte((byte) src);
-                    writeAddress(address);
+                    writeAddress(adresse);
                 } else {
-                    int regOffset = parseRegister(tokens[3]);
-                    writeByte((byte) Opcode.STORE_INDEXED.getCode());
-                    writeByte((byte) src);
-                    writeAddress(address);
-                    writeByte((byte) regOffset);
+                    // load rX, valeur (constante)
+                    int valeur = parseValue(tokens[2]);
+                    writeByte((byte) Opcode.LOAD_CONST.getCode());
+                    writeByte((byte) dest);
+                    writeByte((byte) valeur);
                 }
-                break;
+            } else {
+                // load rX, @base, rOffset (adressage indexé)
+                int base      = parseValue(tokens[2]);
+                int regOffset = parseRegister(tokens[3]);
+                writeByte((byte) Opcode.LOAD_INDEXED.getCode());
+                writeByte((byte) dest);
+                writeAddress(base);
+                writeByte((byte) regOffset);
             }
 
-            case "add":
-                writeInstructionRRR(Opcode.ADD, tokens);
-                break;
-            case "sub":
-                writeInstructionRRR(Opcode.SUB, tokens);
-                break;
-            case "and":
-                writeInstructionRRR(Opcode.AND, tokens);
-                break;
-            case "or":
-                writeInstructionRRR(Opcode.OR, tokens);
-                break;
-            case "xor":
-                writeInstructionRRR(Opcode.XOR, tokens);
-                break;
+        } else if (mnemonic.equals("store")) {
 
-            case "mul": {
-                int destHigh = parseRegister(tokens[1]);
-                int destLow  = parseRegister(tokens[2]);
-                int regA     = parseRegister(tokens[3]);
-                int regB     = parseRegister(tokens[4]);
-                writeByte((byte) Opcode.MUL.getCode());
-                writeByte((byte) destHigh);
-                writeByte((byte) destLow);
-                writeByte((byte) regA);
-                writeByte((byte) regB);
-                break;
+            int src     = parseRegister(tokens[1]);
+            int adresse = parseValue(tokens[2]);
+
+            if (tokens.length == 3) {
+                // store rX, @adresse
+                writeByte((byte) Opcode.STORE.getCode());
+                writeByte((byte) src);
+                writeAddress(adresse);
+            } else {
+                // store rX, @base, rOffset (adressage indexé)
+                int regOffset = parseRegister(tokens[3]);
+                writeByte((byte) Opcode.STORE_INDEXED.getCode());
+                writeByte((byte) src);
+                writeAddress(adresse);
+                writeByte((byte) regOffset);
             }
 
-            case "div": {
-                int destQ = parseRegister(tokens[1]);
-                int destR = parseRegister(tokens[2]);
-                int regA  = parseRegister(tokens[3]);
-                int regB  = parseRegister(tokens[4]);
-                writeByte((byte) Opcode.DIV.getCode());
-                writeByte((byte) destQ);
-                writeByte((byte) destR);
-                writeByte((byte) regA);
-                writeByte((byte) regB);
-                break;
+        } else if (mnemonic.equals("add")) {
+
+            writeInstructionRRR(Opcode.ADD, tokens);
+
+        } else if (mnemonic.equals("sub")) {
+
+            writeInstructionRRR(Opcode.SUB, tokens);
+
+        } else if (mnemonic.equals("and")) {
+
+            writeInstructionRRR(Opcode.AND, tokens);
+
+        } else if (mnemonic.equals("or")) {
+
+            writeInstructionRRR(Opcode.OR, tokens);
+
+        } else if (mnemonic.equals("xor")) {
+
+            writeInstructionRRR(Opcode.XOR, tokens);
+
+        } else if (mnemonic.equals("mul")) {
+
+            int destHaut = parseRegister(tokens[1]);
+            int destBas  = parseRegister(tokens[2]);
+            int regA     = parseRegister(tokens[3]);
+            int regB     = parseRegister(tokens[4]);
+
+            writeByte((byte) Opcode.MUL.getCode());
+            writeByte((byte) destHaut);
+            writeByte((byte) destBas);
+            writeByte((byte) regA);
+            writeByte((byte) regB);
+
+        } else if (mnemonic.equals("div")) {
+
+            int destQ = parseRegister(tokens[1]);
+            int destR = parseRegister(tokens[2]);
+            int regA  = parseRegister(tokens[3]);
+            int regB  = parseRegister(tokens[4]);
+
+            writeByte((byte) Opcode.DIV.getCode());
+            writeByte((byte) destQ);
+            writeByte((byte) destR);
+            writeByte((byte) regA);
+            writeByte((byte) regB);
+
+        } else if (mnemonic.equals("jump")) {
+
+            int adresse = parseValue(tokens[1]);
+            writeByte((byte) Opcode.JUMP.getCode());
+            writeAddress(adresse);
+
+        } else if (mnemonic.equals("beq")) {
+
+            writeBranch(Opcode.BEQ, tokens);
+
+        } else if (mnemonic.equals("bne")) {
+
+            writeBranch(Opcode.BNE, tokens);
+
+        } else if (mnemonic.equals("data")) {
+
+            for (int i = 1; i < tokens.length; i++) {
+                int valeur = parseValue(tokens[i]);
+                writeByte((byte) valeur);
             }
 
-            case "jump": {
-                int address = parseValue(tokens[1]);
-                writeByte((byte) Opcode.JUMP.getCode());
-                writeAddress(address);
-                break;
-            }
-
-            case "beq":
-                writeBranch(Opcode.BEQ, tokens);
-                break;
-            case "bne":
-                writeBranch(Opcode.BNE, tokens);
-                break;
-
-            case "data": {
-                for (int i = 1; i < tokens.length; i++) {
-                    writeByte((byte) parseValue(tokens[i]));
-                }
-                break;
-            }
-
-            default:
-                throw new IllegalArgumentException("Mnémonique inconnu : " + mnemonic);
+        } else {
+            throw new IllegalArgumentException("Mnémonique inconnu : " + mnemonic);
         }
     }
 
@@ -212,6 +231,7 @@ public class Assembler {
         int dest = parseRegister(tokens[1]);
         int regA = parseRegister(tokens[2]);
         int regB = parseRegister(tokens[3]);
+
         writeByte((byte) opcode.getCode());
         writeByte((byte) dest);
         writeByte((byte) regA);
@@ -229,11 +249,12 @@ public class Assembler {
     private void writeBranch(Opcode opcode, String[] tokens) {
         int regA    = parseRegister(tokens[1]);
         int regB    = parseRegister(tokens[2]);
-        int address = parseValue(tokens[3]);
+        int adresse = parseValue(tokens[3]);
+
         writeByte((byte) opcode.getCode());
         writeByte((byte) regA);
         writeByte((byte) regB);
-        writeAddress(address);
+        writeAddress(adresse);
     }
 
     /**
@@ -243,7 +264,7 @@ public class Assembler {
      */
     private void writeByte(byte value) {
         memory.write(currentAddress, value);
-        currentAddress++;
+        currentAddress = currentAddress + 1;
     }
 
     /**
@@ -253,8 +274,11 @@ public class Assembler {
      * @param address valeur 16 bits à encoder, comprise entre 0 et 65 535
      */
     private void writeAddress(int address) {
-        writeByte((byte) ((address >> 8) & 0xFF));
-        writeByte((byte) (address & 0xFF));
+        int octetHaut = address / 256;
+        int octetBas  = address % 256;
+
+        writeByte((byte) octetHaut);
+        writeByte((byte) octetBas);
     }
 
     /**
@@ -265,7 +289,8 @@ public class Assembler {
      * @return numéro du registre sous forme d'entier
      */
     private int parseRegister(String token) {
-        return Integer.parseInt(token.substring(1));
+        String numero = token.substring(1);
+        return Integer.parseInt(numero);
     }
 
     /**
@@ -281,9 +306,12 @@ public class Assembler {
         if (isAddress(token)) {
             token = token.substring(1);
         }
+
         if (token.startsWith("0x") || token.startsWith("0X")) {
-            return Integer.parseInt(token.substring(2), 16);
+            String hexa = token.substring(2);
+            return Integer.parseInt(hexa, 16);
         }
+
         return Integer.parseInt(token);
     }
 

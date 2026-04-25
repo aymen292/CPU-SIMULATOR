@@ -72,9 +72,14 @@ public enum Opcode {
      * @return l'opcode correspondant, ou null si le code est inconnu
      */
     public static Opcode fromCode(int code) {
-        for (Opcode op : Opcode.values()) {
-            if (op.code == code) return op;
+        Opcode[] tousLesOpcodes = Opcode.values();
+
+        for (int i = 0; i < tousLesOpcodes.length; i++) {
+            if (tousLesOpcodes[i].code == code) {
+                return tousLesOpcodes[i];
+            }
         }
+
         return null;
     }
 }

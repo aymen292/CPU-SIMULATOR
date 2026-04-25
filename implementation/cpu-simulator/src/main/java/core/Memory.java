@@ -23,6 +23,7 @@ public class Memory {
 
     /**
      * Lit l'octet situé à l'adresse donnée.
+     * Lève une MemoryOutOfBoundsException si l'adresse est hors de la plage [0, 65535].
      *
      * @param address adresse à lire, comprise entre 0 et 65 535
      * @return l'octet stocké à cette adresse
@@ -37,6 +38,7 @@ public class Memory {
 
     /**
      * Écrit un octet à l'adresse donnée.
+     * Lève une MemoryOutOfBoundsException si l'adresse est hors de la plage [0, 65535].
      *
      * @param address adresse où écrire, comprise entre 0 et 65 535
      * @param value   valeur à stocker
@@ -58,9 +60,16 @@ public class Memory {
      * @throws MemoryOutOfBoundsException si l'adresse ou l'adresse + 1 est hors limites
      */
     public int readWord(int address) {
-        int high = read(address) & 0xFF;
-        int low = read(address + 1) & 0xFF;
-        return (high << 8) | low;
+        // on lit les deux octets séparément
+        byte octetHaut = read(address);
+        byte octetBas  = read(address + 1);
+
+        // on convertit en int non signé avant de les combiner
+        int valeurHaute = octetHaut & 0xFF;
+        int valeurBasse = octetBas  & 0xFF;
+
+        int mot = valeurHaute * 256 + valeurBasse;
+        return mot;
     }
 
     /**
@@ -72,10 +81,11 @@ public class Memory {
      * @throws MemoryOutOfBoundsException si l'adresse ou l'adresse + 1 est hors limites
      */
     public void writeWord(int address, int value) {
-        int high = value / 256;
-        int low = value % 256;
-        write(address, (byte) high);
-        write(address + 1, (byte) low);
+        int octetHaut = value / 256;
+        int octetBas  = value % 256;
+
+        write(address,     (byte) octetHaut);
+        write(address + 1, (byte) octetBas);
     }
 
     /**
