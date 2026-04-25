@@ -1,23 +1,50 @@
 package core;
 
 /**
- * L'ALU fait les calculs du processeur (add, sub, mul, div, and, or, xor).
- * Elle n'a pas d'attribut : on lui passe les deux operandes et elle renvoie le resultat.
+ * Unité Arithmétique et Logique du simulateur.
+ * Effectue les calculs sur des opérandes de 8 bits (byte).
+ * Elle est sans état : on lui passe les opérandes et elle renvoie le résultat.
  */
 public class ALU {
 
+    /**
+     * Additionne deux octets signés.
+     * Le résultat est tronqué sur 8 bits ; un dépassement se produit en silence
+     * (exemple : 127 + 1 = -128).
+     *
+     * @param a premier opérande
+     * @param b second opérande
+     * @return (byte)(a + b), tronqué sur 8 bits
+     */
     public byte add(byte a, byte b) {
         return (byte) (a + b);
     }
 
+    /**
+     * Soustrait b de a.
+     * Le résultat est tronqué sur 8 bits sans signalement d'un éventuel dépassement.
+     *
+     * @param a opérande dont on soustrait
+     * @param b opérande à soustraire
+     * @return (byte)(a - b), tronqué sur 8 bits
+     */
     public byte sub(byte a, byte b) {
         return (byte) (a - b);
     }
 
-    // multiplication : resultat sur 16 bits donc on le renvoie en 2 octets
+    /**
+     * Multiplie deux octets signés et renvoie le résultat sur 16 bits.
+     * Le produit étant encodé dans un tableau de 2 octets :
+     * - result[0] : octet de poids fort (bits 15 à 8)
+     * - result[1] : octet de poids faible (bits 7 à 0)
+     * Exemple : 50 * 10 = 500 → result[0] = 1, result[1] = -12.
+     *
+     * @param a premier facteur
+     * @param b second facteur
+     * @return tableau de 2 octets [octet_haut, octet_bas] représentant le produit 16 bits
+     */
     public byte[] mul(byte a, byte b) {
         int resultat = a * b;
-        // on coupe en 2 : la partie haute et la partie basse
         int haut = resultat / 256;
         int bas = resultat % 256;
         byte[] tab = new byte[2];
@@ -26,7 +53,15 @@ public class ALU {
         return tab;
     }
 
-    // division entiere : on renvoie [quotient, reste]
+    /**
+     * Effectue la division entière de a par b.
+     * Renvoie un tableau de 2 octets : result[0] = quotient, result[1] = reste.
+     *
+     * @param a dividende
+     * @param b diviseur, doit être différent de zéro
+     * @return tableau [quotient, reste]
+     * @throws ArithmeticException si b vaut zéro
+     */
     public byte[] div(byte a, byte b) {
         if (b == 0) {
             throw new ArithmeticException("Division par zéro interdite");
@@ -36,14 +71,35 @@ public class ALU {
         return new byte[]{q, r};
     }
 
+    /**
+     * Calcule le ET logique bit à bit de a et b.
+     *
+     * @param a premier opérande
+     * @param b second opérande
+     * @return (byte)(a & b)
+     */
     public byte and(byte a, byte b) {
         return (byte) (a & b);
     }
 
+    /**
+     * Calcule le OU logique bit à bit de a et b.
+     *
+     * @param a premier opérande
+     * @param b second opérande
+     * @return (byte)(a | b)
+     */
     public byte or(byte a, byte b) {
         return (byte) (a | b);
     }
 
+    /**
+     * Calcule le OU exclusif bit à bit (XOR) de a et b.
+     *
+     * @param a premier opérande
+     * @param b second opérande
+     * @return (byte)(a ^ b)
+     */
     public byte xor(byte a, byte b) {
         return (byte) (a ^ b);
     }

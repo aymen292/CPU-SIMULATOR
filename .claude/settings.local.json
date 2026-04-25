@@ -26,7 +26,10 @@
       "Bash(mkdir -p /tmp/humanizer-analyse)",
       "Bash(unzip -o \"/c/Users/Dan/Downloads/humanizer-main.zip\")",
       "Bash(cp /tmp/humanizer-analyse/humanizer-main/*.md \"/c/Users/Dan/Documents/COURS STRI1A/ProjetJAVA/CPU-SIMULATOR/\")",
-      "Bash(ls -la *.md)"
+      "Bash(ls -la *.md)",
+      "WebFetch(domain:pixees.fr)",
+      "Bash(xargs javac *)",
+      "Bash(echo \"Exit: $?\")"
     ]
   }
 }

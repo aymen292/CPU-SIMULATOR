@@ -5,11 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Tests pour l'enum Opcode.
+ * Tests unitaires de l'enum Opcode.
+ * Vérifie les codes numériques, la recherche par code et la cohérence aller-retour.
  */
 public class OpcodeTest {
 
-    // chaque opcode a bien le code attendu (0 a 15)
+    /**
+     * Vérifie que chaque opcode possède bien le code numérique attendu (0 à 15).
+     */
     @Test
     public void testGetCode() {
         assertEquals(0,  Opcode.BREAK.getCode());
@@ -30,7 +33,9 @@ public class OpcodeTest {
         assertEquals(15, Opcode.STORE_INDEXED.getCode());
     }
 
-    // fromCode(n) renvoie le bon opcode
+    /**
+     * Vérifie que fromCode retourne le bon opcode pour des codes valides.
+     */
     @Test
     public void testFromCodeValide() {
         assertEquals(Opcode.BREAK,         Opcode.fromCode(0));
@@ -40,7 +45,9 @@ public class OpcodeTest {
         assertEquals(Opcode.STORE_INDEXED, Opcode.fromCode(15));
     }
 
-    // pour un code inconnu on doit avoir null
+    /**
+     * Vérifie que fromCode retourne null pour des codes qui n'existent pas.
+     */
     @Test
     public void testFromCodeInconnu() {
         assertNull(Opcode.fromCode(99));
@@ -48,7 +55,10 @@ public class OpcodeTest {
         assertNull(Opcode.fromCode(16));
     }
 
-    // aller-retour : fromCode(op.getCode()) == op pour tous les opcodes
+    /**
+     * Vérifie la cohérence aller-retour : fromCode(op.getCode()) doit retourner op
+     * pour chaque constante de l'énumération.
+     */
     @Test
     public void testAllerRetour() {
         for (Opcode op : Opcode.values()) {

@@ -4,281 +4,279 @@ import assembler.Assembler;
 import core.CPU;
 import core.Memory;
 import core.RegisterFile;
+import exception.InvalidOpcodeException;
+
+import java.util.Scanner;
 
 /**
- * Demo du simulateur. On fait un petit test pour chaque instruction.
- * TODO : rajouter des tests plus complets sur les cas limites
+ * Interface en ligne de commande du simulateur de processeur.
+ * Les options du menu correspondent aux cas d'utilisation du diagramme :
+ * ecrire un programme, assembler, executer, consulter l'etat et reinitialiser.
  */
 public class Main {
 
-    private static Memory mem;
-    private static RegisterFile reg;
-    private static CPU cpu;
-    private static Assembler asm;
+    public static void main(String[] args) {
 
-    private static int nbOk = 0;
-    private static int nbEchec = 0;
+        Scanner scanner = new Scanner(System.in);
 
-    // remet tout a zero avant chaque test
-    private static void init() {
-        mem = new Memory();
-        reg = new RegisterFile();
-        cpu = new CPU(mem, reg);
-        asm = new Assembler(mem);
+        Memory memory = new Memory();
+        RegisterFile registers = new RegisterFile();
+        CPU cpu = new CPU(memory, registers);
+        Assembler assembler = new Assembler(memory);
+
+        String programme = "";
+        boolean estAssemble = false;
+
+        System.out.println("=== Simulateur de processeur - Carre Petit Utile ===");
+        System.out.println();
+
+        boolean continuer = true;
+
+        while (continuer) {
+
+            System.out.println("--- Menu principal ---");
+            System.out.println("1 - Ecrire un programme en assembleur");
+            System.out.println("2 - Assembler le programme");
+            System.out.println("3 - Executer le programme");
+            System.out.println("4 - Executer pas a pas");
+            System.out.println("5 - Consulter l'etat du simulateur");
+            System.out.println("6 - Reinitialiser le CPU");
+            System.out.println("7 - Quitter");
+            System.out.print("Votre choix : ");
+
+            String choix = scanner.nextLine().trim();
+            System.out.println();
+
+            // ----------------------------------------------------------------
+            // Cas 1 : Ecrire un programme en assembleur
+            // ----------------------------------------------------------------
+            if (choix.equals("1")) {
+
+                System.out.println("=== Ecrire un programme en assembleur ===");
+                System.out.println();
+                System.out.println("Instructions disponibles :");
+                System.out.println("  Instructions de base   : load, store, break");
+                System.out.println("  Operations ALU         : add, sub, mul, div, and, or, xor");
+                System.out.println("  Sauts et branchements  : jump, beq, bne");
+                System.out.println("  Adressage indexe       : load rX, @base, rY  /  store rX, @base, rY");
+                System.out.println("  Donnees en memoire     : data val1, val2, ...  /  string \"texte\"");
+                System.out.println();
+                System.out.println("Entrez votre programme ligne par ligne.");
+                System.out.println("Laissez une ligne vide pour terminer.");
+                System.out.println();
+
+                StringBuilder sb = new StringBuilder();
+                int nbLignes = 0;
+
+                while (true) {
+                    System.out.print("  > ");
+                    String ligne = scanner.nextLine();
+                    if (ligne.trim().isEmpty()) {
+                        break;
+                    }
+                    sb.append(ligne).append("\n");
+                    nbLignes++;
+                }
+
+                if (nbLignes == 0) {
+                    System.out.println("Aucune ligne saisie, programme inchange.");
+                } else {
+                    programme = sb.toString();
+                    estAssemble = false;
+                    System.out.println(nbLignes + " ligne(s) saisie(s).");
+                    System.out.println("Pensez a choisir l'option 2 pour assembler le programme.");
+                }
+
+            // ----------------------------------------------------------------
+            // Cas 2 : Assembler le programme (inclut le chargement en memoire)
+            // ----------------------------------------------------------------
+            } else if (choix.equals("2")) {
+
+                System.out.println("=== Assembler le programme ===");
+                System.out.println();
+
+                if (programme.isEmpty()) {
+                    System.out.println("Aucun programme a assembler. Ecrivez d'abord un programme (option 1).");
+                } else {
+                    // reinitialisation avant chargement en memoire
+                    memory.reset();
+                    registers.reset();
+                    cpu.reset();
+                    assembler = new Assembler(memory);
+
+                    try {
+                        assembler.assemble(programme);
+                        estAssemble = true;
+                        System.out.println("Assemblage reussi.");
+                        System.out.println("Le programme a ete charge en memoire.");
+                        System.out.println("Vous pouvez maintenant l'executer (option 3 ou 4).");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Erreur lors de l'assemblage : " + e.getMessage());
+                        estAssemble = false;
+                    }
+                }
+
+            // ----------------------------------------------------------------
+            // Cas 3 : Executer le programme
+            // ----------------------------------------------------------------
+            } else if (choix.equals("3")) {
+
+                System.out.println("=== Executer le programme ===");
+                System.out.println();
+
+                if (!estAssemble) {
+                    System.out.println("Le programme n'est pas encore assemble. Choisissez l'option 2.");
+                } else {
+                    try {
+                        cpu.run();
+                        System.out.println("Execution terminee.");
+                    } catch (InvalidOpcodeException e) {
+                        System.out.println("Erreur d'execution : " + e.getMessage());
+                    }
+                }
+
+            // ----------------------------------------------------------------
+            // Cas 4 : Executer pas a pas
+            // ----------------------------------------------------------------
+            } else if (choix.equals("4")) {
+
+                System.out.println("=== Executer pas a pas ===");
+                System.out.println();
+
+                if (!estAssemble) {
+                    System.out.println("Le programme n'est pas encore assemble. Choisissez l'option 2.");
+                } else {
+                    try {
+                        boolean enCours = cpu.step();
+                        System.out.println("Instruction executee.");
+                        if (!enCours) {
+                            System.out.println("BREAK atteint : le programme est termine.");
+                        } else {
+                            System.out.println("Appuyez sur 4 pour executer l'instruction suivante.");
+                        }
+                    } catch (InvalidOpcodeException e) {
+                        System.out.println("Erreur d'execution : " + e.getMessage());
+                    }
+                }
+
+            // ----------------------------------------------------------------
+            // Cas 5 : Consulter l'etat du simulateur
+            // ----------------------------------------------------------------
+            } else if (choix.equals("5")) {
+
+                System.out.println("=== Consulter l'etat du simulateur ===");
+                System.out.println();
+                System.out.println("Que voulez-vous consulter ?");
+                System.out.println("  a - Etat de la memoire");
+                System.out.println("  b - Etat des registres");
+                System.out.println("  c - Compteur de programme (PC)");
+                System.out.print("Votre choix : ");
+
+                String sousChoix = scanner.nextLine().trim().toLowerCase();
+                System.out.println();
+
+                if (sousChoix.equals("a")) {
+
+                    System.out.print("Adresse de debut (par defaut 0) : ");
+                    String saisieAdresse = scanner.nextLine().trim();
+                    int debut = 0;
+                    if (!saisieAdresse.isEmpty()) {
+                        try {
+                            debut = Integer.parseInt(saisieAdresse);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Adresse invalide, utilisation de 0.");
+                        }
+                    }
+
+                    System.out.print("Nombre de cases a afficher (par defaut 16) : ");
+                    String saisieNombre = scanner.nextLine().trim();
+                    int nombre = 16;
+                    if (!saisieNombre.isEmpty()) {
+                        try {
+                            nombre = Integer.parseInt(saisieNombre);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Nombre invalide, utilisation de 16.");
+                        }
+                    }
+
+                    System.out.println();
+                    afficherMemoire(memory, debut, nombre);
+
+                } else if (sousChoix.equals("b")) {
+
+                    afficherRegistres(registers);
+
+                } else if (sousChoix.equals("c")) {
+
+                    System.out.println("Compteur de programme (PC) = " + cpu.getPC());
+
+                } else {
+                    System.out.println("Choix invalide.");
+                }
+
+            // ----------------------------------------------------------------
+            // Cas 6 : Reinitialiser le CPU
+            // ----------------------------------------------------------------
+            } else if (choix.equals("6")) {
+
+                System.out.println("=== Reinitialiser le CPU ===");
+                System.out.println();
+
+                memory.reset();
+                registers.reset();
+                cpu.reset();
+                assembler = new Assembler(memory);
+                estAssemble = false;
+                System.out.println("CPU, registres et memoire remis a zero.");
+                System.out.println("Le programme saisi est conserve (option 1 pour le modifier).");
+
+            // ----------------------------------------------------------------
+            // Cas 7 : Quitter
+            // ----------------------------------------------------------------
+            } else if (choix.equals("7")) {
+
+                System.out.println("Au revoir !");
+                continuer = false;
+
+            } else {
+                System.out.println("Choix invalide. Entrez un nombre entre 1 et 7.");
+            }
+
+            System.out.println();
+        }
+
+        scanner.close();
     }
 
-    // compare la valeur attendue et la valeur obtenue
-    private static void verifier(String description, int attendu, int obtenu) {
-        if (attendu == obtenu) {
-            System.out.println("  OK    : " + description);
-            nbOk++;
-        } else {
-            System.out.println("  ECHEC : " + description + " (attendu=" + attendu + ", obtenu=" + obtenu + ")");
-            nbEchec++;
+    /**
+     * Affiche la valeur des 16 registres.
+     *
+     * @param registers le banc de registres a afficher
+     */
+    private static void afficherRegistres(RegisterFile registers) {
+        System.out.println("Etat des registres :");
+        for (int i = 0; i < 16; i++) {
+            System.out.println("  R" + i + " = " + (registers.get(i) & 0xFF));
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println("=== Simulateur CPU : test des instructions ===");
-
-        testLoadConst();
-        testAdd();
-        testSub();
-        testMul();
-        testDiv();
-        testLogique(); // and, or, xor dans la meme methode
-        testStore();
-        testLoadMem();
-        testJump();
-        testBeq();
-        testBne();
-        testAccesIndexe();
-
-        System.out.println();
-        System.out.println("=== Bilan : " + nbOk + " OK / " + nbEchec + " ECHEC sur " + (nbOk + nbEchec) + " tests ===");
-    }
-
-    // test de load rX, valeur (la constante va directement dans le registre)
-    private static void testLoadConst() {
-        System.out.println();
-        System.out.println("-- Test 1 : load (constante) --");
-        init();
-        asm.assemble(
-            "load r0, 10\n" +
-            "load r1, 42\n" +
-            "load r15, 127\n" +
-            "break"
-        );
-        cpu.run();
-        verifier("r0 = 10", 10, reg.get(0));
-        verifier("r1 = 42", 42, reg.get(1));
-        verifier("r15 = 127", 127, reg.get(15));
-    }
-
-    // addition : r2 = r0 + r1
-    private static void testAdd() {
-        System.out.println();
-        System.out.println("-- Test 2 : add --");
-        init();
-        asm.assemble(
-            "load r0, 10\n" +
-            "load r1, 20\n" +
-            "add r2, r0, r1\n" +
-            "break"
-        );
-        cpu.run();
-        verifier("r2 = 10 + 20 = 30", 30, reg.get(2));
-    }
-
-    private static void testSub() {
-        System.out.println();
-        System.out.println("-- Test 3 : sub --");
-        init();
-        asm.assemble(
-            "load r0, 15\n" +
-            "load r1, 5\n" +
-            "sub r2, r0, r1\n" +
-            "break"
-        );
-        cpu.run();
-        verifier("r2 = 15 - 5 = 10", 10, reg.get(2));
-    }
-
-    // multiplication : le resultat peut etre grand alors on le met sur 2 registres
-    // 30 * 10 = 300 et 300 = 0x012C donc :
-    //   - l'octet du haut (0x01 = 1) va dans r4
-    //   - l'octet du bas  (0x2C = 44) va dans r5
-    private static void testMul() {
-        System.out.println();
-        System.out.println("-- Test 4 : mul --");
-        init();
-        asm.assemble(
-            "load r0, 30\n" +
-            "load r1, 10\n" +
-            "mul r4, r5, r0, r1\n" +
-            "break"
-        );
-        cpu.run();
-        //System.out.println("r4=" + reg.get(4) + " r5=" + reg.get(5));
-        verifier("r4 = octet haut de 300 = 1", 1, reg.get(4));
-        verifier("r5 = octet bas de 300 = 44", 44, reg.get(5));
-    }
-
-    // division entiere : 30 / 7 donne quotient = 4, reste = 2
-    private static void testDiv() {
-        System.out.println();
-        System.out.println("-- Test 5 : div --");
-        init();
-        asm.assemble(
-            "load r0, 30\n" +
-            "load r1, 7\n" +
-            "div r6, r7, r0, r1\n" +
-            "break"
-        );
-        cpu.run();
-        verifier("r6 = quotient de 30/7 = 4", 4, reg.get(6));
-        verifier("r7 = reste de 30/7 = 2", 2, reg.get(7));
-    }
-
-    // les 3 operations logiques (and, or, xor) dans le meme test pour pas se repeter
-    private static void testLogique() {
-        System.out.println();
-        System.out.println("-- Test 6 : operations logiques (and / or / xor) --");
-
-        // AND : 60 = 0b00111100, 15 = 0b00001111, 60 & 15 = 0b00001100 = 12
-        init();
-        asm.assemble("load r0, 60\nload r1, 15\nand r2, r0, r1\nbreak");
-        cpu.run();
-        verifier("and : 60 & 15 = 12", 12, reg.get(2));
-
-        // OR : 60 | 15 = 0b00111111 = 63
-        init();
-        asm.assemble("load r0, 60\nload r1, 15\nor r2, r0, r1\nbreak");
-        cpu.run();
-        verifier("or : 60 | 15 = 63", 63, reg.get(2));
-
-        // XOR : 60 ^ 15 = 0b00110011 = 51
-        init();
-        asm.assemble("load r0, 60\nload r1, 15\nxor r2, r0, r1\nbreak");
-        cpu.run();
-        verifier("xor : 60 ^ 15 = 51", 51, reg.get(2));
-    }
-
-    // store : ecrit la valeur d'un registre dans la memoire
-    private static void testStore() {
-        System.out.println();
-        System.out.println("-- Test 7 : store --");
-        init();
-        asm.assemble("load r0, 99\nstore r0, @100\nbreak");
-        cpu.run();
-        verifier("memoire[100] = 99", 99, mem.read(100));
-    }
-
-    // load rX, @addr : lit un octet de la memoire dans un registre
-    private static void testLoadMem() {
-        System.out.println();
-        System.out.println("-- Test 8 : load (memoire) --");
-        init();
-        mem.write(200, (byte) 77); // on met une valeur en memoire avant
-        asm.assemble("load r1, @200\nbreak");
-        cpu.run();
-        verifier("r1 = memoire[200] = 77", 77, reg.get(1));
-    }
-
-    // jump : saut inconditionnel (on passe par dessus le code entre les deux)
-    private static void testJump() {
-        System.out.println();
-        System.out.println("-- Test 9 : jump --");
-        init();
-        asm.assemble(
-            "load r0, 5\n" +     // 0-2
-            "jump @9\n" +        // 3-5
-            "load r1, 99\n" +    // 6-8 (saute, donc pas execute)
-            "break"              // 9
-        );
-        cpu.run();
-        verifier("r0 = 5", 5, reg.get(0));
-        verifier("r1 = 0 (saute par le jump)", 0, reg.get(1));
-    }
-
-    // beq : teste les 2 cas (saut pris / saut non pris)
-    private static void testBeq() {
-        System.out.println();
-        System.out.println("-- Test 10 : beq --");
-
-        // cas 1 : r0 == r1 => saut pris, r2 reste a 0
-        init();
-        asm.assemble(
-            "load r0, 7\n" +
-            "load r1, 7\n" +
-            "beq r0, r1, @15\n" +
-            "load r2, 1\n" +
-            "break\n" +
-            "break"
-        );
-        cpu.run();
-        verifier("beq pris : r2 = 0", 0, reg.get(2));
-
-        // cas 2 : r0 != r1 => saut non pris, r2 = 1
-        init();
-        asm.assemble(
-            "load r0, 3\n" +
-            "load r1, 5\n" +
-            "beq r0, r1, @15\n" +
-            "load r2, 1\n" +
-            "break\n" +
-            "break"
-        );
-        cpu.run();
-        verifier("beq non pris : r2 = 1", 1, reg.get(2));
-    }
-
-    // bne : teste les 2 cas (saut pris / saut non pris)
-    private static void testBne() {
-        System.out.println();
-        System.out.println("-- Test 11 : bne --");
-
-        // r0 != r1 => saut pris
-        init();
-        asm.assemble(
-            "load r0, 3\n" +
-            "load r1, 8\n" +
-            "bne r0, r1, @15\n" +
-            "load r2, 1\n" +
-            "break\n" +
-            "break"
-        );
-        cpu.run();
-        verifier("bne pris : r2 = 0", 0, reg.get(2));
-
-        // r0 == r1 => saut non pris
-        init();
-        asm.assemble(
-            "load r0, 5\n" +
-            "load r1, 5\n" +
-            "bne r0, r1, @15\n" +
-            "load r2, 1\n" +
-            "break\n" +
-            "break"
-        );
-        cpu.run();
-        verifier("bne non pris : r2 = 1", 1, reg.get(2));
-    }
-
-    // load / store indexes : l'adresse c'est base + contenu d'un registre
-    private static void testAccesIndexe() {
-        System.out.println();
-        System.out.println("-- Test 12 : load / store indexes --");
-        init();
-        asm.assemble(
-            "load r0, 10\n" +
-            "load r1, 5\n" +
-            "store r0, @100, r1\n" + // memoire[100+5] = 10
-            "load r2, @100, r1\n" +  // r2 = memoire[100+5]
-            "break"
-        );
-        cpu.run();
-        verifier("memoire[105] = 10", 10, mem.read(105));
-        verifier("r2 = 10", 10, reg.get(2));
+    /**
+     * Affiche un bloc de cases memoire.
+     *
+     * @param memory  la memoire a inspecter
+     * @param debut   adresse de la premiere case a afficher
+     * @param nombre  nombre de cases consecutives a afficher
+     */
+    private static void afficherMemoire(Memory memory, int debut, int nombre) {
+        System.out.println("Etat de la memoire (adresses " + debut + " a " + (debut + nombre - 1) + ") :");
+        System.out.println("  Adresse | Valeur");
+        System.out.println("  --------|-------");
+        for (int i = 0; i < nombre; i++) {
+            int adresse = debut + i;
+            if (adresse >= Memory.MEMORY_SIZE) {
+                break;
+            }
+            System.out.println("  " + adresse + "       | " + (memory.read(adresse) & 0xFF));
+        }
     }
 }

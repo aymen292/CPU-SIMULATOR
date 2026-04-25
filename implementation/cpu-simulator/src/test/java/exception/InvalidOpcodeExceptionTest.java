@@ -5,25 +5,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests pour InvalidOpcodeException.
+ * Tests unitaires de la classe InvalidOpcodeException.
+ * Vérifie le message d'erreur et le type de l'exception.
  */
 public class InvalidOpcodeExceptionTest {
 
-    // le message doit contenir le code
+    /**
+     * Vérifie que le message contient bien la valeur de l'opcode inconnu.
+     */
     @Test
     public void testMessage() {
         InvalidOpcodeException e = new InvalidOpcodeException(99);
         assertEquals("Opcode inconnu : 99", e.getMessage());
     }
 
-    // le message varie selon le code
+    /**
+     * Vérifie que le message varie selon la valeur du code passé au constructeur.
+     */
     @Test
     public void testMessageVarie() {
         assertEquals("Opcode inconnu : 0",   new InvalidOpcodeException(0).getMessage());
         assertEquals("Opcode inconnu : 255", new InvalidOpcodeException(255).getMessage());
     }
 
-    // c'est bien une RuntimeException (non verifiee)
+    /**
+     * Vérifie que InvalidOpcodeException est bien une RuntimeException (non vérifiée).
+     */
     @Test
     public void testEstRuntimeException() {
         assertTrue(new InvalidOpcodeException(0) instanceof RuntimeException);

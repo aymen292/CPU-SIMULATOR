@@ -3,19 +3,31 @@ package core;
 import exception.MemoryOutOfBoundsException;
 
 /**
- * Memoire du simulateur. C'est un gros tableau de 65536 octets (64 Ko).
- * Les adresses valides vont de 0 a 65535.
+ * Mémoire principale du simulateur.
+ * Représente un espace de 65 536 octets (64 Ko), adressable de 0 à 65 535.
+ * Toutes les cases sont initialisées à zéro à la construction.
  */
 public class Memory {
 
+    /** Taille totale de la mémoire en octets (64 Ko). */
     public static final int MEMORY_SIZE = 65536;
+
     private byte[] data;
 
+    /**
+     * Crée une mémoire de 65 536 octets, tous initialisés à zéro.
+     */
     public Memory() {
         data = new byte[MEMORY_SIZE];
     }
 
-    // lit un octet a l'adresse donnee
+    /**
+     * Lit l'octet situé à l'adresse donnée.
+     *
+     * @param address adresse à lire, comprise entre 0 et 65 535
+     * @return l'octet stocké à cette adresse
+     * @throws MemoryOutOfBoundsException si l'adresse est hors de la plage valide
+     */
     public byte read(int address) {
         if (address < 0 || address >= MEMORY_SIZE) {
             throw new MemoryOutOfBoundsException(address);
@@ -23,7 +35,13 @@ public class Memory {
         return data[address];
     }
 
-    // ecrit un octet a l'adresse donnee
+    /**
+     * Écrit un octet à l'adresse donnée.
+     *
+     * @param address adresse où écrire, comprise entre 0 et 65 535
+     * @param value   valeur à stocker
+     * @throws MemoryOutOfBoundsException si l'adresse est hors de la plage valide
+     */
     public void write(int address, byte value) {
         if (address < 0 || address >= MEMORY_SIZE) {
             throw new MemoryOutOfBoundsException(address);
@@ -31,15 +49,28 @@ public class Memory {
         data[address] = value;
     }
 
-    // lit une valeur sur 16 bits (2 octets, big-endian)
+    /**
+     * Lit un mot de 16 bits encodé en big-endian à partir de l'adresse donnée.
+     * L'octet de poids fort se trouve à l'adresse, l'octet de poids faible à adresse + 1.
+     *
+     * @param address adresse du premier octet (poids fort)
+     * @return valeur 16 bits non signée, dans la plage [0, 65 535]
+     * @throws MemoryOutOfBoundsException si l'adresse ou l'adresse + 1 est hors limites
+     */
     public int readWord(int address) {
         int high = read(address) & 0xFF;
         int low = read(address + 1) & 0xFF;
-        // le & 0xFF c'est pour eviter que le byte devienne negatif quand on le met dans un int
         return (high << 8) | low;
     }
 
-    // ecrit une valeur sur 16 bits en big endian
+    /**
+     * Écrit un mot de 16 bits en big-endian à partir de l'adresse donnée.
+     * L'octet de poids fort est écrit à l'adresse, l'octet de poids faible à adresse + 1.
+     *
+     * @param address adresse du premier octet (poids fort)
+     * @param value   valeur 16 bits à stocker ; seuls les 16 bits de poids faible sont utilisés
+     * @throws MemoryOutOfBoundsException si l'adresse ou l'adresse + 1 est hors limites
+     */
     public void writeWord(int address, int value) {
         int high = value / 256;
         int low = value % 256;
@@ -47,7 +78,10 @@ public class Memory {
         write(address + 1, (byte) low);
     }
 
-    // remet toute la memoire a zero
+    /**
+     * Remet toutes les cases mémoire à zéro.
+     * L'état précédent est perdu.
+     */
     public void reset() {
         data = new byte[MEMORY_SIZE];
     }
