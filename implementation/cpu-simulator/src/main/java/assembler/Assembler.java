@@ -7,16 +7,6 @@ import instruction.Opcode;
  * Assembleur textuel pour le simulateur de processeur.
  * Transforme un programme écrit en langage d'assemblage en une suite d'octets
  * déposés directement dans la mémoire fournie, en débutant à l'adresse 0.
- *
- * Syntaxe acceptée :
- * - Mnémoniques en minuscules : load, add, store, break, etc.
- * - Opérandes séparées par des virgules ou des espaces.
- * - Registres notés rX où X est un entier entre 0 et 15.
- * - Adresses mémoire préfixées par @ (exemple : @1000, @0xFF).
- * - Constantes entières en décimal ou en hexadécimal (0x...).
- * - Commentaires introduits par ; ou #, ignorés jusqu'en fin de ligne.
- * - Directive "data val1, val2, ..." pour écrire des octets bruts.
- * - Directive "string "texte"" pour écrire les codes ASCII d'une chaîne.
  */
 public class Assembler {
 
@@ -30,8 +20,8 @@ public class Assembler {
      * @param memory mémoire cible qui recevra les octets assemblés
      */
     public Assembler(Memory memory) {
-        this.memory         = memory;
-        this.currentAddress = 0;
+        this.memory = memory;
+        this.currentAddress = 0; // initalisation à l'adresse 0
     }
 
     /**
@@ -39,19 +29,22 @@ public class Assembler {
      * Les lignes vides et les lignes de commentaire (commençant par ; ou #) sont ignorées.
      *
      * @param program programme en langage d'assemblage, lignes séparées par '\n'
-     * @throws IllegalArgumentException si une ligne contient un mnémonique inconnu
+     * @throws IllegalArgumentException si une ligne contient une instruction inconnue
      */
     public void assemble(String program) {
-        String[] lignes = program.split("\n");
+        String[] lignes = program.split("\n"); // Découpe le programme ligne par ligne (séparé par le /n) et les range dans un tableau
 
         for (int i = 0; i < lignes.length; i++) {
-            String ligne = lignes[i].trim();
+            String ligne = lignes[i].trim(); // supprime les espaces vides au début et à la fin des lignes 
 
             if (ligne.isEmpty()) {
-                continue;
+                continue; // On ignore la vide si elle est vide
             }
-            if (ligne.startsWith(";") || ligne.startsWith("#")) {
-                continue;
+            if (ligne.startsWith(";")) {
+                continue; // On ignore la ligne si elle commence par ; car commentaire
+            }
+            if (ligne.startsWith("#")) {
+                continue; // On ignore la ligne si elle commence par ; car commentaire
             }
 
             parseLine(ligne);
@@ -60,13 +53,13 @@ public class Assembler {
 
     /**
      * Analyse et encode une seule ligne d'assemblage.
-     * Supprime les commentaires en fin de ligne, identifie le mnémonique
+     * Supprime les commentaires en fin de ligne, identifie l'instruction
      * et ses opérandes, puis produit les octets correspondants en mémoire.
      * La directive "string" est traitée séparément car elle peut contenir
      * des virgules dans le littéral de chaîne.
      *
      * @param line ligne d'assemblage non vide
-     * @throws IllegalArgumentException si le mnémonique n'est pas reconnu
+     * @throws IllegalArgumentException si l'instruction n'est pas reconnue
      */
     private void parseLine(String line) {
         // on enlève les commentaires en fin de ligne
@@ -84,8 +77,7 @@ public class Assembler {
             int fin   = line.lastIndexOf('"');
             String texte = line.substring(debut, fin);
 
-            for (int i = 0; i < texte.length(); i++) {
-                char c = texte.charAt(i);
+            for (char c : texte.toCharArray()) {
                 writeByte((byte) c);
             }
             return;
@@ -93,129 +85,111 @@ public class Assembler {
 
         // on remplace les virgules par des espaces puis on découpe
         String lineNettoye = line.replace(",", " ");
-        String[] tokens    = lineNettoye.split("\\s+");
-        String mnemonic    = tokens[0].toLowerCase();
+        String[] elements    = lineNettoye.split("\\s+");
+        String instruction = elements[0].toLowerCase();
 
-        if (mnemonic.equals("break")) {
+        if (instruction.equals("break")) {
 
             writeByte((byte) Opcode.BREAK.getCode());
 
-        } else if (mnemonic.equals("load")) {
+        } else if (instruction.equals("load")) {
 
-            int dest = parseRegister(tokens[1]);
+            int dest = parseRegister(elements[1]);
 
-            if (tokens.length == 3) {
-                if (isAddress(tokens[2])) {
+            if (elements.length == 3) {
+                if (isAddress(elements[2])) {
                     // load rX, @adresse
-                    int adresse = parseValue(tokens[2]);
+                    int adresse = parseValue(elements[2]);
                     writeByte((byte) Opcode.LOAD_MEM.getCode());
                     writeByte((byte) dest);
                     writeAddress(adresse);
                 } else {
                     // load rX, valeur (constante)
-                    int valeur = parseValue(tokens[2]);
+                    int valeur = parseValue(elements[2]);
                     writeByte((byte) Opcode.LOAD_CONST.getCode());
                     writeByte((byte) dest);
                     writeByte((byte) valeur);
                 }
             } else {
                 // load rX, @base, rOffset (adressage indexé)
-                int base      = parseValue(tokens[2]);
-                int regOffset = parseRegister(tokens[3]);
+                int base      = parseValue(elements[2]);
+                int regOffset = parseRegister(elements[3]);
                 writeByte((byte) Opcode.LOAD_INDEXED.getCode());
                 writeByte((byte) dest);
                 writeAddress(base);
                 writeByte((byte) regOffset);
             }
 
-        } else if (mnemonic.equals("store")) {
+        } else if (instruction.equals("store")) {
 
-            int src     = parseRegister(tokens[1]);
-            int adresse = parseValue(tokens[2]);
+            int src     = parseRegister(elements[1]);
+            int adresse = parseValue(elements[2]);
 
-            if (tokens.length == 3) {
+            if (elements.length == 3) {
                 // store rX, @adresse
                 writeByte((byte) Opcode.STORE.getCode());
                 writeByte((byte) src);
                 writeAddress(adresse);
             } else {
                 // store rX, @base, rOffset (adressage indexé)
-                int regOffset = parseRegister(tokens[3]);
+                int regOffset = parseRegister(elements[3]);
                 writeByte((byte) Opcode.STORE_INDEXED.getCode());
                 writeByte((byte) src);
                 writeAddress(adresse);
                 writeByte((byte) regOffset);
             }
 
-        } else if (mnemonic.equals("add")) {
+        } else if (instruction.equals("add")) {
 
-            writeInstructionRRR(Opcode.ADD, tokens);
+            writeInstructionRRR(Opcode.ADD, elements);
 
-        } else if (mnemonic.equals("sub")) {
+        } else if (instruction.equals("sub")) {
 
-            writeInstructionRRR(Opcode.SUB, tokens);
+            writeInstructionRRR(Opcode.SUB, elements);
 
-        } else if (mnemonic.equals("and")) {
+        } else if (instruction.equals("and")) {
 
-            writeInstructionRRR(Opcode.AND, tokens);
+            writeInstructionRRR(Opcode.AND, elements);
 
-        } else if (mnemonic.equals("or")) {
+        } else if (instruction.equals("or")) {
 
-            writeInstructionRRR(Opcode.OR, tokens);
+            writeInstructionRRR(Opcode.OR, elements);
 
-        } else if (mnemonic.equals("xor")) {
+        } else if (instruction.equals("xor")) {
 
-            writeInstructionRRR(Opcode.XOR, tokens);
+            writeInstructionRRR(Opcode.XOR, elements);
 
-        } else if (mnemonic.equals("mul")) {
+        } else if (instruction.equals("mul")) {
 
-            int destHaut = parseRegister(tokens[1]);
-            int destBas  = parseRegister(tokens[2]);
-            int regA     = parseRegister(tokens[3]);
-            int regB     = parseRegister(tokens[4]);
+            writeInstructionRRRR(Opcode.MUL, elements);
 
-            writeByte((byte) Opcode.MUL.getCode());
-            writeByte((byte) destHaut);
-            writeByte((byte) destBas);
-            writeByte((byte) regA);
-            writeByte((byte) regB);
+        } else if (instruction.equals("div")) {
 
-        } else if (mnemonic.equals("div")) {
+            writeInstructionRRRR(Opcode.DIV, elements);
 
-            int destQ = parseRegister(tokens[1]);
-            int destR = parseRegister(tokens[2]);
-            int regA  = parseRegister(tokens[3]);
-            int regB  = parseRegister(tokens[4]);
+        } else if (instruction.equals("jump")) {
 
-            writeByte((byte) Opcode.DIV.getCode());
-            writeByte((byte) destQ);
-            writeByte((byte) destR);
-            writeByte((byte) regA);
-            writeByte((byte) regB);
-
-        } else if (mnemonic.equals("jump")) {
-
-            int adresse = parseValue(tokens[1]);
+            int adresse = parseValue(elements[1]);
             writeByte((byte) Opcode.JUMP.getCode());
             writeAddress(adresse);
 
-        } else if (mnemonic.equals("beq")) {
+        } else if (instruction.equals("beq")) {
 
-            writeBranch(Opcode.BEQ, tokens);
+            writeBranch(Opcode.BEQ, elements);
 
-        } else if (mnemonic.equals("bne")) {
+        } else if (instruction.equals("bne")) {
 
-            writeBranch(Opcode.BNE, tokens);
+            writeBranch(Opcode.BNE, elements);
 
-        } else if (mnemonic.equals("data")) {
+        } else if (instruction.equals("data")) {
 
-            for (int i = 1; i < tokens.length; i++) {
-                int valeur = parseValue(tokens[i]);
+            for (int i = 1; i < elements.length; i++) {
+                int valeur = parseValue(elements[i]);
                 writeByte((byte) valeur);
             }
 
         } else {
-            throw new IllegalArgumentException("Mnémonique inconnu : " + mnemonic);
+            throw new IllegalArgumentException("Instruction inconnue : " + instruction);
         }
     }
 
@@ -225,15 +199,36 @@ public class Assembler {
      * Octets produits : [opcode][dest][regA][regB]
      *
      * @param opcode opcode de l'instruction à encoder
-     * @param tokens tableau de tokens de la ligne (tokens[0] = mnémonique, tokens[1..3] = registres)
+     * @param elements tableau de elements de la ligne (elements[0] = instruction, elements[1..3] = registres)
      */
-    private void writeInstructionRRR(Opcode opcode, String[] tokens) {
-        int dest = parseRegister(tokens[1]);
-        int regA = parseRegister(tokens[2]);
-        int regB = parseRegister(tokens[3]);
+    private void writeInstructionRRR(Opcode opcode, String[] elements) {
+        int dest = parseRegister(elements[1]);
+        int regA = parseRegister(elements[2]);
+        int regB = parseRegister(elements[3]);
 
         writeByte((byte) opcode.getCode());
         writeByte((byte) dest);
+        writeByte((byte) regA);
+        writeByte((byte) regB);
+    }
+
+    /**
+     * Encode une instruction au format op rDest1, rDest2, rA, rB (quatre registres).
+     * Utilisé pour MUL et DIV.
+     * Octets produits : [opcode][dest1][dest2][regA][regB]
+     *
+     * @param opcode opcode de l'instruction à encoder
+     * @param elements tableau de elements de la ligne
+     */
+    private void writeInstructionRRRR(Opcode opcode, String[] elements) {
+        int dest1 = parseRegister(elements[1]);
+        int dest2 = parseRegister(elements[2]);
+        int regA  = parseRegister(elements[3]);
+        int regB  = parseRegister(elements[4]);
+
+        writeByte((byte) opcode.getCode());
+        writeByte((byte) dest1);
+        writeByte((byte) dest2);
         writeByte((byte) regA);
         writeByte((byte) regB);
     }
@@ -244,12 +239,12 @@ public class Assembler {
      * Octets produits : [opcode][regA][regB][adresse_haut][adresse_bas]
      *
      * @param opcode opcode du branchement (BEQ ou BNE)
-     * @param tokens tableau de tokens de la ligne (tokens[1..2] = registres, tokens[3] = adresse)
+     * @param elements tableau de elements de la ligne (elements[1..2] = registres, elements[3] = adresse)
      */
-    private void writeBranch(Opcode opcode, String[] tokens) {
-        int regA    = parseRegister(tokens[1]);
-        int regB    = parseRegister(tokens[2]);
-        int adresse = parseValue(tokens[3]);
+    private void writeBranch(Opcode opcode, String[] elements) {
+        int regA    = parseRegister(elements[1]);
+        int regB    = parseRegister(elements[2]);
+        int adresse = parseValue(elements[3]);
 
         writeByte((byte) opcode.getCode());
         writeByte((byte) regA);
@@ -282,47 +277,45 @@ public class Assembler {
     }
 
     /**
-     * Extrait le numéro entier d'un token de registre de la forme rX.
+     * Extrait le numéro entier d'un element de registre de la forme rX.
      * Exemple : "r5" retourne 5, "r15" retourne 15.
      *
-     * @param token token de registre commençant par 'r'
+     * @param element element de registre commençant par 'r'
      * @return numéro du registre sous forme d'entier
      */
-    private int parseRegister(String token) {
-        String numero = token.substring(1);
+    private int parseRegister(String element) {
+        String numero = element.substring(1);
         return Integer.parseInt(numero);
     }
 
     /**
-     * Convertit un token représentant une valeur numérique ou une adresse.
-     * Formats acceptés : décimal ("42"), hexadécimal ("0xFF"), adresse ("@1000", "@0x3E8").
-     * Le préfixe @ est retiré avant l'analyse si présent.
+     * Convertit un element représentant une valeur numérique ou une adresse.
      *
-     * @param token token à analyser
+     * @param element element à analyser
      * @return valeur entière correspondante
-     * @throws NumberFormatException si le token n'est pas un nombre valide
+     * @throws NumberFormatException si le element n'est pas un nombre valide
      */
-    private int parseValue(String token) {
-        if (isAddress(token)) {
-            token = token.substring(1);
+    private int parseValue(String element) {
+        if (isAddress(element)) {
+            element = element.substring(1);
         }
 
-        if (token.startsWith("0x") || token.startsWith("0X")) {
-            String hexa = token.substring(2);
+        if (element.startsWith("0x") || element.startsWith("0X")) {
+            String hexa = element.substring(2);
             return Integer.parseInt(hexa, 16);
         }
 
-        return Integer.parseInt(token);
+        return Integer.parseInt(element);
     }
 
     /**
-     * Indique si un token représente une adresse mémoire.
-     * Un token est considéré comme une adresse s'il commence par '@'.
+     * Indique si un element représente une adresse mémoire.
+     * Un element est considéré comme une adresse s'il commence par '@'.
      *
-     * @param token token à tester
-     * @return true si le token débute par '@', false sinon
+     * @param element element à tester
+     * @return true si le element débute par '@', false sinon
      */
-    private boolean isAddress(String token) {
-        return token.startsWith("@");
+    private boolean isAddress(String element) {
+        return element.startsWith("@");
     }
 }

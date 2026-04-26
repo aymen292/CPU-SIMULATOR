@@ -29,7 +29,9 @@
       "Bash(ls -la *.md)",
       "WebFetch(domain:pixees.fr)",
       "Bash(xargs javac *)",
-      "Bash(echo \"Exit: $?\")"
+      "Bash(echo \"Exit: $?\")",
+      "Bash(mvn test *)",
+      "Bash(\"/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn\" test)"
     ]
   }
 }

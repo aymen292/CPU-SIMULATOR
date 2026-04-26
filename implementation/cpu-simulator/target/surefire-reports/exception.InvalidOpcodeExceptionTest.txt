@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: exception.InvalidOpcodeExceptionTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in exception.InvalidOpcodeExceptionTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in exception.InvalidOpcodeExceptionTest

@@ -1,9 +1,9 @@
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\assembler\AssemblerTest.java
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\core\ALUTest.java
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\core\CPUTest.java
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\core\MemoryTest.java
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\core\RegisterFileTest.java
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\exception\InvalidOpcodeExceptionTest.java
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\exception\MemoryOutOfBoundsExceptionTest.java
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\exception\RegisterOutOfBoundsExceptionTest.java
-C:\Users\Dan\Documents\COURS STRI1A\ProjetJAVA\CPU-SIMULATOR\implementation\cpu-simulator\src\test\java\instruction\OpcodeTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/assembler/AssemblerTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/core/ALUTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/core/CPUTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/core/MemoryTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/core/RegisterFileTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/exception/InvalidOpcodeExceptionTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/exception/MemoryOutOfBoundsExceptionTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/exception/RegisterOutOfBoundsExceptionTest.java
+/Users/bellatrecheaymen/Desktop/Projet_CPO/implementation/cpu-simulator/src/test/java/instruction/OpcodeTest.java

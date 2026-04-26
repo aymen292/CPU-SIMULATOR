@@ -9,8 +9,7 @@ public class ALU {
 
     /**
      * Additionne deux octets signés.
-     * Le résultat est tronqué sur 8 bits ; un dépassement se produit en silence
-     * (exemple : 127 + 1 = -128).
+     * Le résultat est tronqué sur 8 bits ;
      *
      * @param a premier opérande
      * @param b second opérande

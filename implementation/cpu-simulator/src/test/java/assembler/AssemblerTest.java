@@ -232,10 +232,10 @@ public class AssemblerTest {
     }
 
     /**
-     * Vérifie qu'un mnémonique inconnu lève une IllegalArgumentException.
+     * Vérifie qu'une instruction inconnue lève une IllegalArgumentException.
      */
     @Test
-    public void testMnemoniqueInconnu() {
+    public void testInstructionInconnue() {
         assertThrows(IllegalArgumentException.class,
                      () -> assembler.assemble("bidon r0, r1"));
     }
