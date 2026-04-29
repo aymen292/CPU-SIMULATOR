@@ -3,7 +3,6 @@ package core;
 /**
  * Unité Arithmétique et Logique du simulateur.
  * Effectue les calculs sur des opérandes de 8 bits (byte).
- * Elle est sans état : on lui passe les opérandes et elle renvoie le résultat.
  */
 public class ALU {
 
@@ -47,6 +46,7 @@ public class ALU {
     public byte[] mul(byte a, byte b) {
         int resultat = a * b;
 
+        // On coupe le résultat en deux (octet haut et bas) car un seul byte est trop petit pour 127x127.
         int octetHaut = resultat / 256;
         int octetBas  = resultat % 256;
 

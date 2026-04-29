@@ -4,7 +4,7 @@ import instruction.Opcode;
 import exception.InvalidOpcodeException;
 
 /**
- * Processeur central du simulateur.
+ * CPU
  * Implémente le cycle Fetch → Decode → Execute :
  * - Fetch   : lit l'octet pointé par le compteur ordinal (PC) et avance le PC.
  * - Decode  : identifie l'instruction à partir de l'opcode lu.

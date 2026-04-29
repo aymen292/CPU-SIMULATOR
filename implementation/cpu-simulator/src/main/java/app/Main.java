@@ -26,7 +26,7 @@ public class Main {
         String programme = "";
         boolean estAssemble = false;
 
-        System.out.println("=== Simulateur de processeur - Carre Petit Utile ===");
+        System.out.println("=== Simulateur de processeur  ===");
         System.out.println();
 
         boolean continuer = true;
