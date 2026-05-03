@@ -5,6 +5,7 @@ import core.CPU;
 import core.Memory;
 import core.RegisterFile;
 import exception.InvalidOpcodeException;
+import exception.MemoryOutOfBoundsException;
 
 import java.util.Scanner;
 
@@ -25,6 +26,7 @@ public class Main {
 
         String programme = "";
         boolean estAssemble = false;
+        boolean programmeTermine = false;
 
         System.out.println("=== Simulateur de processeur  ===");
         System.out.println();
@@ -106,6 +108,7 @@ public class Main {
                     try {
                         assembler.assemble(programme);
                         estAssemble = true;
+                        programmeTermine = false;
                         System.out.println("Assemblage reussi.");
                         System.out.println("Le programme a ete charge en memoire.");
                         System.out.println("Vous pouvez maintenant l'executer (option 3 ou 4).");
@@ -125,12 +128,19 @@ public class Main {
 
                 if (!estAssemble) {
                     System.out.println("Le programme n'est pas encore assemble. Choisissez l'option 2.");
+                } else if (programmeTermine) {
+                    System.out.println("Le programme est deja termine. Utilisez l'option 6 pour reinitialiser.");
                 } else {
                     try {
                         cpu.run();
+                        programmeTermine = true;
                         System.out.println("Execution terminee.");
                     } catch (InvalidOpcodeException e) {
+                        System.out.println("Erreur d'execution : opcode inconnu - " + e.getMessage());
+                    } catch (ArithmeticException e) {
                         System.out.println("Erreur d'execution : " + e.getMessage());
+                    } catch (MemoryOutOfBoundsException e) {
+                        System.out.println("Erreur d'execution : acces memoire hors limites - " + e.getMessage());
                     }
                 }
 
@@ -144,17 +154,25 @@ public class Main {
 
                 if (!estAssemble) {
                     System.out.println("Le programme n'est pas encore assemble. Choisissez l'option 2.");
+                } else if (programmeTermine) {
+                    System.out.println("Le programme est deja termine. Utilisez l'option 6 pour reinitialiser.");
                 } else {
                     try {
                         boolean enCours = cpu.step();
                         System.out.println("Instruction executee.");
                         if (!enCours) {
+                            programmeTermine = true;
                             System.out.println("BREAK atteint : le programme est termine.");
+                            System.out.println("Utilisez l'option 6 pour reinitialiser avant une nouvelle execution.");
                         } else {
                             System.out.println("Appuyez sur 4 pour executer l'instruction suivante.");
                         }
                     } catch (InvalidOpcodeException e) {
+                        System.out.println("Erreur d'execution : opcode inconnu - " + e.getMessage());
+                    } catch (ArithmeticException e) {
                         System.out.println("Erreur d'execution : " + e.getMessage());
+                    } catch (MemoryOutOfBoundsException e) {
+                        System.out.println("Erreur d'execution : acces memoire hors limites - " + e.getMessage());
                     }
                 }
 
@@ -181,7 +199,12 @@ public class Main {
                     int debut = 0;
                     if (!saisieAdresse.isEmpty()) {
                         try {
-                            debut = Integer.parseInt(saisieAdresse);
+                            int valeurSaisie = Integer.parseInt(saisieAdresse);
+                            if (valeurSaisie < 0 || valeurSaisie >= Memory.MEMORY_SIZE) {
+                                System.out.println("Adresse hors limites [0, " + (Memory.MEMORY_SIZE - 1) + "], utilisation de 0.");
+                            } else {
+                                debut = valeurSaisie;
+                            }
                         } catch (NumberFormatException e) {
                             System.out.println("Adresse invalide, utilisation de 0.");
                         }
@@ -192,7 +215,12 @@ public class Main {
                     int nombre = 16;
                     if (!saisieNombre.isEmpty()) {
                         try {
-                            nombre = Integer.parseInt(saisieNombre);
+                            int valeurSaisie = Integer.parseInt(saisieNombre);
+                            if (valeurSaisie <= 0) {
+                                System.out.println("Nombre invalide (doit etre > 0), utilisation de 16.");
+                            } else {
+                                nombre = valeurSaisie;
+                            }
                         } catch (NumberFormatException e) {
                             System.out.println("Nombre invalide, utilisation de 16.");
                         }
@@ -226,6 +254,7 @@ public class Main {
                 cpu.reset();
                 assembler = new Assembler(memory);
                 estAssemble = false;
+                programmeTermine = false;
                 System.out.println("CPU, registres et memoire remis a zero.");
                 System.out.println("Le programme saisi est conserve (option 1 pour le modifier).");
 
