@@ -11,10 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Tests d'intégration simulant tous les scénarios d'utilisation de Main.java.
- * Chaque test reproduit une séquence d'actions (options 1-7) via assembler + CPU.
- */
 public class MainScenariosTest {
 
     private Memory memory;
@@ -30,7 +26,7 @@ public class MainScenariosTest {
         assembler = new Assembler(memory);
     }
 
-    // Simule option 2 (assembler) + option 3 (run) comme dans Main.java
+    // réinitialise tout, assemble le programme puis l'exécute
     private void assembleAndRun(String programme) throws Exception {
         memory.reset();
         registers.reset();
@@ -40,9 +36,7 @@ public class MainScenariosTest {
         cpu.run();
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 1 : LOAD_CONST + ADD + STORE + BREAK (programme de base)
-    // -------------------------------------------------------------------------
+    // LOAD_CONST + ADD + STORE + BREAK : r0=10, r1=20, r2=30, mémoire[1000]=30
     @Test
     public void testScenarioAddition() throws Exception {
         assembleAndRun(
@@ -59,9 +53,7 @@ public class MainScenariosTest {
         assertFalse(cpu.isRunning());
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 2 : SUB
-    // -------------------------------------------------------------------------
+    // SUB : 50 - 17 = 33
     @Test
     public void testScenarioSoustraction() throws Exception {
         assembleAndRun(
@@ -73,9 +65,7 @@ public class MainScenariosTest {
         assertEquals(33, registers.get(2) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 3 : MUL (résultat 16 bits dans deux registres)
-    // -------------------------------------------------------------------------
+    // MUL : 12 * 11 = 132 → haut(r2)=0, bas(r3)=132
     @Test
     public void testScenarioMultiplication() throws Exception {
         assembleAndRun(
@@ -84,14 +74,11 @@ public class MainScenariosTest {
             "mul r2, r3, r0, r1\n" +
             "break"
         );
-        // 12 × 11 = 132  →  octet haut = 0, octet bas = 132
         assertEquals(0,   registers.get(2) & 0xFF);
         assertEquals(132, registers.get(3) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 4 : DIV (quotient + reste)
-    // -------------------------------------------------------------------------
+    // DIV : 17 / 5 → quotient(r2)=3, reste(r3)=2
     @Test
     public void testScenarioDivision() throws Exception {
         assembleAndRun(
@@ -100,63 +87,43 @@ public class MainScenariosTest {
             "div r2, r3, r0, r1\n" +
             "break"
         );
-        assertEquals(3, registers.get(2) & 0xFF);   // quotient
-        assertEquals(2, registers.get(3) & 0xFF);   // reste
+        assertEquals(3, registers.get(2) & 0xFF);
+        assertEquals(2, registers.get(3) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 5 : DIV par zéro → ArithmeticException (option 3 la capture)
-    // -------------------------------------------------------------------------
+    // DIV par zéro → ArithmeticException
     @Test
     public void testScenarioDivisionParZero() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
-        assembler.assemble(
-            "load r0, 10\n" +
-            "load r1, 0\n" +
-            "div r2, r3, r0, r1\n" +
-            "break"
-        );
+        assembler.assemble("load r0, 10\nload r1, 0\ndiv r2, r3, r0, r1\nbreak");
         assertThrows(ArithmeticException.class, () -> cpu.run());
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 6 : Opcode invalide → InvalidOpcodeException
-    // -------------------------------------------------------------------------
+    // opcode inconnu en mémoire → InvalidOpcodeException
     @Test
     public void testScenarioOpcodeInvalide() throws Exception {
         memory.write(0, (byte) 99);
         assertThrows(InvalidOpcodeException.class, () -> cpu.run());
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 7 : AND / OR / XOR
-    // -------------------------------------------------------------------------
+    // AND / OR / XOR : 12(0b1100) op 10(0b1010)
     @Test
     public void testScenarioOperationsLogiques() throws Exception {
         assembleAndRun(
-            "load r0, 12\n" +   // 0b00001100
-            "load r1, 10\n" +   // 0b00001010
+            "load r0, 12\n" +
+            "load r1, 10\n" +
             "and r2, r0, r1\n" +
             "or  r3, r0, r1\n" +
             "xor r4, r0, r1\n" +
             "break"
         );
-        assertEquals(8,  registers.get(2) & 0xFF);  // 0b00001000
-        assertEquals(14, registers.get(3) & 0xFF);  // 0b00001110
-        assertEquals(6,  registers.get(4) & 0xFF);  // 0b00000110
+        assertEquals(8,  registers.get(2) & 0xFF);  // 0b1000
+        assertEquals(14, registers.get(3) & 0xFF);  // 0b1110
+        assertEquals(6,  registers.get(4) & 0xFF);  // 0b0110
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 8 : JUMP inconditionnel — saute par-dessus une instruction
-    // Layout mémoire :
-    //   0-2  : load r0, 99  (3 octets)
-    //   3-5  : jump @9      (3 octets)
-    //   6-8  : load r1, 55  (3 octets)  ← NE doit PAS être exécuté
-    //   9    : break         (1 octet)
-    // -------------------------------------------------------------------------
+    // JUMP inconditionnel : saute par-dessus "load r1, 55" → r1 reste 0
     @Test
     public void testScenarioJump() throws Exception {
         assembleAndRun(
@@ -166,18 +133,10 @@ public class MainScenariosTest {
             "break"
         );
         assertEquals(99, registers.get(0) & 0xFF);
-        assertEquals(0,  registers.get(1) & 0xFF);  // non modifié
+        assertEquals(0,  registers.get(1) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 9 : BEQ pris (r0 == r1 → saute par-dessus load r2)
-    // Layout :
-    //   0-2  : load r0, 5
-    //   3-5  : load r1, 5
-    //   6-10 : beq r0, r1, @14
-    //   11-13: load r2, 99   ← NE doit PAS être exécuté
-    //   14   : break
-    // -------------------------------------------------------------------------
+    // BEQ pris : r0==r1 → saute par-dessus "load r2, 99" → r2 reste 0
     @Test
     public void testScenarioBeqPris() throws Exception {
         assembleAndRun(
@@ -187,12 +146,10 @@ public class MainScenariosTest {
             "load r2, 99\n" +
             "break"
         );
-        assertEquals(0, registers.get(2) & 0xFF);  // r2 non modifié
+        assertEquals(0, registers.get(2) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 10 : BEQ non pris (r0 != r1 → continue sans sauter)
-    // -------------------------------------------------------------------------
+    // BEQ non pris : r0!=r1 → continue → r2 = 99
     @Test
     public void testScenarioBeqNonPris() throws Exception {
         assembleAndRun(
@@ -202,12 +159,10 @@ public class MainScenariosTest {
             "load r2, 99\n" +
             "break"
         );
-        assertEquals(99, registers.get(2) & 0xFF);  // r2 modifié car saut non pris
+        assertEquals(99, registers.get(2) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 11 : BNE pris (r0 != r1 → saute par-dessus load r2)
-    // -------------------------------------------------------------------------
+    // BNE pris : r0!=r1 → saute par-dessus "load r2, 99" → r2 reste 0
     @Test
     public void testScenarioBnePris() throws Exception {
         assembleAndRun(
@@ -217,12 +172,10 @@ public class MainScenariosTest {
             "load r2, 99\n" +
             "break"
         );
-        assertEquals(0, registers.get(2) & 0xFF);  // r2 non modifié
+        assertEquals(0, registers.get(2) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 12 : BNE non pris (r0 == r1 → continue)
-    // -------------------------------------------------------------------------
+    // BNE non pris : r0==r1 → continue → r2 = 99
     @Test
     public void testScenarioBneNonPris() throws Exception {
         assembleAndRun(
@@ -235,46 +188,29 @@ public class MainScenariosTest {
         assertEquals(99, registers.get(2) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 13 : LOAD_MEM — charge une valeur depuis la mémoire
-    // -------------------------------------------------------------------------
+    // LOAD_MEM : charge la valeur 77 depuis l'adresse 3000
     @Test
     public void testScenarioLoadMem() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
-        assembler.assemble(
-            "load r5, @3000\n" +
-            "break"
-        );
-        memory.write(3000, (byte) 77);  // valeur placée après assemblage
+        assembler.assemble("load r5, @3000\nbreak");
+        memory.write(3000, (byte) 77);
         cpu.run();
         assertEquals(77, registers.get(5) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 14 : LOAD_INDEXED — charge mem[base + r_offset]
-    // -------------------------------------------------------------------------
+    // LOAD_INDEXED : charge mémoire[1000 + r1] avec r1=5, mémoire[1005]=88
     @Test
     public void testScenarioLoadIndexed() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
-        assembler.assemble(
-            "load r1, 5\n" +
-            "load r0, @1000, r1\n" +
-            "break"
-        );
+        assembler.assemble("load r1, 5\nload r0, @1000, r1\nbreak");
         memory.write(1005, (byte) 88);
         cpu.run();
         assertEquals(88, registers.get(0) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 15 : STORE_INDEXED — écrit r_src à mem[base + r_offset]
-    // -------------------------------------------------------------------------
+    // STORE_INDEXED : écrit r0=42 à mémoire[2000 + r1] avec r1=5
     @Test
     public void testScenarioStoreIndexed() throws Exception {
         assembleAndRun(
@@ -286,59 +222,41 @@ public class MainScenariosTest {
         assertEquals(42, memory.read(2005) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 16 : Exécution pas à pas (option 4 répétée)
-    // -------------------------------------------------------------------------
+    // exécution pas à pas : vérifie l'état des registres après chaque step
     @Test
     public void testScenarioStepParStep() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
-        assembler.assemble(
-            "load r0, 10\n" +
-            "load r1, 20\n" +
-            "add r2, r0, r1\n" +
-            "break"
-        );
+        assembler.assemble("load r0, 10\nload r1, 20\nadd r2, r0, r1\nbreak");
 
-        assertTrue(cpu.step());                        // load r0, 10
+        assertTrue(cpu.step());                       // load r0, 10
         assertEquals(10, registers.get(0) & 0xFF);
         assertEquals(0,  registers.get(1) & 0xFF);
 
-        assertTrue(cpu.step());                        // load r1, 20
+        assertTrue(cpu.step());                       // load r1, 20
         assertEquals(20, registers.get(1) & 0xFF);
 
-        assertTrue(cpu.step());                        // add r2, r0, r1
+        assertTrue(cpu.step());                       // add r2, r0, r1
         assertEquals(30, registers.get(2) & 0xFF);
 
-        assertFalse(cpu.step());                       // break → retourne false
+        assertFalse(cpu.step());                      // break → retourne false
         assertFalse(cpu.isRunning());
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 17 : Consultation PC (option 5c) après chaque step
-    // -------------------------------------------------------------------------
+    // PC avance correctement après chaque instruction
     @Test
     public void testScenarioConsulterPC() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
-        assembler.assemble(
-            "load r0, 10\n" +   // 3 octets : adresses 0-2
-            "break"             // 1 octet  : adresse 3
-        );
+        assembler.assemble("load r0, 10\nbreak");
         assertEquals(0, cpu.getPC());
-        cpu.step();              // exécute load r0, 10 (PC avance de 3)
+        cpu.step();   // load r0, 10 → 3 octets → PC = 3
         assertEquals(3, cpu.getPC());
-        cpu.step();              // exécute break (PC avance de 1)
+        cpu.step();   // break → 1 octet → PC = 4
         assertEquals(4, cpu.getPC());
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 18 : Consultation registres (option 5b) — tous les 16 registres
-    // -------------------------------------------------------------------------
+    // les 16 registres ont les bonnes valeurs après exécution
     @Test
     public void testScenarioConsulterRegistres() throws Exception {
         assembleAndRun(
@@ -355,9 +273,7 @@ public class MainScenariosTest {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 19 : Consultation mémoire (option 5a) — lecture directe
-    // -------------------------------------------------------------------------
+    // lecture directe en mémoire après écriture
     @Test
     public void testScenarioConsulterMemoire() throws Exception {
         memory.write(0,  (byte) 42);
@@ -366,13 +282,10 @@ public class MainScenariosTest {
         assertEquals(42,  memory.read(0)  & 0xFF);
         assertEquals(100, memory.read(1)  & 0xFF);
         assertEquals(7,   memory.read(10) & 0xFF);
-        assertEquals(0,   memory.read(2)  & 0xFF);  // case non écrite = 0
+        assertEquals(0,   memory.read(2)  & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 20 : Adresse mémoire hors limites → MemoryOutOfBoundsException
-    //               (adresse invalide en option 5a aurait planté avant fix)
-    // -------------------------------------------------------------------------
+    // adresses hors [0, 65535] → MemoryOutOfBoundsException
     @Test
     public void testScenarioAdresseHorsLimites() throws Exception {
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.read(-1));
@@ -381,86 +294,56 @@ public class MainScenariosTest {
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.write(65536, (byte) 0));
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 21 : Adressage indexé hors limites → MemoryOutOfBoundsException
-    //               base=65500, offset=200 → 65700 > 65535
-    // -------------------------------------------------------------------------
+    // adressage indexé hors limites (base=65500, offset=200 → 65700) → MemoryOutOfBoundsException
     @Test
     public void testScenarioLoadIndexedHorsLimites() throws Exception {
-        // Encodage manuel : LOAD_CONST r0, 200 puis LOAD_INDEXED r1, @65500, r0
         memory.write(0, (byte) 1);     // LOAD_CONST
-        memory.write(1, (byte) 0);     // dest r0
+        memory.write(1, (byte) 0);     // r0
         memory.write(2, (byte) 200);   // valeur 200
         memory.write(3, (byte) 14);    // LOAD_INDEXED
-        memory.write(4, (byte) 1);     // dest r1
-        memory.write(5, (byte) 0xFF);  // base haut : 255
-        memory.write(6, (byte) 0xDC);  // base bas  : 220  → base = 65500
-        memory.write(7, (byte) 0);     // offset_reg = r0 (= 200)
+        memory.write(4, (byte) 1);     // r1
+        memory.write(5, (byte) 0xFF);  // base haut → 65500
+        memory.write(6, (byte) 0xDC);  // base bas
+        memory.write(7, (byte) 0);     // offset = r0 (200)
         memory.write(8, (byte) 0);     // BREAK
-        // 65500 + 200 = 65700 → MemoryOutOfBoundsException
         assertThrows(MemoryOutOfBoundsException.class, () -> cpu.run());
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 22 : Instruction assembleur inconnue → IllegalArgumentException
-    // -------------------------------------------------------------------------
+    // instruction assembleur inconnue → IllegalArgumentException
     @Test
     public void testScenarioInstructionInconnue() throws Exception {
-        assertThrows(IllegalArgumentException.class,
-            () -> assembler.assemble("foobar r0, r1")
-        );
+        assertThrows(IllegalArgumentException.class, () -> assembler.assemble("foobar r0, r1"));
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 23 : Programme vide (commentaires uniquement) → BREAK immédiat
-    // -------------------------------------------------------------------------
+    // programme vide (commentaires uniquement) → BREAK immédiat
     @Test
     public void testScenarioProgrammeVide() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
         assembler.assemble("; commentaire\n# autre commentaire\n\n");
-        // Aucun octet écrit → mémoire[0] = 0 (BREAK par défaut)
         assertEquals(0, memory.read(0));
         cpu.run();
         assertFalse(cpu.isRunning());
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 24 : Réinitialisation (option 6) puis ré-exécution (option 2+3)
-    // -------------------------------------------------------------------------
+    // reset complet puis ré-exécution d'un nouveau programme
     @Test
     public void testScenarioReinitialisationReExecution() throws Exception {
         assembleAndRun("load r0, 42\nbreak");
         assertEquals(42, registers.get(0) & 0xFF);
 
-        // Simulation option 6 (reset)
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
-
-        // Nouveau programme (option 1 + 2 + 3)
         assembler.assemble("load r0, 77\nbreak");
         cpu.run();
         assertEquals(77, registers.get(0) & 0xFF);
         assertEquals(0,  registers.get(1) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 25 : Directive data — octets bruts en mémoire
-    // Layout :
-    //   0-2 : jump @6    (saut par-dessus les données)
-    //   3-5 : data 10, 20, 30
-    //   6-9 : load r0, @3   (charge mem[3] = 10)
-    //   10  : break
-    // -------------------------------------------------------------------------
+    // directive data : jump passe par-dessus les données, puis load les lit
     @Test
     public void testScenarioDirectiveData() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
         assembler.assemble(
             "jump @6\n" +
@@ -472,19 +355,10 @@ public class MainScenariosTest {
         assertEquals(10, registers.get(0) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 26 : Directive string — octets ASCII en mémoire
-    // Layout :
-    //   0-2 : jump @5
-    //   3-4 : string "Hi"  ('H'=72, 'i'=105)
-    //   5-8 : load r0, @3
-    //   9   : break
-    // -------------------------------------------------------------------------
+    // directive string : jump passe par-dessus "Hi", puis load lit 'H'
     @Test
     public void testScenarioDirectiveString() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
         assembler.assemble(
             "jump @5\n" +
@@ -496,44 +370,32 @@ public class MainScenariosTest {
         assertEquals('H', registers.get(0) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 27 : Boucle de comptage avec BNE (programme non trivial)
-    // r0 compte de 0 à 5 ; adresses : add=9, bne=13, break=18
-    // -------------------------------------------------------------------------
+    // boucle avec BNE : r0 compte de 0 à 5
     @Test
     public void testScenarioBoucleComptage() throws Exception {
         assembleAndRun(
             "load r0, 0\n" +
             "load r1, 1\n" +
             "load r2, 5\n" +
-            "add r0, r0, r1\n" +     // adresse 9
-            "bne r0, r2, @9\n" +     // adresse 13 — reboucle si r0 != 5
+            "add r0, r0, r1\n" +    // adresse 9
+            "bne r0, r2, @9\n" +    // reboucle si r0 != 5
             "break"
         );
         assertEquals(5, registers.get(0) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 28 : Adresses hexadécimales dans l'assembleur
-    // -------------------------------------------------------------------------
+    // adresse hexadécimale @0x0064 = 100
     @Test
     public void testScenarioAdresseHexadecimale() throws Exception {
-        memory.reset();
-        registers.reset();
-        cpu.reset();
+        memory.reset(); registers.reset(); cpu.reset();
         assembler = new Assembler(memory);
-        assembler.assemble(
-            "load r0, @0x0064\n" +   // 0x0064 = 100
-            "break"
-        );
+        assembler.assemble("load r0, @0x0064\nbreak");
         memory.write(100, (byte) 55);
         cpu.run();
         assertEquals(55, registers.get(0) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 29 : Commentaires en fin de ligne ignorés
-    // -------------------------------------------------------------------------
+    // commentaires en fin de ligne ignorés
     @Test
     public void testScenarioCommentairesFinDeLigne() throws Exception {
         assembleAndRun(
@@ -543,9 +405,7 @@ public class MainScenariosTest {
         assertEquals(7, registers.get(0) & 0xFF);
     }
 
-    // -------------------------------------------------------------------------
-    // SCENARIO 30 : Adresse limite valide (65535) — lecture et écriture
-    // -------------------------------------------------------------------------
+    // adresse limite 65535 accessible en lecture et écriture
     @Test
     public void testScenarioAdresseLimiteValide() throws Exception {
         memory.write(65535, (byte) 123);

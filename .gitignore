@@ -5,3 +5,6 @@
 CLAUDE.md
 .claude
 settings.local.json
+
+# Maven build output
+target/

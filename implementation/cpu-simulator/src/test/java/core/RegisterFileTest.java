@@ -6,76 +6,53 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Tests unitaires de la classe RegisterFile.
- * Vérifie les lectures, les écritures, les valeurs par défaut,
- * le parcours des 16 registres et la détection des indices hors bornes.
- */
 public class RegisterFileTest {
 
     private RegisterFile registers;
 
-    /**
-     * Crée une nouvelle instance de RegisterFile avant chaque test.
-     */
     @BeforeEach
     public void setUp() throws Exception {
         registers = new RegisterFile();
     }
 
-    /**
-     * Vérifie qu'une valeur écrite dans un registre est bien relue.
-     */
+    // écriture puis lecture → même valeur
     @Test
     public void testGetSet() throws Exception {
         registers.set(5, (byte) 42);
         assertEquals((byte) 42, registers.get(5));
     }
 
-    /**
-     * Vérifie que les 16 registres (r0 à r15) fonctionnent indépendamment.
-     */
+    // les 16 registres fonctionnent indépendamment
     @Test
     public void testAllRegisters() throws Exception {
-        for (int i = 0; i < RegisterFile.NUM_REGISTERS; i++) {
+        for (int i = 0; i < RegisterFile.NUM_REGISTERS; i++)
             registers.set(i, (byte) (i + 1));
-        }
-        for (int i = 0; i < RegisterFile.NUM_REGISTERS; i++) {
+        for (int i = 0; i < RegisterFile.NUM_REGISTERS; i++)
             assertEquals((byte) (i + 1), registers.get(i));
-        }
     }
 
-    /**
-     * Vérifie que tous les registres valent 0 à la construction.
-     */
+    // à la construction tous les registres valent 0
     @Test
     public void testDefaultValue() throws Exception {
-        for (int i = 0; i < RegisterFile.NUM_REGISTERS; i++) {
+        for (int i = 0; i < RegisterFile.NUM_REGISTERS; i++)
             assertEquals((byte) 0, registers.get(i));
-        }
     }
 
-    /**
-     * Vérifie qu'une lecture avec un indice hors de [0, 15] lève une RegisterOutOfBoundsException.
-     */
+    // indice hors [0, 15] en lecture → RegisterOutOfBoundsException
     @Test
     public void testOutOfBoundsGet() throws Exception {
         assertThrows(RegisterOutOfBoundsException.class, () -> registers.get(16));
         assertThrows(RegisterOutOfBoundsException.class, () -> registers.get(-1));
     }
 
-    /**
-     * Vérifie qu'une écriture avec un indice hors de [0, 15] lève une RegisterOutOfBoundsException.
-     */
+    // indice hors [0, 15] en écriture → RegisterOutOfBoundsException
     @Test
     public void testOutOfBoundsSet() throws Exception {
         assertThrows(RegisterOutOfBoundsException.class, () -> registers.set(16, (byte) 0));
         assertThrows(RegisterOutOfBoundsException.class, () -> registers.set(-1, (byte) 0));
     }
 
-    /**
-     * Vérifie que reset remet tous les registres à zéro, y compris les registres précédemment écrits.
-     */
+    // reset → tous les registres reviennent à 0
     @Test
     public void testReset() throws Exception {
         registers.set(3, (byte) 99);
