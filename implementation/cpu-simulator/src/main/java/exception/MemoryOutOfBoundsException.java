@@ -1,8 +1,7 @@
 package exception;
 
 /**
- * Exception levée lorsqu'un accès mémoire cible une adresse hors de la
- * plage valide [0, 65535].
+ * Exception levée lorsqu'un accès mémoire cible une adresse hors de lavplage valide [0, 65535].
  * C'est une exception vérifiée (checked) qui signale soit
  * une erreur dans le programme simulé, soit un bug d'implémentation du CPU.
  */

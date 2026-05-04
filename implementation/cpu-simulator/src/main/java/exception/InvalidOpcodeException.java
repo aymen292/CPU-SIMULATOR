@@ -1,8 +1,7 @@
 package exception;
 
 /**
- * Exception levée lorsque le CPU rencontre un octet qui ne correspond
- * à aucun opcode valide du jeu d'instructions.
+ * Exception levée lorsque le CPU rencontre un octet qui ne correspond à aucun opcode valide du jeu d'instructions.
  * C'est une exception vérifiée (checked) qui interrompt
  * immédiatement l'exécution du programme simulé.
  */
