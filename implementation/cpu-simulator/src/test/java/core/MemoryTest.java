@@ -19,7 +19,7 @@ public class MemoryTest {
      * Crée une nouvelle instance de Memory avant chaque test.
      */
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         memory = new Memory();
     }
 
@@ -27,7 +27,7 @@ public class MemoryTest {
      * Vérifie qu'un octet écrit à une adresse est bien relu à la même adresse.
      */
     @Test
-    public void testReadWriteByte() {
+    public void testReadWriteByte() throws Exception {
         memory.write(100, (byte) 42);
         assertEquals((byte) 42, memory.read(100));
     }
@@ -36,7 +36,7 @@ public class MemoryTest {
      * Vérifie qu'un mot de 16 bits écrit est bien relu à la même adresse.
      */
     @Test
-    public void testReadWriteWord() {
+    public void testReadWriteWord() throws Exception {
         memory.writeWord(200, 1000);
         assertEquals(1000, memory.readWord(200));
     }
@@ -45,7 +45,7 @@ public class MemoryTest {
      * Vérifie qu'une case non écrite vaut 0 par défaut.
      */
     @Test
-    public void testReadDefaultValue() {
+    public void testReadDefaultValue() throws Exception {
         assertEquals((byte) 0, memory.read(5000));
     }
 
@@ -53,7 +53,7 @@ public class MemoryTest {
      * Vérifie que les adresses limites 0 et 65 535 sont accessibles sans erreur.
      */
     @Test
-    public void testBoundaryAddresses() {
+    public void testBoundaryAddresses() throws Exception {
         memory.write(0,     (byte) 1);
         memory.write(65535, (byte) 2);
         assertEquals((byte) 1, memory.read(0));
@@ -64,7 +64,7 @@ public class MemoryTest {
      * Vérifie qu'une lecture hors des bornes [0, 65535] lève une MemoryOutOfBoundsException.
      */
     @Test
-    public void testOutOfBoundsRead() {
+    public void testOutOfBoundsRead() throws Exception {
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.read(65536));
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.read(-1));
     }
@@ -73,7 +73,7 @@ public class MemoryTest {
      * Vérifie qu'une écriture hors des bornes [0, 65535] lève une MemoryOutOfBoundsException.
      */
     @Test
-    public void testOutOfBoundsWrite() {
+    public void testOutOfBoundsWrite() throws Exception {
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.write(65536, (byte) 0));
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.write(-1,    (byte) 0));
     }
@@ -82,7 +82,7 @@ public class MemoryTest {
      * Vérifie que reset remet toutes les cases à zéro, y compris les cases précédemment écrites.
      */
     @Test
-    public void testReset() {
+    public void testReset() throws Exception {
         memory.write(100, (byte) 99);
         memory.reset();
         assertEquals((byte) 0, memory.read(100));

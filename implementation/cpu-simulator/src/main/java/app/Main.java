@@ -15,7 +15,7 @@ import java.util.Scanner;
  */
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -280,7 +280,7 @@ public class Main {
      *
      * @param registers le banc de registres a afficher
      */
-    private static void afficherRegistres(RegisterFile registers) {
+    private static void afficherRegistres(RegisterFile registers) throws exception.RegisterOutOfBoundsException {
         System.out.println("Etat des registres :");
         for (int i = 0; i < 16; i++) {
             System.out.println("  R" + i + " = " + (registers.get(i) & 0xFF));
@@ -294,7 +294,7 @@ public class Main {
      * @param debut   adresse de la premiere case a afficher
      * @param nombre  nombre de cases consecutives a afficher
      */
-    private static void afficherMemoire(Memory memory, int debut, int nombre) {
+    private static void afficherMemoire(Memory memory, int debut, int nombre) throws exception.MemoryOutOfBoundsException {
         System.out.println("Etat de la memoire (adresses " + debut + " a " + (debut + nombre - 1) + ") :");
         System.out.println("  Adresse | Valeur");
         System.out.println("  --------|-------");

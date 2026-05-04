@@ -19,7 +19,7 @@ public class RegisterFileTest {
      * Crée une nouvelle instance de RegisterFile avant chaque test.
      */
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         registers = new RegisterFile();
     }
 
@@ -27,7 +27,7 @@ public class RegisterFileTest {
      * Vérifie qu'une valeur écrite dans un registre est bien relue.
      */
     @Test
-    public void testGetSet() {
+    public void testGetSet() throws Exception {
         registers.set(5, (byte) 42);
         assertEquals((byte) 42, registers.get(5));
     }
@@ -36,7 +36,7 @@ public class RegisterFileTest {
      * Vérifie que les 16 registres (r0 à r15) fonctionnent indépendamment.
      */
     @Test
-    public void testAllRegisters() {
+    public void testAllRegisters() throws Exception {
         for (int i = 0; i < RegisterFile.NUM_REGISTERS; i++) {
             registers.set(i, (byte) (i + 1));
         }
@@ -49,7 +49,7 @@ public class RegisterFileTest {
      * Vérifie que tous les registres valent 0 à la construction.
      */
     @Test
-    public void testDefaultValue() {
+    public void testDefaultValue() throws Exception {
         for (int i = 0; i < RegisterFile.NUM_REGISTERS; i++) {
             assertEquals((byte) 0, registers.get(i));
         }
@@ -59,7 +59,7 @@ public class RegisterFileTest {
      * Vérifie qu'une lecture avec un indice hors de [0, 15] lève une RegisterOutOfBoundsException.
      */
     @Test
-    public void testOutOfBoundsGet() {
+    public void testOutOfBoundsGet() throws Exception {
         assertThrows(RegisterOutOfBoundsException.class, () -> registers.get(16));
         assertThrows(RegisterOutOfBoundsException.class, () -> registers.get(-1));
     }
@@ -68,7 +68,7 @@ public class RegisterFileTest {
      * Vérifie qu'une écriture avec un indice hors de [0, 15] lève une RegisterOutOfBoundsException.
      */
     @Test
-    public void testOutOfBoundsSet() {
+    public void testOutOfBoundsSet() throws Exception {
         assertThrows(RegisterOutOfBoundsException.class, () -> registers.set(16, (byte) 0));
         assertThrows(RegisterOutOfBoundsException.class, () -> registers.set(-1, (byte) 0));
     }
@@ -77,7 +77,7 @@ public class RegisterFileTest {
      * Vérifie que reset remet tous les registres à zéro, y compris les registres précédemment écrits.
      */
     @Test
-    public void testReset() {
+    public void testReset() throws Exception {
         registers.set(3, (byte) 99);
         registers.reset();
         assertEquals((byte) 0, registers.get(3));

@@ -28,10 +28,10 @@ public class MemoryOutOfBoundsExceptionTest {
     }
 
     /**
-     * Vérifie que MemoryOutOfBoundsException est bien une RuntimeException (non vérifiée).
+     * Vérifie que MemoryOutOfBoundsException est bien une Exception vérifiée (checked).
      */
     @Test
-    public void testEstRuntimeException() {
-        assertTrue(new MemoryOutOfBoundsException(0) instanceof RuntimeException);
+    public void testEstException() {
+        assertTrue(new MemoryOutOfBoundsException(0) instanceof Exception);
     }
 }

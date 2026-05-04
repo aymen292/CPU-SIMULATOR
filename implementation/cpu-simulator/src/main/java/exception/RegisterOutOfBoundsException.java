@@ -3,9 +3,9 @@ package exception;
 /**
  * Exception levée lorsqu'un accès au banc de registres utilise un numéro
  * de registre hors de la plage valide [0, 15].
- * C'est une exception non vérifiée (RuntimeException).
+ * C'est une exception vérifiée (checked).
  */
-public class RegisterOutOfBoundsException extends RuntimeException {
+public class RegisterOutOfBoundsException extends Exception {
 
     /**
      * Crée l'exception avec un message indiquant le numéro de registre invalide

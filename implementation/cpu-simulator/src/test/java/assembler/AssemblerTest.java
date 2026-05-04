@@ -20,7 +20,7 @@ public class AssemblerTest {
      * Crée une nouvelle mémoire et un nouvel assembleur avant chaque test.
      */
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         memory = new Memory();
         assembler = new Assembler(memory);
     }
@@ -29,7 +29,7 @@ public class AssemblerTest {
      * Vérifie que "load r3, 42" produit les octets [1, 3, 42].
      */
     @Test
-    public void testAssembleLoadConstante() {
+    public void testAssembleLoadConstante() throws Exception {
         assembler.assemble("load r3, 42");
         assertEquals((byte) 1,  memory.read(0));
         assertEquals((byte) 3,  memory.read(1));
@@ -40,7 +40,7 @@ public class AssemblerTest {
      * Vérifie que "load r0, @1000" produit les octets [2, 0, 0x03, 0xE8].
      */
     @Test
-    public void testAssembleLoadMem() {
+    public void testAssembleLoadMem() throws Exception {
         assembler.assemble("load r0, @1000");
         assertEquals((byte) 2,    memory.read(0));
         assertEquals((byte) 0,    memory.read(1));
@@ -52,7 +52,7 @@ public class AssemblerTest {
      * Vérifie que "load r2, @100, r1" produit les octets [14, 2, 0x00, 0x64, 1].
      */
     @Test
-    public void testAssembleLoadIndexed() {
+    public void testAssembleLoadIndexed() throws Exception {
         assembler.assemble("load r2, @100, r1");
         assertEquals((byte) 14,   memory.read(0));
         assertEquals((byte) 2,    memory.read(1));
@@ -65,7 +65,7 @@ public class AssemblerTest {
      * Vérifie que "store r1, @500" produit les octets [3, 1, 0x01, 0xF4].
      */
     @Test
-    public void testAssembleStore() {
+    public void testAssembleStore() throws Exception {
         assembler.assemble("store r1, @500");
         assertEquals((byte) 3,    memory.read(0));
         assertEquals((byte) 1,    memory.read(1));
@@ -77,7 +77,7 @@ public class AssemblerTest {
      * Vérifie que "store r0, @100, r1" produit les octets [15, 0, 0x00, 0x64, 1].
      */
     @Test
-    public void testAssembleStoreIndexed() {
+    public void testAssembleStoreIndexed() throws Exception {
         assembler.assemble("store r0, @100, r1");
         assertEquals((byte) 15,   memory.read(0));
         assertEquals((byte) 0,    memory.read(1));
@@ -91,7 +91,7 @@ public class AssemblerTest {
      * @0x100 = 256, encodé [0x01, 0x00].
      */
     @Test
-    public void testAdresseHexadecimale() {
+    public void testAdresseHexadecimale() throws Exception {
         assembler.assemble("load r0, @0x100");
         assertEquals((byte) 2,    memory.read(0));
         assertEquals((byte) 0,    memory.read(1));
@@ -103,7 +103,7 @@ public class AssemblerTest {
      * Vérifie que "add r2, r0, r1" produit les octets [4, 2, 0, 1].
      */
     @Test
-    public void testAssembleAdd() {
+    public void testAssembleAdd() throws Exception {
         assembler.assemble("add r2, r0, r1");
         assertEquals((byte) 4, memory.read(0));
         assertEquals((byte) 2, memory.read(1));
@@ -115,7 +115,7 @@ public class AssemblerTest {
      * Vérifie que "sub r2, r0, r1" produit les octets [5, 2, 0, 1].
      */
     @Test
-    public void testAssembleSub() {
+    public void testAssembleSub() throws Exception {
         assembler.assemble("sub r2, r0, r1");
         assertEquals((byte) 5, memory.read(0));
         assertEquals((byte) 2, memory.read(1));
@@ -127,7 +127,7 @@ public class AssemblerTest {
      * Vérifie que "mul r2, r3, r0, r1" produit les octets [6, 2, 3, 0, 1].
      */
     @Test
-    public void testAssembleMul() {
+    public void testAssembleMul() throws Exception {
         assembler.assemble("mul r2, r3, r0, r1");
         assertEquals((byte) 6, memory.read(0));
         assertEquals((byte) 2, memory.read(1));
@@ -140,7 +140,7 @@ public class AssemblerTest {
      * Vérifie que "div r2, r3, r0, r1" produit les octets [7, 2, 3, 0, 1].
      */
     @Test
-    public void testAssembleDiv() {
+    public void testAssembleDiv() throws Exception {
         assembler.assemble("div r2, r3, r0, r1");
         assertEquals((byte) 7, memory.read(0));
         assertEquals((byte) 2, memory.read(1));
@@ -153,7 +153,7 @@ public class AssemblerTest {
      * Vérifie que "and r2, r0, r1" produit les octets [8, 2, 0, 1].
      */
     @Test
-    public void testAssembleAnd() {
+    public void testAssembleAnd() throws Exception {
         assembler.assemble("and r2, r0, r1");
         assertEquals((byte) 8, memory.read(0));
         assertEquals((byte) 2, memory.read(1));
@@ -165,7 +165,7 @@ public class AssemblerTest {
      * Vérifie que "or r2, r0, r1" produit les octets [9, 2, 0, 1].
      */
     @Test
-    public void testAssembleOr() {
+    public void testAssembleOr() throws Exception {
         assembler.assemble("or r2, r0, r1");
         assertEquals((byte) 9, memory.read(0));
         assertEquals((byte) 2, memory.read(1));
@@ -177,7 +177,7 @@ public class AssemblerTest {
      * Vérifie que "xor r2, r0, r1" produit les octets [10, 2, 0, 1].
      */
     @Test
-    public void testAssembleXor() {
+    public void testAssembleXor() throws Exception {
         assembler.assemble("xor r2, r0, r1");
         assertEquals((byte) 10, memory.read(0));
         assertEquals((byte) 2,  memory.read(1));
@@ -189,7 +189,7 @@ public class AssemblerTest {
      * Vérifie que "jump @50" produit les octets [11, 0, 50].
      */
     @Test
-    public void testAssembleJump() {
+    public void testAssembleJump() throws Exception {
         assembler.assemble("jump @50");
         assertEquals((byte) 11, memory.read(0));
         assertEquals((byte) 0,  memory.read(1));
@@ -200,7 +200,7 @@ public class AssemblerTest {
      * Vérifie que "beq r0, r1, @30" produit les octets [12, 0, 1, 0, 30].
      */
     @Test
-    public void testAssembleBeq() {
+    public void testAssembleBeq() throws Exception {
         assembler.assemble("beq r0, r1, @30");
         assertEquals((byte) 12, memory.read(0));
         assertEquals((byte) 0,  memory.read(1));
@@ -213,7 +213,7 @@ public class AssemblerTest {
      * Vérifie que "bne r2, r3, @100" produit les octets [13, 2, 3, 0, 100].
      */
     @Test
-    public void testAssembleBne() {
+    public void testAssembleBne() throws Exception {
         assembler.assemble("bne r2, r3, @100");
         assertEquals((byte) 13,  memory.read(0));
         assertEquals((byte) 2,   memory.read(1));
@@ -226,7 +226,7 @@ public class AssemblerTest {
      * Vérifie que "break" produit l'octet [0].
      */
     @Test
-    public void testAssembleBreak() {
+    public void testAssembleBreak() throws Exception {
         assembler.assemble("break");
         assertEquals((byte) 0, memory.read(0));
     }
@@ -235,7 +235,7 @@ public class AssemblerTest {
      * Vérifie qu'une instruction inconnue lève une IllegalArgumentException.
      */
     @Test
-    public void testInstructionInconnue() {
+    public void testInstructionInconnue() throws Exception {
         assertThrows(IllegalArgumentException.class,
                      () -> assembler.assemble("bidon r0, r1"));
     }
@@ -244,7 +244,7 @@ public class AssemblerTest {
      * Vérifie que la directive "data 0xFF, 0x01, 42" écrit trois octets bruts en mémoire.
      */
     @Test
-    public void testAssembleData() {
+    public void testAssembleData() throws Exception {
         assembler.assemble("data 0xFF, 0x01, 42");
         assertEquals((byte) 0xFF, memory.read(0));
         assertEquals((byte) 0x01, memory.read(1));
@@ -255,7 +255,7 @@ public class AssemblerTest {
      * Vérifie que la directive 'string "hello"' écrit les codes ASCII correspondants.
      */
     @Test
-    public void testAssembleString() {
+    public void testAssembleString() throws Exception {
         assembler.assemble("string \"hello\"");
         assertEquals((byte) 'h', memory.read(0));
         assertEquals((byte) 'e', memory.read(1));
@@ -268,7 +268,7 @@ public class AssemblerTest {
      * Vérifie que les lignes commençant par ";" sont ignorées lors de l'assemblage.
      */
     @Test
-    public void testCommentairesIgnores() {
+    public void testCommentairesIgnores() throws Exception {
         assembler.assemble("; ceci est un commentaire\nbreak");
         assertEquals((byte) 0, memory.read(0));
     }
@@ -278,7 +278,7 @@ public class AssemblerTest {
      * load r0, 10 | load r1, 20 | add r2, r0, r1 | store r2, @1000 | break.
      */
     @Test
-    public void testProgrammeComplet() {
+    public void testProgrammeComplet() throws Exception {
         assembler.assemble(
             "load r0, 10\n"    +
             "load r1, 20\n"    +

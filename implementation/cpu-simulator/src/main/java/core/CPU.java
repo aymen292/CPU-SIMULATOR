@@ -2,6 +2,8 @@ package core;
 
 import instruction.Opcode;
 import exception.InvalidOpcodeException;
+import exception.MemoryOutOfBoundsException;
+import exception.RegisterOutOfBoundsException;
 
 /**
  * CPU
@@ -40,7 +42,7 @@ public class CPU {
      *
      * @throws InvalidOpcodeException si un octet inconnu est rencontré lors du décodage
      */
-    public void run() {
+    public void run() throws InvalidOpcodeException, MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         running = true;
         while (running) {
             byte opcodeByte = fetch();
@@ -55,7 +57,7 @@ public class CPU {
      * @return true si le CPU continue de tourner, false s'il vient de s'arrêter
      * @throws InvalidOpcodeException si l'opcode lu est inconnu
      */
-    public boolean step() {
+    public boolean step() throws InvalidOpcodeException, MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         running = true;
         byte opcodeByte = fetch();
         decode(opcodeByte);
@@ -94,7 +96,7 @@ public class CPU {
      *
      * @return l'octet lu en mémoire
      */
-    private byte fetch() {
+    private byte fetch() throws MemoryOutOfBoundsException {
         byte valeur = memory.read(pc);
         pc = pc + 1;
         return valeur;
@@ -106,7 +108,7 @@ public class CPU {
      * @param opcodeByte octet brut lu depuis la mémoire
      * @throws InvalidOpcodeException si l'opcode ne correspond à aucune instruction connue
      */
-    private void decode(byte opcodeByte) {
+    private void decode(byte opcodeByte) throws InvalidOpcodeException, MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         Opcode opcode = Opcode.fromCode(opcodeByte);
 
         if (opcode == null) {
@@ -159,7 +161,7 @@ public class CPU {
      * LOAD_CONST rDest, valeur : charge une constante 8 bits dans un registre.
      * Format en mémoire : [opcode][dest][valeur]
      */
-    private void executeLoadConst() {
+    private void executeLoadConst() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int dest   = fetch();
         byte value = fetch();
         registers.set(dest, value);
@@ -170,7 +172,7 @@ public class CPU {
      * L'adresse est lue sur 16 bits en big-endian.
      * Format en mémoire : [opcode][dest][adresse_haut][adresse_bas]
      */
-    private void executeLoadMem() {
+    private void executeLoadMem() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int dest    = fetch();
         int adresse = memory.readWord(pc);
         pc = pc + 2;
@@ -183,7 +185,7 @@ public class CPU {
      * L'adresse est lue sur 16 bits en big-endian.
      * Format en mémoire : [opcode][src][adresse_haut][adresse_bas]
      */
-    private void executeStore() {
+    private void executeStore() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int src     = fetch();
         int adresse = memory.readWord(pc);
         pc = pc + 2;
@@ -195,7 +197,7 @@ public class CPU {
      * ADD rDest, rA, rB : calcule r[A] + r[B] et stocke le résultat dans r[dest].
      * Format en mémoire : [opcode][dest][regA][regB]
      */
-    private void executeAdd() {
+    private void executeAdd() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
@@ -209,7 +211,7 @@ public class CPU {
      * SUB rDest, rA, rB : calcule r[A] - r[B] et stocke le résultat dans r[dest].
      * Format en mémoire : [opcode][dest][regA][regB]
      */
-    private void executeSub() {
+    private void executeSub() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
@@ -224,7 +226,7 @@ public class CPU {
      * L'octet de poids fort est stocké dans r[destHigh], le poids faible dans r[destLow].
      * Format en mémoire : [opcode][destHigh][destLow][regA][regB]
      */
-    private void executeMul() {
+    private void executeMul() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int destHaut = fetch();
         int destBas  = fetch();
         int regA     = fetch();
@@ -243,7 +245,7 @@ public class CPU {
      *
      * @throws ArithmeticException si r[B] vaut zéro
      */
-    private void executeDiv() {
+    private void executeDiv() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int destQ = fetch();
         int destR = fetch();
         int regA  = fetch();
@@ -259,7 +261,7 @@ public class CPU {
      * AND rDest, rA, rB : calcule r[A] & r[B] bit à bit et stocke le résultat dans r[dest].
      * Format en mémoire : [opcode][dest][regA][regB]
      */
-    private void executeAnd() {
+    private void executeAnd() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
@@ -273,7 +275,7 @@ public class CPU {
      * OR rDest, rA, rB : calcule r[A] | r[B] bit à bit et stocke le résultat dans r[dest].
      * Format en mémoire : [opcode][dest][regA][regB]
      */
-    private void executeOr() {
+    private void executeOr() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
@@ -287,7 +289,7 @@ public class CPU {
      * XOR rDest, rA, rB : calcule r[A] ^ r[B] bit à bit et stocke le résultat dans r[dest].
      * Format en mémoire : [opcode][dest][regA][regB]
      */
-    private void executeXor() {
+    private void executeXor() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int dest = fetch();
         int regA = fetch();
         int regB = fetch();
@@ -302,7 +304,7 @@ public class CPU {
      * L'adresse est lue sur 16 bits en big-endian immédiatement après l'opcode.
      * Format en mémoire : [opcode][adresse_haut][adresse_bas]
      */
-    private void executeJump() {
+    private void executeJump() throws MemoryOutOfBoundsException {
         int adresse = memory.readWord(pc);
         pc = adresse;
     }
@@ -311,7 +313,7 @@ public class CPU {
      * BEQ rA, rB, @adresse : saute vers l'adresse si r[A] == r[B], sinon continue.
      * Format en mémoire : [opcode][regA][regB][adresse_haut][adresse_bas]
      */
-    private void executeBeq() {
+    private void executeBeq() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int regA    = fetch();
         int regB    = fetch();
         int adresse = memory.readWord(pc);
@@ -326,7 +328,7 @@ public class CPU {
      * BNE rA, rB, @adresse : saute vers l'adresse si r[A] != r[B], sinon continue.
      * Format en mémoire : [opcode][regA][regB][adresse_haut][adresse_bas]
      */
-    private void executeBne() {
+    private void executeBne() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int regA    = fetch();
         int regB    = fetch();
         int adresse = memory.readWord(pc);
@@ -342,7 +344,7 @@ public class CPU {
      * Le registre d'offset est traité comme non signé (0 à 255) grâce au masque & 0xFF.
      * Format en mémoire : [opcode][dest][base_haut][base_bas][regOffset]
      */
-    private void executeLoadIndexed() {
+    private void executeLoadIndexed() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int dest      = fetch();
         int base      = memory.readWord(pc);
         pc = pc + 2;
@@ -360,7 +362,7 @@ public class CPU {
      * Le registre d'offset est traité comme non signé (0 à 255) grâce au masque & 0xFF.
      * Format en mémoire : [opcode][src][base_haut][base_bas][regOffset]
      */
-    private void executeStoreIndexed() {
+    private void executeStoreIndexed() throws MemoryOutOfBoundsException, RegisterOutOfBoundsException {
         int src       = fetch();
         int base      = memory.readWord(pc);
         pc = pc + 2;

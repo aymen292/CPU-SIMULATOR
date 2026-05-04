@@ -23,7 +23,7 @@ public class MainScenariosTest {
     private Assembler assembler;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         memory    = new Memory();
         registers = new RegisterFile();
         cpu       = new CPU(memory, registers);
@@ -31,7 +31,7 @@ public class MainScenariosTest {
     }
 
     // Simule option 2 (assembler) + option 3 (run) comme dans Main.java
-    private void assembleAndRun(String programme) {
+    private void assembleAndRun(String programme) throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -44,7 +44,7 @@ public class MainScenariosTest {
     // SCENARIO 1 : LOAD_CONST + ADD + STORE + BREAK (programme de base)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioAddition() {
+    public void testScenarioAddition() throws Exception {
         assembleAndRun(
             "load r0, 10\n" +
             "load r1, 20\n" +
@@ -63,7 +63,7 @@ public class MainScenariosTest {
     // SCENARIO 2 : SUB
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioSoustraction() {
+    public void testScenarioSoustraction() throws Exception {
         assembleAndRun(
             "load r0, 50\n" +
             "load r1, 17\n" +
@@ -77,7 +77,7 @@ public class MainScenariosTest {
     // SCENARIO 3 : MUL (résultat 16 bits dans deux registres)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioMultiplication() {
+    public void testScenarioMultiplication() throws Exception {
         assembleAndRun(
             "load r0, 12\n" +
             "load r1, 11\n" +
@@ -93,7 +93,7 @@ public class MainScenariosTest {
     // SCENARIO 4 : DIV (quotient + reste)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioDivision() {
+    public void testScenarioDivision() throws Exception {
         assembleAndRun(
             "load r0, 17\n" +
             "load r1, 5\n" +
@@ -108,7 +108,7 @@ public class MainScenariosTest {
     // SCENARIO 5 : DIV par zéro → ArithmeticException (option 3 la capture)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioDivisionParZero() {
+    public void testScenarioDivisionParZero() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -126,7 +126,7 @@ public class MainScenariosTest {
     // SCENARIO 6 : Opcode invalide → InvalidOpcodeException
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioOpcodeInvalide() {
+    public void testScenarioOpcodeInvalide() throws Exception {
         memory.write(0, (byte) 99);
         assertThrows(InvalidOpcodeException.class, () -> cpu.run());
     }
@@ -135,7 +135,7 @@ public class MainScenariosTest {
     // SCENARIO 7 : AND / OR / XOR
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioOperationsLogiques() {
+    public void testScenarioOperationsLogiques() throws Exception {
         assembleAndRun(
             "load r0, 12\n" +   // 0b00001100
             "load r1, 10\n" +   // 0b00001010
@@ -158,7 +158,7 @@ public class MainScenariosTest {
     //   9    : break         (1 octet)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioJump() {
+    public void testScenarioJump() throws Exception {
         assembleAndRun(
             "load r0, 99\n" +
             "jump @9\n" +
@@ -179,7 +179,7 @@ public class MainScenariosTest {
     //   14   : break
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioBeqPris() {
+    public void testScenarioBeqPris() throws Exception {
         assembleAndRun(
             "load r0, 5\n" +
             "load r1, 5\n" +
@@ -194,7 +194,7 @@ public class MainScenariosTest {
     // SCENARIO 10 : BEQ non pris (r0 != r1 → continue sans sauter)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioBeqNonPris() {
+    public void testScenarioBeqNonPris() throws Exception {
         assembleAndRun(
             "load r0, 3\n" +
             "load r1, 7\n" +
@@ -209,7 +209,7 @@ public class MainScenariosTest {
     // SCENARIO 11 : BNE pris (r0 != r1 → saute par-dessus load r2)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioBnePris() {
+    public void testScenarioBnePris() throws Exception {
         assembleAndRun(
             "load r0, 3\n" +
             "load r1, 8\n" +
@@ -224,7 +224,7 @@ public class MainScenariosTest {
     // SCENARIO 12 : BNE non pris (r0 == r1 → continue)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioBneNonPris() {
+    public void testScenarioBneNonPris() throws Exception {
         assembleAndRun(
             "load r0, 5\n" +
             "load r1, 5\n" +
@@ -239,7 +239,7 @@ public class MainScenariosTest {
     // SCENARIO 13 : LOAD_MEM — charge une valeur depuis la mémoire
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioLoadMem() {
+    public void testScenarioLoadMem() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -257,7 +257,7 @@ public class MainScenariosTest {
     // SCENARIO 14 : LOAD_INDEXED — charge mem[base + r_offset]
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioLoadIndexed() {
+    public void testScenarioLoadIndexed() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -276,7 +276,7 @@ public class MainScenariosTest {
     // SCENARIO 15 : STORE_INDEXED — écrit r_src à mem[base + r_offset]
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioStoreIndexed() {
+    public void testScenarioStoreIndexed() throws Exception {
         assembleAndRun(
             "load r0, 42\n" +
             "load r1, 5\n" +
@@ -290,7 +290,7 @@ public class MainScenariosTest {
     // SCENARIO 16 : Exécution pas à pas (option 4 répétée)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioStepParStep() {
+    public void testScenarioStepParStep() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -320,7 +320,7 @@ public class MainScenariosTest {
     // SCENARIO 17 : Consultation PC (option 5c) après chaque step
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioConsulterPC() {
+    public void testScenarioConsulterPC() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -340,7 +340,7 @@ public class MainScenariosTest {
     // SCENARIO 18 : Consultation registres (option 5b) — tous les 16 registres
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioConsulterRegistres() {
+    public void testScenarioConsulterRegistres() throws Exception {
         assembleAndRun(
             "load r0, 1\n" +
             "load r5, 100\n" +
@@ -359,7 +359,7 @@ public class MainScenariosTest {
     // SCENARIO 19 : Consultation mémoire (option 5a) — lecture directe
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioConsulterMemoire() {
+    public void testScenarioConsulterMemoire() throws Exception {
         memory.write(0,  (byte) 42);
         memory.write(1,  (byte) 100);
         memory.write(10, (byte) 7);
@@ -374,7 +374,7 @@ public class MainScenariosTest {
     //               (adresse invalide en option 5a aurait planté avant fix)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioAdresseHorsLimites() {
+    public void testScenarioAdresseHorsLimites() throws Exception {
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.read(-1));
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.read(65536));
         assertThrows(MemoryOutOfBoundsException.class, () -> memory.write(-1,    (byte) 0));
@@ -386,7 +386,7 @@ public class MainScenariosTest {
     //               base=65500, offset=200 → 65700 > 65535
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioLoadIndexedHorsLimites() {
+    public void testScenarioLoadIndexedHorsLimites() throws Exception {
         // Encodage manuel : LOAD_CONST r0, 200 puis LOAD_INDEXED r1, @65500, r0
         memory.write(0, (byte) 1);     // LOAD_CONST
         memory.write(1, (byte) 0);     // dest r0
@@ -405,7 +405,7 @@ public class MainScenariosTest {
     // SCENARIO 22 : Instruction assembleur inconnue → IllegalArgumentException
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioInstructionInconnue() {
+    public void testScenarioInstructionInconnue() throws Exception {
         assertThrows(IllegalArgumentException.class,
             () -> assembler.assemble("foobar r0, r1")
         );
@@ -415,7 +415,7 @@ public class MainScenariosTest {
     // SCENARIO 23 : Programme vide (commentaires uniquement) → BREAK immédiat
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioProgrammeVide() {
+    public void testScenarioProgrammeVide() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -431,7 +431,7 @@ public class MainScenariosTest {
     // SCENARIO 24 : Réinitialisation (option 6) puis ré-exécution (option 2+3)
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioReinitialisationReExecution() {
+    public void testScenarioReinitialisationReExecution() throws Exception {
         assembleAndRun("load r0, 42\nbreak");
         assertEquals(42, registers.get(0) & 0xFF);
 
@@ -457,7 +457,7 @@ public class MainScenariosTest {
     //   10  : break
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioDirectiveData() {
+    public void testScenarioDirectiveData() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -481,7 +481,7 @@ public class MainScenariosTest {
     //   9   : break
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioDirectiveString() {
+    public void testScenarioDirectiveString() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -501,7 +501,7 @@ public class MainScenariosTest {
     // r0 compte de 0 à 5 ; adresses : add=9, bne=13, break=18
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioBoucleComptage() {
+    public void testScenarioBoucleComptage() throws Exception {
         assembleAndRun(
             "load r0, 0\n" +
             "load r1, 1\n" +
@@ -517,7 +517,7 @@ public class MainScenariosTest {
     // SCENARIO 28 : Adresses hexadécimales dans l'assembleur
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioAdresseHexadecimale() {
+    public void testScenarioAdresseHexadecimale() throws Exception {
         memory.reset();
         registers.reset();
         cpu.reset();
@@ -535,7 +535,7 @@ public class MainScenariosTest {
     // SCENARIO 29 : Commentaires en fin de ligne ignorés
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioCommentairesFinDeLigne() {
+    public void testScenarioCommentairesFinDeLigne() throws Exception {
         assembleAndRun(
             "load r0, 7  ; charge 7 dans r0\n" +
             "break       ; fin du programme"
@@ -547,7 +547,7 @@ public class MainScenariosTest {
     // SCENARIO 30 : Adresse limite valide (65535) — lecture et écriture
     // -------------------------------------------------------------------------
     @Test
-    public void testScenarioAdresseLimiteValide() {
+    public void testScenarioAdresseLimiteValide() throws Exception {
         memory.write(65535, (byte) 123);
         assertEquals(123, memory.read(65535) & 0xFF);
     }

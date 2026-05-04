@@ -28,7 +28,7 @@ public class CPUTest {
      * Crée une mémoire, un banc de registres et un CPU vierges avant chaque test.
      */
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         memory = new Memory();
         registers = new RegisterFile();
         cpu = new CPU(memory, registers);
@@ -38,7 +38,7 @@ public class CPUTest {
      * Vérifie que BREAK seul arrête le CPU (isRunning retourne false).
      */
     @Test
-    public void testBreak() {
+    public void testBreak() throws Exception {
         memory.write(0, (byte) 0);
         cpu.run();
         assertFalse(cpu.isRunning());
@@ -48,7 +48,7 @@ public class CPUTest {
      * Vérifie que LOAD_CONST r0, 42 place bien 42 dans r0.
      */
     @Test
-    public void testLoadConst() {
+    public void testLoadConst() throws Exception {
         memory.write(0, (byte) 1);
         memory.write(1, (byte) 0);
         memory.write(2, (byte) 42);
@@ -62,7 +62,7 @@ public class CPUTest {
      * 1000 en big-endian = 0x03, 0xE8.
      */
     @Test
-    public void testLoadMem() {
+    public void testLoadMem() throws Exception {
         memory.write(1000, (byte) 77);
         memory.write(0, (byte) 2);
         memory.write(1, (byte) 1);
@@ -78,7 +78,7 @@ public class CPUTest {
      * 2000 en big-endian = 0x07, 0xD0.
      */
     @Test
-    public void testStore() {
+    public void testStore() throws Exception {
         memory.write(0, (byte) 1);
         memory.write(1, (byte) 2);
         memory.write(2, (byte) 55);
@@ -95,7 +95,7 @@ public class CPUTest {
      * Vérifie que ADD r2, r0, r1 calcule bien r2 = 10 + 20 = 30.
      */
     @Test
-    public void testAdd() {
+    public void testAdd() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 10);
@@ -115,7 +115,7 @@ public class CPUTest {
      * Vérifie que SUB r2, r0, r1 calcule bien r2 = 15 - 5 = 10.
      */
     @Test
-    public void testSub() {
+    public void testSub() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 15);
@@ -136,7 +136,7 @@ public class CPUTest {
      * octet haut dans r2 = 0, octet bas dans r3 = 42.
      */
     @Test
-    public void testMul() {
+    public void testMul() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 6);
@@ -159,7 +159,7 @@ public class CPUTest {
      * quotient dans r2 = 3, reste dans r3 = 2.
      */
     @Test
-    public void testDiv() {
+    public void testDiv() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 17);
@@ -181,7 +181,7 @@ public class CPUTest {
      * Vérifie que AND r2, r0, r1 calcule 0b1100 & 0b1010 = 0b1000 = 8.
      */
     @Test
-    public void testAnd() {
+    public void testAnd() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 0b1100);
@@ -201,7 +201,7 @@ public class CPUTest {
      * Vérifie que OR r2, r0, r1 calcule 0b1100 | 0b0011 = 0b1111 = 15.
      */
     @Test
-    public void testOr() {
+    public void testOr() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 0b1100);
@@ -221,7 +221,7 @@ public class CPUTest {
      * Vérifie que XOR r2, r0, r1 calcule 0b1100 ^ 0b1010 = 0b0110 = 6.
      */
     @Test
-    public void testXor() {
+    public void testXor() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 0b1100);
@@ -241,7 +241,7 @@ public class CPUTest {
      * Vérifie que JUMP @5 redirige le PC vers l'adresse 5, sautant les octets 3 et 4.
      */
     @Test
-    public void testJump() {
+    public void testJump() throws Exception {
         memory.write(0, (byte) 11);
         memory.write(1, (byte) 0);
         memory.write(2, (byte) 5);
@@ -257,7 +257,7 @@ public class CPUTest {
      * Vérifie que BEQ prend le saut quand r0 == r1 : r2 doit rester à 0.
      */
     @Test
-    public void testBeqPris() {
+    public void testBeqPris() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 7);
@@ -282,7 +282,7 @@ public class CPUTest {
      * Vérifie que BEQ ne prend pas le saut quand r0 != r1 : r2 doit valoir 1.
      */
     @Test
-    public void testBeqNonPris() {
+    public void testBeqNonPris() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 3);
@@ -307,7 +307,7 @@ public class CPUTest {
      * Vérifie que BNE prend le saut quand r0 != r1 : r2 doit rester à 0.
      */
     @Test
-    public void testBnePris() {
+    public void testBnePris() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 3);
@@ -332,7 +332,7 @@ public class CPUTest {
      * Vérifie que BNE ne prend pas le saut quand r0 == r1 : r2 doit valoir 1.
      */
     @Test
-    public void testBneNonPris() {
+    public void testBneNonPris() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 4);
@@ -358,7 +358,7 @@ public class CPUTest {
      * r1 = 5, mémoire[1005] = 88, donc r0 doit valoir 88.
      */
     @Test
-    public void testLoadIndexed() {
+    public void testLoadIndexed() throws Exception {
         memory.write(1005, (byte) 88);
         memory.write(0, (byte) 1);
         memory.write(1, (byte) 1);
@@ -378,7 +378,7 @@ public class CPUTest {
      * r0 = 77, r1 = 3, donc mémoire[1003] doit valoir 77.
      */
     @Test
-    public void testStoreIndexed() {
+    public void testStoreIndexed() throws Exception {
         memory.write(0,  (byte) 1);
         memory.write(1,  (byte) 0);
         memory.write(2,  (byte) 77);
@@ -399,7 +399,7 @@ public class CPUTest {
      * Vérifie qu'un opcode inconnu (ex. 99) lève une InvalidOpcodeException.
      */
     @Test
-    public void testOpcodeInvalide() {
+    public void testOpcodeInvalide() throws Exception {
         memory.write(0, (byte) 99);
         assertThrows(InvalidOpcodeException.class, () -> cpu.run());
     }
@@ -408,7 +408,7 @@ public class CPUTest {
      * Vérifie que reset repositionne le PC à 0 et passe running à false.
      */
     @Test
-    public void testReset() {
+    public void testReset() throws Exception {
         memory.write(0, (byte) 1);
         memory.write(1, (byte) 0);
         memory.write(2, (byte) 5);

@@ -1,6 +1,7 @@
 package assembler;
 
 import core.Memory;
+import exception.MemoryOutOfBoundsException;
 import instruction.Opcode;
 
 /**
@@ -31,7 +32,7 @@ public class Assembler {
      * @param program programme en langage d'assemblage, lignes séparées par '\n'
      * @throws IllegalArgumentException si une ligne contient une instruction inconnue
      */
-    public void assemble(String program) {
+    public void assemble(String program) throws MemoryOutOfBoundsException {
         String[] lignes = program.split("\n"); // Découpe le programme ligne par ligne (séparé par le /n) et les range dans un tableau
 
         for (int i = 0; i < lignes.length; i++) {
@@ -61,7 +62,7 @@ public class Assembler {
      * @param line ligne d'assemblage non vide
      * @throws IllegalArgumentException si l'instruction n'est pas reconnue
      */
-    private void parseLine(String line) {
+    private void parseLine(String line) throws MemoryOutOfBoundsException {
         // on enlève les commentaires en fin de ligne
         int indexCommentaire = line.indexOf(';');
         if (indexCommentaire >= 0) {
@@ -201,7 +202,7 @@ public class Assembler {
      * @param opcode opcode de l'instruction à encoder
      * @param elements tableau de elements de la ligne (elements[0] = instruction, elements[1..3] = registres)
      */
-    private void writeInstructionRRR(Opcode opcode, String[] elements) {
+    private void writeInstructionRRR(Opcode opcode, String[] elements) throws MemoryOutOfBoundsException {
         int dest = parseRegister(elements[1]);
         int regA = parseRegister(elements[2]);
         int regB = parseRegister(elements[3]);
@@ -220,7 +221,7 @@ public class Assembler {
      * @param opcode opcode de l'instruction à encoder
      * @param elements tableau de elements de la ligne
      */
-    private void writeInstructionRRRR(Opcode opcode, String[] elements) {
+    private void writeInstructionRRRR(Opcode opcode, String[] elements) throws MemoryOutOfBoundsException {
         int dest1 = parseRegister(elements[1]);
         int dest2 = parseRegister(elements[2]);
         int regA  = parseRegister(elements[3]);
@@ -241,7 +242,7 @@ public class Assembler {
      * @param opcode opcode du branchement (BEQ ou BNE)
      * @param elements tableau de elements de la ligne (elements[1..2] = registres, elements[3] = adresse)
      */
-    private void writeBranch(Opcode opcode, String[] elements) {
+    private void writeBranch(Opcode opcode, String[] elements) throws MemoryOutOfBoundsException {
         int regA    = parseRegister(elements[1]);
         int regB    = parseRegister(elements[2]);
         int adresse = parseValue(elements[3]);
@@ -257,7 +258,7 @@ public class Assembler {
      *
      * @param value octet à écrire
      */
-    private void writeByte(byte value) {
+    private void writeByte(byte value) throws MemoryOutOfBoundsException {
         memory.write(currentAddress, value);
         currentAddress = currentAddress + 1;
     }
@@ -268,7 +269,7 @@ public class Assembler {
      *
      * @param address valeur 16 bits à encoder, comprise entre 0 et 65 535
      */
-    private void writeAddress(int address) {
+    private void writeAddress(int address) throws MemoryOutOfBoundsException {
         int octetHaut = address / 256;
         int octetBas  = address % 256;
 

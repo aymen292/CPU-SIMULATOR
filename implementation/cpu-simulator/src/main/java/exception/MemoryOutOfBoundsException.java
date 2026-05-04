@@ -3,10 +3,10 @@ package exception;
 /**
  * Exception levée lorsqu'un accès mémoire cible une adresse hors de la
  * plage valide [0, 65535].
- * C'est une exception non vérifiée (RuntimeException) qui signale soit
+ * C'est une exception vérifiée (checked) qui signale soit
  * une erreur dans le programme simulé, soit un bug d'implémentation du CPU.
  */
-public class MemoryOutOfBoundsException extends RuntimeException {
+public class MemoryOutOfBoundsException extends Exception {
 
     /**
      * Crée l'exception avec un message indiquant l'adresse invalide.

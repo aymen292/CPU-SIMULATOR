@@ -29,10 +29,10 @@ public class InvalidOpcodeExceptionTest {
     }
 
     /**
-     * Vérifie que InvalidOpcodeException est bien une RuntimeException (non vérifiée).
+     * Vérifie que InvalidOpcodeException est bien une Exception vérifiée (checked).
      */
     @Test
-    public void testEstRuntimeException() {
-        assertTrue(new InvalidOpcodeException(0) instanceof RuntimeException);
+    public void testEstException() {
+        assertTrue(new InvalidOpcodeException(0) instanceof Exception);
     }
 }

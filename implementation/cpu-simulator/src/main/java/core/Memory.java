@@ -29,7 +29,7 @@ public class Memory {
      * @return l'octet stocké à cette adresse
      * @throws MemoryOutOfBoundsException si l'adresse est hors de la plage valide
      */
-    public byte read(int address) {
+    public byte read(int address) throws MemoryOutOfBoundsException {
         if (address < 0 || address >= MEMORY_SIZE) {
             throw new MemoryOutOfBoundsException(address);
         }
@@ -44,7 +44,7 @@ public class Memory {
      * @param value   valeur à stocker
      * @throws MemoryOutOfBoundsException si l'adresse est hors de la plage valide
      */
-    public void write(int address, byte value) {
+    public void write(int address, byte value) throws MemoryOutOfBoundsException {
         if (address < 0 || address >= MEMORY_SIZE) {
             throw new MemoryOutOfBoundsException(address);
         }
@@ -59,7 +59,7 @@ public class Memory {
      * @return valeur 16 bits non signée, dans la plage [0, 65 535]
      * @throws MemoryOutOfBoundsException si l'adresse ou l'adresse + 1 est hors limites
      */
-    public int readWord(int address) {
+    public int readWord(int address) throws MemoryOutOfBoundsException {
         // on lit les deux octets séparément
         byte octetHaut = read(address);
         byte octetBas  = read(address + 1);
@@ -80,7 +80,7 @@ public class Memory {
      * @param value   valeur 16 bits à stocker ; seuls les 16 bits de poids faible sont utilisés
      * @throws MemoryOutOfBoundsException si l'adresse ou l'adresse + 1 est hors limites
      */
-    public void writeWord(int address, int value) {
+    public void writeWord(int address, int value) throws MemoryOutOfBoundsException {
         int octetHaut = value / 256;
         int octetBas  = value % 256;
 

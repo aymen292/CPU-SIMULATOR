@@ -3,10 +3,10 @@ package exception;
 /**
  * Exception levée lorsque le CPU rencontre un octet qui ne correspond
  * à aucun opcode valide du jeu d'instructions.
- * C'est une exception non vérifiée (RuntimeException) qui interrompt
+ * C'est une exception vérifiée (checked) qui interrompt
  * immédiatement l'exécution du programme simulé.
  */
-public class InvalidOpcodeException extends RuntimeException {
+public class InvalidOpcodeException extends Exception {
 
     /**
      * Crée l'exception avec un message indiquant la valeur de l'opcode inconnu.

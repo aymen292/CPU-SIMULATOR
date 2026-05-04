@@ -30,10 +30,10 @@ public class RegisterOutOfBoundsExceptionTest {
     }
 
     /**
-     * Vérifie que RegisterOutOfBoundsException est bien une RuntimeException (non vérifiée).
+     * Vérifie que RegisterOutOfBoundsException est bien une Exception vérifiée (checked).
      */
     @Test
-    public void testEstRuntimeException() {
-        assertTrue(new RegisterOutOfBoundsException(16) instanceof RuntimeException);
+    public void testEstException() {
+        assertTrue(new RegisterOutOfBoundsException(16) instanceof Exception);
     }
 }

@@ -29,7 +29,7 @@ public class RegisterFile {
      * @return valeur 8 bits stockée dans le registre
      * @throws RegisterOutOfBoundsException si index est hors de la plage [0, 15]
      */
-    public byte get(int index) {
+    public byte get(int index) throws RegisterOutOfBoundsException {
         if (index < 0 || index >= NUM_REGISTERS) {
             throw new RegisterOutOfBoundsException(index);
         }
@@ -44,7 +44,7 @@ public class RegisterFile {
      * @param value valeur 8 bits à stocker
      * @throws RegisterOutOfBoundsException si index est hors de la plage [0, 15]
      */
-    public void set(int index, byte value) {
+    public void set(int index, byte value) throws RegisterOutOfBoundsException {
         if (index < 0 || index >= NUM_REGISTERS) {
             throw new RegisterOutOfBoundsException(index);
         }
