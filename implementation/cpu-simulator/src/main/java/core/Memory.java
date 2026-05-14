@@ -3,27 +3,25 @@ package core;
 import exception.MemoryOutOfBoundsException;
 
 /**
- * Mémoire principale du simulateur.
- * Représente un espace de 65 536 octets (64 Ko), adressable de 0 à 65 535.
- * Toutes les cases sont initialisées à zéro à la construction.
+ * Mémoire principale du simulateur
+ * Représente un espace de 65 536 octets (64 Ko), adressable de 0 à 65 535
+ * Toutes les cases sont initialisées à zéro à la construction
  */
 public class Memory {
 
-    /** Taille totale de la mémoire en octets (64 Ko). */
+    /** Taille totale de la mémoire en octets (64 Ko) */
     public static final int MEMORY_SIZE = 65536;
-
     private byte[] data;
-
     /**
-     * Crée une mémoire de 65 536 octets, tous initialisés à zéro.
+     * Crée une mémoire de 65 536 octets, tous initialisés à zéro
      */
     public Memory() {
         data = new byte[MEMORY_SIZE];
     }
 
     /**
-     * Lit l'octet situé à l'adresse donnée.
-     * Lève une MemoryOutOfBoundsException si l'adresse est hors de la plage [0, 65535].
+     * Lit l'octet situé à l'adresse donnée
+     * Lève une MemoryOutOfBoundsException si l'adresse est hors de la plage [0, 65535]
      *
      * @param address adresse à lire, comprise entre 0 et 65 535
      * @return l'octet stocké à cette adresse
@@ -37,11 +35,11 @@ public class Memory {
     }
 
     /**
-     * Écrit un octet à l'adresse donnée.
-     * Lève une MemoryOutOfBoundsException si l'adresse est hors de la plage [0, 65535].
+     * Écrit un octet à l'adresse donnée
+     * Lève une MemoryOutOfBoundsException si l'adresse est hors de la plage [0, 65535]
      *
      * @param address adresse où écrire, comprise entre 0 et 65 535
-     * @param value   valeur à stocker
+     * @param value valeur à stocker
      * @throws MemoryOutOfBoundsException si l'adresse est hors de la plage valide
      */
     public void write(int address, byte value) throws MemoryOutOfBoundsException {
@@ -52,8 +50,8 @@ public class Memory {
     }
 
     /**
-     * Lit un mot de 16 bits encodé en big-endian à partir de l'adresse donnée.
-     * L'octet de poids fort se trouve à l'adresse, l'octet de poids faible à adresse + 1.
+     * Lit un mot de 16 bits encodé en big-endian à partir de l'adresse donnée
+     * L'octet de poids fort se trouve à l'adresse, l'octet de poids faible à adresse + 1
      *
      * @param address adresse du premier octet (poids fort)
      * @return valeur 16 bits non signée, dans la plage [0, 65 535]
@@ -62,35 +60,32 @@ public class Memory {
     public int readWord(int address) throws MemoryOutOfBoundsException {
         // on lit les deux octets séparément
         byte octetHaut = read(address);
-        byte octetBas  = read(address + 1);
-
+        byte octetBas = read(address + 1);
         // on convertit en int non signé avant de les combiner
         int valeurHaute = octetHaut & 0xFF;
         int valeurBasse = octetBas  & 0xFF;
-
         int mot = valeurHaute * 256 + valeurBasse;
         return mot;
     }
 
     /**
-     * Écrit un mot de 16 bits en big-endian à partir de l'adresse donnée.
-     * L'octet de poids fort est écrit à l'adresse, l'octet de poids faible à adresse + 1.
+     * Écrit un mot de 16 bits en big-endian à partir de l'adresse donnée
+     * L'octet de poids fort est écrit à l'adresse, l'octet de poids faible à adresse + 1
      *
      * @param address adresse du premier octet (poids fort)
-     * @param value   valeur 16 bits à stocker ; seuls les 16 bits de poids faible sont utilisés
+     * @param value valeur 16 bits à stocker ; seuls les 16 bits de poids faible sont utilisés
      * @throws MemoryOutOfBoundsException si l'adresse ou l'adresse + 1 est hors limites
      */
     public void writeWord(int address, int value) throws MemoryOutOfBoundsException {
         int octetHaut = value / 256;
-        int octetBas  = value % 256;
-
-        write(address,     (byte) octetHaut);
+        int octetBas = value % 256;
+        write(address, (byte) octetHaut);
         write(address + 1, (byte) octetBas);
     }
 
     /**
-     * Remet toutes les cases mémoire à zéro.
-     * L'état précédent est perdu.
+     * Remet toutes les cases mémoire à zéro
+     * L'état précédent est perdu
      */
     public void reset() {
         data = new byte[MEMORY_SIZE];
