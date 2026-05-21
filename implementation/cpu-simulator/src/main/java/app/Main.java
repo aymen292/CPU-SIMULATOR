@@ -7,6 +7,8 @@ import core.RegisterFile;
 import exception.InvalidOpcodeException;
 import exception.MemoryOutOfBoundsException;
 
+import exception.RegisterOutOfBoundsException;
+
 import java.util.Scanner;
 
 /**
@@ -130,11 +132,13 @@ public class Main {
                         programmeTermine = true;
                         System.out.println("Execution terminee.");
                     } catch (InvalidOpcodeException e) {
-                        System.out.println("Erreur d'execution : opcode inconnu - " + e.getMessage());
+                        System.out.println("Erreur d'execution : opcode inconnu  " + e.getMessage());
                     } catch (ArithmeticException e) {
                         System.out.println("Erreur d'execution : " + e.getMessage());
                     } catch (MemoryOutOfBoundsException e) {
-                        System.out.println("Erreur d'execution : acces memoire hors limites - " + e.getMessage());
+                        System.out.println("Erreur d'execution : acces memoire hors limites  " + e.getMessage());
+                    } catch (RegisterOutOfBoundsException e) {
+                        System.out.println("Erreur d'execution : registre invalide  " + e.getMessage());
                     }
                 }
 
@@ -160,11 +164,13 @@ public class Main {
                             System.out.println("Appuyez sur 4 pour executer l'instruction suivante.");
                         }
                     } catch (InvalidOpcodeException e) {
-                        System.out.println("Erreur d'execution : opcode inconnu - " + e.getMessage());
+                        System.out.println("Erreur d'execution : opcode inconnu  " + e.getMessage());
                     } catch (ArithmeticException e) {
                         System.out.println("Erreur d'execution : " + e.getMessage());
                     } catch (MemoryOutOfBoundsException e) {
-                        System.out.println("Erreur d'execution : acces memoire hors limites - " + e.getMessage());
+                        System.out.println("Erreur d'execution : acces memoire hors limites " + e.getMessage());
+                    } catch (RegisterOutOfBoundsException e) {
+                        System.out.println("Erreur d'execution : registre invalide  " + e.getMessage());
                     }
                 }
 
@@ -267,7 +273,7 @@ public class Main {
      *
      * @param registers le banc de registres
      */
-    private static void afficherRegistres(RegisterFile registers) throws exception.RegisterOutOfBoundsException {
+    private static void afficherRegistres(RegisterFile registers) throws RegisterOutOfBoundsException {
         System.out.println("Etat des registres :");
         for (int i = 0; i < 16; i++) {
             System.out.println("  R" + i + " = " + (registers.get(i) & 0xFF));
@@ -281,7 +287,7 @@ public class Main {
      * @param debut   adresse de depart
      * @param nombre  nombre de cases a afficher
      */
-    private static void afficherMemoire(Memory memory, int debut, int nombre) throws exception.MemoryOutOfBoundsException {
+    private static void afficherMemoire(Memory memory, int debut, int nombre) throws MemoryOutOfBoundsException {
         System.out.println("Etat de la memoire (adresses " + debut + " a " + (debut + nombre - 1) + ") :");
         System.out.println("  Adresse | Valeur");
         System.out.println("  --------|-------");

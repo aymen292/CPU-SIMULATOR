@@ -2,7 +2,7 @@ package exception;
 
 /**
  * Exception levée lorsqu'un accès au banc de registres utilise un numéro de registre hors de la plage valide [0, 15].
- * C'est une exception vérifiée (checked).
+ * C'est une exception vérifiée (checked) , le compilateur obliger à les gerer
  */
 public class RegisterOutOfBoundsException extends Exception {
 
