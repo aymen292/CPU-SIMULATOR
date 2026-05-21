@@ -56,12 +56,7 @@ public class Main {
 
                 System.out.println("=== Ecrire un programme en assembleur ===");
                 System.out.println();
-                System.out.println("Instructions disponibles :");
-                System.out.println("  Instructions de base   : load, store, break");
-                System.out.println("  Operations ALU         : add, sub, mul, div, and, or, xor");
-                System.out.println("  Sauts et branchements  : jump, beq, bne");
-                System.out.println("  Adressage indexe       : load rX, @base, rY  /  store rX, @base, rY");
-                System.out.println("  Donnees en memoire     : data val1, val2, ...  /  string \"texte\"");
+                System.out.println("Instructions disponibles : load, store, add, sub, mul, div, and, or, xor, jump, beq, bne, break, data, string");
                 System.out.println();
                 System.out.println("Entrez votre programme ligne par ligne.");
                 System.out.println("Laissez une ligne vide pour terminer.");
