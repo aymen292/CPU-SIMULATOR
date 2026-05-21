@@ -42,17 +42,13 @@ public class ALU {
     public byte[] mul(byte a, byte b) {
         int produit = a * b;
 
-        // limite du byte : un byte peut stocker des valeurs entre -127 et 128 
-        // Or le produit de deux bytes peut largement depasser cette valeur
-        // donc on utilise deux bytes pour representer 16 bits
-        byte octetHaut = (byte) (produit >> 8);
-        byte octetBas  = (byte) produit;
-
-        byte[] resultat = new byte[2];
-        resultat[0] = octetHaut;
-        resultat[1] = octetBas;
-
-        return resultat;
+        // limite du byte : un byte peut stocker des valeurs entre -127 et 128
+        // sauf que le produit de deux bytes peut largement depasser cette valeur
+        // dOnc on utilise deux bytes pour representer 16 bits
+        return new byte[] {
+            (byte) (produit >> 8),
+            (byte) produit
+        };
     }
 
     /**
@@ -65,19 +61,16 @@ public class ALU {
      * @throws ArithmeticException si b vaut zéro
      */
     public byte[] div(byte a, byte b) {
-        if (b == 0) {
-            throw new ArithmeticException("Division par zéro interdite");
-        }
-
-        byte quotient = (byte) (a / b);
-        byte reste    = (byte) (a % b);
-
-        byte[] resultat = new byte[2];
-        resultat[0] = quotient;
-        resultat[1] = reste;
-
-        return resultat;
+    if (b == 0) {
+        throw new ArithmeticException("Division par zéro interdite");
     }
+
+    // On crée et on remplit le tableau directement avec le quotient et le reste
+    return new byte[] {
+        (byte) (a / b), // Position 0 : le quotient
+        (byte) (a % b)  // Position 1 : le reste
+    };
+}
 
     /**
      * Calcule le ET logique bit à bit de a et b.
