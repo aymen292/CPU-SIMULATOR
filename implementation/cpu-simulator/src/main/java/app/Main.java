@@ -32,20 +32,20 @@ public class Main {
         boolean programmeTermine = false;
         boolean continuer = true;
 
-        System.out.println("=== Simulateur de processeur  ===");
+        System.out.println("Simulateur de processeur  ");
         System.out.println();
 
         while (continuer) {
 
             // Affichage du menu
-            System.out.println("--- Menu principal ---");
-            System.out.println("1 - Ecrire un programme en assembleur");
-            System.out.println("2 - Assembler le programme");
-            System.out.println("3 - Executer le programme");
-            System.out.println("4 - Executer pas a pas");
-            System.out.println("5 - Consulter l'etat du simulateur");
-            System.out.println("6 - Reinitialiser le CPU");
-            System.out.println("7 - Quitter");
+            System.out.println("Menu principal ");
+            System.out.println("1 : Ecrire un programme en assembleur");
+            System.out.println("2 : Assembler le programme");
+            System.out.println("3 : Executer le programme");
+            System.out.println("4 : Executer pas a pas");
+            System.out.println("5 : Consulter l'etat du simulateur");
+            System.out.println("6 : Reinitialiser le CPU");
+            System.out.println("7 : Quitter");
             System.out.print("Votre choix : ");
 
             String choix = scanner.nextLine().trim();
@@ -54,12 +54,12 @@ public class Main {
             // Option 1 : saisie du programme
             if (choix.equals("1")) {
 
-                System.out.println("=== Ecrire un programme en assembleur ===");
+                System.out.println(" Ecrire un programme en assembleur");
                 System.out.println();
                 System.out.println("Instructions disponibles : load, store, add, sub, mul, div, and, or, xor, jump, beq, bne, break, data, string");
                 System.out.println();
-                System.out.println("Entrez votre programme ligne par ligne.");
-                System.out.println("Laissez une ligne vide pour terminer.");
+                System.out.println("Entrez votre programme ligne par ligne");
+                System.out.println("Laissez une ligne vide pour terminer");
                 System.out.println();
 
                 StringBuilder sb = new StringBuilder();
@@ -87,7 +87,7 @@ public class Main {
             // Option 2 : assemblage du programme
             } else if (choix.equals("2")) {
 
-                System.out.println("=== Assembler le programme ===");
+                System.out.println("Assembler le programme ");
                 System.out.println();
 
                 if (programme.isEmpty()) {
@@ -115,7 +115,7 @@ public class Main {
             // Option 3 : execution complete
             } else if (choix.equals("3")) {
 
-                System.out.println("=== Executer le programme ===");
+                System.out.println("Executer le programme ");
                 System.out.println();
 
                 if (!estAssemble) {
@@ -139,7 +139,7 @@ public class Main {
             // Option 4 : execution pas a pas
             } else if (choix.equals("4")) {
 
-                System.out.println("=== Executer pas a pas ===");
+                System.out.println("Executer pas a pas ");
                 System.out.println();
 
                 if (!estAssemble) {
@@ -172,9 +172,9 @@ public class Main {
                 System.out.println("=== Consulter l'etat du simulateur ===");
                 System.out.println();
                 System.out.println("Que voulez-vous consulter ?");
-                System.out.println("  a - Etat de la memoire");
-                System.out.println("  b - Etat des registres");
-                System.out.println("  c - Compteur de programme (PC)");
+                System.out.println("  a : Etat de la memoire");
+                System.out.println("  b : Etat des registres");
+                System.out.println("  c : Compteur de programme (PC)");
                 System.out.print("Votre choix : ");
 
                 String sousChoix = scanner.nextLine().trim().toLowerCase();
