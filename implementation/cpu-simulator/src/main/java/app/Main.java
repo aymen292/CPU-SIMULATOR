@@ -56,13 +56,13 @@ public class Main {
 
                 System.out.println(" Ecrire un programme en assembleur");
                 System.out.println();
-                System.out.println("Instructions disponibles : load, store, add, sub, mul, div, and, or, xor, jump, beq, bne, break, data, string");
+                System.out.println("Instructions disponibles : load, store, add, sub, mul, div, and, or, xor, jump, beq, bne, break, data");
                 System.out.println();
                 System.out.println("Entrez votre programme ligne par ligne");
                 System.out.println("Laissez une ligne vide pour terminer");
                 System.out.println();
 
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(); // Accumulateur des lignes du programme saisi par l'utilisateur
                 int nbLignes = 0;
 
                 while (true) {
@@ -74,10 +74,11 @@ public class Main {
                     sb.append(ligne).append("\n");
                     nbLignes++;
                 }
-
+                // dans le cas ou l'utilisateur ne saisit rien 
                 if (nbLignes == 0) {
                     System.out.println("Aucune ligne saisie, programme inchange.");
                 } else {
+                    // Sinon on affiche le nombre de ligne qu'il a saisi et qu'il faut assemble
                     programme = sb.toString();
                     estAssemble = false;
                     System.out.println(nbLignes + " ligne(s) saisie(s).");
@@ -90,6 +91,7 @@ public class Main {
                 System.out.println("Assembler le programme ");
                 System.out.println();
 
+                // Vérification qu'il ya bien un programme qui a été saisi afin d'assembler
                 if (programme.isEmpty()) {
                     System.out.println("Aucun programme a assembler. Ecrivez d'abord un programme (option 1).");
                 } else {
@@ -250,6 +252,7 @@ public class Main {
                 continuer = false;
 
             } else {
+                // cas utilisateur choisi un numéro non compris entre 1 et 7 
                 System.out.println("Choix invalide. Entrez un nombre entre 1 et 7.");
             }
 
