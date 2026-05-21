@@ -10,11 +10,14 @@ import exception.MemoryOutOfBoundsException;
 import java.util.Scanner;
 
 /**
- * Interface en ligne de commande du simulateur de processeur.
- * ecrire un programme, assembler, executer, consulter l'etat et reinitialiser.
+ * Point d'entree du simulateur de processeur.
+ * Permet d'ecrire, assembler, executer et inspecter un programme en assembleur.
  */
 public class Main {
 
+    /**
+     * Lance le menu principal en boucle jusqu'a ce que l'utilisateur quitte.
+     */
     public static void main(String[] args) throws Exception {
 
         Scanner scanner = new Scanner(System.in);
@@ -27,14 +30,14 @@ public class Main {
         String programme = "";
         boolean estAssemble = false;
         boolean programmeTermine = false;
+        boolean continuer = true;
 
         System.out.println("=== Simulateur de processeur  ===");
         System.out.println();
 
-        boolean continuer = true;
-
         while (continuer) {
 
+            // Affichage du menu
             System.out.println("--- Menu principal ---");
             System.out.println("1 - Ecrire un programme en assembleur");
             System.out.println("2 - Assembler le programme");
@@ -48,9 +51,7 @@ public class Main {
             String choix = scanner.nextLine().trim();
             System.out.println();
 
-            // ----------------------------------------------------------------
-            // Cas 1 : Ecrire un programme en assembleur
-            // ----------------------------------------------------------------
+            // Option 1 : saisie du programme
             if (choix.equals("1")) {
 
                 System.out.println("=== Ecrire un programme en assembleur ===");
@@ -88,9 +89,7 @@ public class Main {
                     System.out.println("Pensez a choisir l'option 2 pour assembler le programme.");
                 }
 
-            // ----------------------------------------------------------------
-            // Cas 2 : Assembler le programme (inclut le chargement en memoire)
-            // ----------------------------------------------------------------
+            // Option 2 : assemblage du programme
             } else if (choix.equals("2")) {
 
                 System.out.println("=== Assembler le programme ===");
@@ -99,7 +98,7 @@ public class Main {
                 if (programme.isEmpty()) {
                     System.out.println("Aucun programme a assembler. Ecrivez d'abord un programme (option 1).");
                 } else {
-                    // reinitialisation avant chargement en memoire
+                    // Reinitialisation avant chargement en memoire
                     memory.reset();
                     registers.reset();
                     cpu.reset();
@@ -118,9 +117,7 @@ public class Main {
                     }
                 }
 
-            // ----------------------------------------------------------------
-            // Cas 3 : Executer le programme
-            // ----------------------------------------------------------------
+            // Option 3 : execution complete
             } else if (choix.equals("3")) {
 
                 System.out.println("=== Executer le programme ===");
@@ -144,9 +141,7 @@ public class Main {
                     }
                 }
 
-            // ----------------------------------------------------------------
-            // Cas 4 : Executer pas a pas
-            // ----------------------------------------------------------------
+            // Option 4 : execution pas a pas
             } else if (choix.equals("4")) {
 
                 System.out.println("=== Executer pas a pas ===");
@@ -176,9 +171,7 @@ public class Main {
                     }
                 }
 
-            // ----------------------------------------------------------------
-            // Cas 5 : Consulter l'etat du simulateur
-            // ----------------------------------------------------------------
+            // Option 5 : consultation de l'etat
             } else if (choix.equals("5")) {
 
                 System.out.println("=== Consulter l'etat du simulateur ===");
@@ -241,9 +234,7 @@ public class Main {
                     System.out.println("Choix invalide.");
                 }
 
-            // ----------------------------------------------------------------
-            // Cas 6 : Reinitialiser le CPU
-            // ----------------------------------------------------------------
+            // Option 6 : reinitialisation
             } else if (choix.equals("6")) {
 
                 System.out.println("=== Reinitialiser le CPU ===");
@@ -258,9 +249,7 @@ public class Main {
                 System.out.println("CPU, registres et memoire remis a zero.");
                 System.out.println("Le programme saisi est conserve (option 1 pour le modifier).");
 
-            // ----------------------------------------------------------------
-            // Cas 7 : Quitter
-            // ----------------------------------------------------------------
+            // Option 7 : quitter
             } else if (choix.equals("7")) {
 
                 continuer = false;
@@ -278,7 +267,7 @@ public class Main {
     /**
      * Affiche la valeur des 16 registres.
      *
-     * @param registers le banc de registres a afficher
+     * @param registers le banc de registres
      */
     private static void afficherRegistres(RegisterFile registers) throws exception.RegisterOutOfBoundsException {
         System.out.println("Etat des registres :");
@@ -290,9 +279,9 @@ public class Main {
     /**
      * Affiche un bloc de cases memoire.
      *
-     * @param memory  la memoire a inspecter
-     * @param debut   adresse de la premiere case a afficher
-     * @param nombre  nombre de cases consecutives a afficher
+     * @param memory  la memoire
+     * @param debut   adresse de depart
+     * @param nombre  nombre de cases a afficher
      */
     private static void afficherMemoire(Memory memory, int debut, int nombre) throws exception.MemoryOutOfBoundsException {
         System.out.println("Etat de la memoire (adresses " + debut + " a " + (debut + nombre - 1) + ") :");
